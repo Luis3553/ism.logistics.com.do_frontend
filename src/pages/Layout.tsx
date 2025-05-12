@@ -1,0 +1,30 @@
+import { Header } from "../components/layout/Header";
+import { Footer } from "../components/layout/Footer";
+import { MobileHeader } from "../components/layout/MobileHeader";
+import { Outlet, useLocation } from "react-router-dom";
+import { Transition } from "@headlessui/react";
+
+export const Layout = () => {
+    const location = useLocation();
+    return (
+        <div className="flex flex-col bg-[var(--background-color)]">
+            <Header />
+            <MobileHeader />
+            <Transition
+                key={location.key}
+                className={"flex flex-col w-full mx-auto mt-4 max-w-9/10 grow min-h-[551px] "}
+                appear
+                show={true}
+                enter="transition-opacity duration-300"
+                leave="transition-opacity duration-300"
+                enterFrom="opacity-0"
+                enterTo="opacity-100"
+                leaveFrom="opacity-100"
+                leaveTo="opacity-0"
+                as={"main"}>
+                <Outlet />
+            </Transition>
+            <Footer />
+        </div>
+    );
+};

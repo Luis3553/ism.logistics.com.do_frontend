@@ -1,0 +1,78 @@
+@import "tailwindcss";
+@import "./assets/mingCuteIcons/MingCute.css";
+@import "rsuite/DatePicker/styles/index.css";
+
+:root {
+    --blue: #049cdb;
+    --light-blue: #cdebf8;
+    --dark-blue: #005174;
+    --light-gray: #f3f4f6;
+    --gray: #6d7080;
+    --dark-gray: #4c5058;
+    --background-color: #f3f6f9;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+[class^="mgc_"]::before,
+[class*=" mgc_"]::before {
+    color: inherit !important;
+}
+
+.highcharts-credits {
+    display: none;
+}
+
+.form-select {
+    width: 100%;
+    appearance: none;
+    border-radius: 0.375rem;
+    background-color: white;
+    padding: 0.375rem 2rem 0.375rem 0.75rem;
+    font-size: 1rem;
+    color: rgb(17, 24, 39);
+    outline: 1px solid rgb(209, 213, 219);
+    outline-offset: -1px;
+}
+
+.form-select:focus {
+    outline-width: 2px;
+    outline-offset: -2px;
+    outline-color: var(--blue);
+}
+
+@media (min-width: 640px) {
+    .form-select {
+        font-size: 0.875rem;
+        line-height: 1.5rem;
+    }
+    .form-select-icon {
+        width: 1rem;
+        height: 1rem;
+    }
+}
+
+.form-select-wrapper {
+    min-width: fit-content;
+    display: grid;
+    grid-template-columns: 1fr;
+    position: relative;
+}
+
+.form-select-icon {
+    pointer-events: none;
+    position: absolute;
+    right: 0.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1.25rem;
+    height: 1.25rem;
+    color: rgb(107, 114, 128);
+}
