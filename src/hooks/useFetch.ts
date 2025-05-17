@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useState } from "react";
-import api from "../api";
+import api from "@api/index";
 
 export const useFetch = <T>(path: string) => {
     const [data, setData] = useState<T>(null as T);
     const [isLoading, setIsLoading] = useState(true);
+    const [isFirsTime, setIsFirsTime] = useState(true);
     const [error, setError] = useState(false);
 
     const fetcher = useCallback(async () => {
+        
         setError(false);
-        setIsLoading(true);
+        if (isFirsTime) {
+            setIsLoading(true);
+            setIsFirsTime(false);
+        }
         try {
             const response = await api.get(path);
             if (response.status < 200 || response.status >= 300) {
@@ -21,11 +26,11 @@ export const useFetch = <T>(path: string) => {
         } finally {
             setIsLoading(false);
         }
-    }, []);
+    }, [path]);
 
     useEffect(() => {
         fetcher();
-    }, []);
+    }, [path]);
 
     return { isLoading, data, fetcher, error, setData };
 };

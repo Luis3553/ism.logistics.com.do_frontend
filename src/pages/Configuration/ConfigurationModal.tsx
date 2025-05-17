@@ -115,13 +115,13 @@ export const ConfigurationModal = ({ onClose }: ConfigurationModalProps) => {
                 <button
                     disabled={areConfiguratinosLoading || isDefaultOptionsLoading || isConfigSaving}
                     onClick={addRecord}
-                    className="disabled:border-[var(--blue)]/50 disabled:text-[var(--blue)]/50 disabled:hover:text-white/50 disabled:cursor-wait flex mt-4 items-center justify-center gap-1 px-4 py-2 border-2 border-[var(--blue)] rounded-sm text-[var(--blue)] cursor-pointer hover:bg-[var(--blue)] hover:text-white transition-all duration-200">
+                    className="disabled:border-brand-blue/50 disabled:text-brand-blue/50 disabled:hover:text-white/50 disabled:cursor-wait flex mt-4 items-center justify-center gap-1 px-4 py-2 border-2 border-brand-blue rounded-sm text-brand-blue cursor-pointer hover:bg-brand-blue hover:text-white transition-all duration-200">
                     <i className="text-md mgc_add_circle_line"></i>Agregar
                 </button>
                 <button
                     disabled={areConfiguratinosLoading || isDefaultOptionsLoading || isConfigSaving}
                     onClick={saveConfig}
-                    className="disabled:bg-[var(--blue)]/50 disabled:cursor-wait mt-4 px-4 py-2 bg-[var(--blue)] hover:bg-[var(--blue)]/80 text-white rounded cursor-pointer">
+                    className="disabled:bg-brand-blue/50 disabled:cursor-wait mt-4 px-4 py-2 bg-brand-blue hover:bg-brand-blue/80 text-white rounded cursor-pointer">
                     Guardar
                 </button>
             </div>

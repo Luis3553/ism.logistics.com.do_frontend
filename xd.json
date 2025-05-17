@@ -1,0 +1,67 @@
+{
+    "groups": [
+        {
+            "id": 201,
+            "name": "Santo Domingo",
+            "notifications": [
+                {
+                    "name": "Tracker Apagado o Pérdida de Conexión",
+                    "trackers": [
+                        {
+                            "id": 690392323,
+                            "name": "30-73 L0002901",
+                            "emergency": false,
+                            "vehicle_id": null,
+                            "start_date": "08/05/2025 08:30:20 p.m.",
+                            "end_date": "08/05/2025 08:30:20 p.m.",
+                            "time": "9h 30min"
+                        },
+                        {
+                            "id": 692292999,
+                            "name": "30-73 L0002901",
+                            "emergency": true,
+                            "vehicle_id": 12345,
+                            "start_date": "08/05/2025 08:30:20 p.m.",
+                            "end_date": "08/05/2025 08:30:20 p.m.",
+                            "time": "7h 30min"
+                        }
+                    ]
+                },
+                {
+                    "name": "Ralentí",
+                    "trackers": [
+                        {
+                            "id": 690392323,
+                            "name": "30-73 L0002901",
+                            "emergency": false,
+                            "vehicle_id": null,
+                            "start_date": "08/05/2025 08:30:20 p.m.",
+                            "end_date": "08/05/2025 08:30:20 p.m.",
+                            "time": "9h 30min"
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": 202,
+            "name": "Santiago Rodriguez",
+            "notifications": [
+                {
+                    "name": "Tracker Apagado o Pérdida de Conexión",
+                    "trackers": [
+                        {
+                            "id": 69032992323,
+                            "name": "30-73 L0003033",
+                            "emergency": true,
+                            "vehicle_id": 12542,
+                            "start_date": "08/05/2025 08:30:20 p.m.",
+                            "end_date": "08/05/2025 08:30:20 p.m.",
+                            "time": "2h 30min"
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

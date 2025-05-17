@@ -13,7 +13,7 @@ export const DateManager = ({ daysInMonth, months, setDay, setMonth, setYear, da
         <div className="grid grid-cols-2 min-[640px]:grid-cols-[1fr_auto_auto_auto] gap-x-7 gap-y-2">
             <div className="flex justify-start gap-4">
                 <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center gap-2">
-                    <span className="font-semibold text-[var(--dark-gray)] text-base">Ficha</span>
+                    <span className="font-semibold text-brand-dark-gray text-base">Ficha</span>
                     <div className="form-select-wrapper w-full min-[640px]:w-fit">
                         <select id="record" name="country" autoComplete="country-name" className="form-select">
                             <option>Todas</option>
@@ -29,7 +29,7 @@ export const DateManager = ({ daysInMonth, months, setDay, setMonth, setYear, da
                 </div>
             </div>
             <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center gap-2">
-                <span className="font-semibold text-[var(--dark-gray)] text-base">Día</span>
+                <span className="font-semibold text-brand-dark-gray text-base">Día</span>
                 <div className="form-select-wrapper w-full min-[640px]:w-fit">
                     <select className="form-select" value={day} onChange={(e) => setDay(e.target.value)}>
                         {Array.from({ length: daysInMonth }).map((_, i) => (
@@ -50,7 +50,7 @@ export const DateManager = ({ daysInMonth, months, setDay, setMonth, setYear, da
 
             {/* Month Selector */}
             <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center gap-2">
-                <span className="font-semibold text-[var(--dark-gray)] text-base">Mes</span>
+                <span className="font-semibold text-brand-dark-gray text-base">Mes</span>
                 <div className="form-select-wrapper w-full min-[640px]:w-fit">
                     <select className="form-select" value={month} onChange={(e) => setMonth(e.target.value)}>
                         {months.map((monthLabel, i) => (
@@ -71,7 +71,7 @@ export const DateManager = ({ daysInMonth, months, setDay, setMonth, setYear, da
 
             {/* Year Selector */}
             <div className="flex flex-col min-[400px]:flex-row min-[400px]:items-center gap-2">
-                <span className="font-semibold text-[var(--dark-gray)] text-base">Año</span>
+                <span className="font-semibold text-brand-dark-gray text-base">Año</span>
                 <div className="form-select-wrapper w-full min-[640px]:w-fit">
                     <select className="form-select" value={year} onChange={(e) => setYear(e.target.value)}>
                         {Array.from({ length: 10 }).map((_, i) => {

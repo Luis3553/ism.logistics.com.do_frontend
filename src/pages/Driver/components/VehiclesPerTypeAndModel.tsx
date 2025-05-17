@@ -106,14 +106,14 @@ export const VehiclesPerTypeAndModel = () => {
                 <div className="me-2 grid grid-cols-2 gap-2 mb-2 relative overflow-hidden p-1 w-full bg-gray-200/50 h-fit rounded-sm">
                     <button
                         className={`px-3 border-1 border-transparent shadow-xs rounded-sm text-sm font-semibold cursor-pointer py-1 z-20 transition-all duration-300 relative ${
-                            mode === "yearGroup" ? "text-white bg-[var(--blue)]" : "bg-white text-gray-700 hover:border-[var(--blue)]"
+                            mode === "yearGroup" ? "text-white bg-brand-blue" : "bg-white text-gray-700 hover:border-brand-blue"
                         }`}
                         onClick={() => setMode("yearGroup")}>
                         AÑO
                     </button>
                     <button
                         className={`px-3 border-1 border-transparent shadow-xs rounded-sm text-sm font-semibold cursor-pointer py-1 z-20 transition-all duration-300 relative ${
-                            mode === "modelGroup" ? "text-white bg-[var(--blue)]" : "bg-white text-gray-700 hover:border-[var(--blue)]"
+                            mode === "modelGroup" ? "text-white bg-brand-blue" : "bg-white text-gray-700 hover:border-brand-blue"
                         }`}
                         onClick={() => setMode("modelGroup")}>
                         MODELO

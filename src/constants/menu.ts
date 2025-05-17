@@ -30,4 +30,9 @@ export const menuItems: MenuItem[] = [
         icon: "mgc_report_forms_fill",
         to: "/reports",
     },
+    {
+        name: "Alertas",
+        icon: "mgc_notification_fill",
+        to: "/notifications",
+    },
 ];

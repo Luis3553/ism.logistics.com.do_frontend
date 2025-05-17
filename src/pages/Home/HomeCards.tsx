@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { animated } from "@react-spring/web";
 import { cardsInfo } from "./constants";
-import api from "../../api";
-import { useFadeInUpAnimation } from "../../hooks/useFadeInAnimation";
-import { useCountUp } from "../../hooks/useCountUp";
+import api from "@api/index";
+import { useFadeInUpAnimation } from "@hooks/useFadeInAnimation";
+import { useCountUp } from "@hooks/useCountUp";
 
 export const HomeCards = ({ date }: { date: string }) => {
     const [animate, setAnimate] = useState(false);
@@ -32,7 +32,7 @@ export const HomeCards = ({ date }: { date: string }) => {
                     <animated.div
                         key={card.accessor}
                         style={fadeInStyle}
-                        className="gap-2 flex min-[400px]:flex-col items-center justify-between grow basis-0 shadow-sm rounded-lg p-4 bottom-0 hover:bottom-1 hover:bg-[var(--blue)] select-none text-[var(--dark-gray)] hover:text-white hover:shadow-md relative transition-all duration-300 bg-white">
+                        className="gap-2 flex min-[400px]:flex-col items-center justify-between grow basis-0 shadow-sm rounded-lg p-4 bottom-0 hover:bottom-1 hover:bg-brand-blue select-none text-brand-dark-gray hover:text-white hover:shadow-md relative transition-all duration-300 bg-white">
                         <i className={`text-3xl ${card.icon}`}></i>
                         <div className="flex items-center justify-between px-6 min-[400px]:justify-around min-[400px]:px-0 w-full">
                             <span className="leading-none">{card.label}</span>

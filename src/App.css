@@ -1,6 +1,7 @@
 @import "tailwindcss";
 @import "./assets/mingCuteIcons/MingCute.css";
-@import "rsuite/DatePicker/styles/index.css";
+@import 'rsuite/DateRangePicker/styles/index.css';
+@import 'rsuite/Table/styles/index.css';
 
 :root {
     --blue: #049cdb;
@@ -10,10 +11,24 @@
     --gray: #6d7080;
     --dark-gray: #4c5058;
     --background-color: #f3f6f9;
+    --yellow: #FF9800;
 }
 
 * {
     box-sizing: border-box;
+    scroll-behavior: smooth !important;
+    /* font-family: 'Roboto', sans-serif !important; */
+}
+
+@theme {
+    --color-brand: var(--background-color);
+    --color-brand-blue: var(--blue);
+    --color-brand-light-blue: var(--light-blue);
+    --color-brand-dark-blue: var(--dark-blue);
+    --color-brand-light-gray: var(--light-gray);
+    --color-brand-gray: var(--gray);
+    --color-brand-dark-gray: var(--dark-gray);
+    --color-brand-yellow: var(--yellow);
 }
 
 html,

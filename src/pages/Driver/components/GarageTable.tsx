@@ -51,7 +51,7 @@ function GenerateDepartmentRows({
         <>
             {data.map((department, deIdx) => {
                 const departmentKey = `department-${deIdx}`;
-                const styleWhenSelected = expandedLevels[departmentKey] ? "bg-[var(--blue)]" : deIdx % 2 === 0 ? "bg-[#eeeeeeb1] hover:bg-[#e9f4fa]" : "hover:bg-[#e9f4fa]";
+                const styleWhenSelected = expandedLevels[departmentKey] ? "bg-brand-blue" : deIdx % 2 === 0 ? "bg-[#eeeeeeb1] hover:bg-[#e9f4fa]" : "hover:bg-[#e9f4fa]";
 
                 return (
                     <React.Fragment key={departmentKey}>

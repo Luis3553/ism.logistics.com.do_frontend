@@ -61,8 +61,8 @@ export const ChartComponent = () => {
                             key={i}
                             aria-selected="true"
                             className={`${
-                                selectedTabIndex == i ? "bg-[var(--blue)] text-white" : "bg-white text-[var(--blue)]"
-                            } cursor-pointer rounded-lg px-4 py-2 hover:bg-[var(--blue)] shadow-sm shadow-black/10 outline-none hover:text-white transition-all duration-100`}>
+                                selectedTabIndex == i ? "bg-brand-blue text-white" : "bg-white text-brand-blue"
+                            } cursor-pointer rounded-lg px-4 py-2 hover:bg-brand-blue shadow-sm shadow-black/10 outline-none hover:text-white transition-all duration-100`}>
                             {name}
                         </Tab>
                     ))}

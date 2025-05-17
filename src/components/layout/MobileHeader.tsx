@@ -29,7 +29,7 @@ export const MobileHeader = () => {
                                         to={menu.to}
                                         onClick={toggleMenuVisibility}
                                         className={({ isActive }) =>
-                                            (isActive ? "text-white bg-[var(--blue)]" : "hover:bg-[var(--blue)]/10") + " flex items-center gap-2 w-full p-2 rounded-md"
+                                            (isActive ? "text-white bg-brand-blue" : "hover:bg-brand-blue/10") + " flex items-center gap-2 w-full p-2 rounded-md"
                                         }>
                                         <i className={menu.icon}></i> {menu.name}
                                     </NavLink>
