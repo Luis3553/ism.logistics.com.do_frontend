@@ -12,7 +12,7 @@ export const Layout = () => {
             <MobileHeader />
             <Transition
                 key={location.key}
-                className={"flex flex-col w-full mx-auto mt-4 max-w-9/10 grow min-h-[551px] "}
+                className={"flex flex-col w-full mx-auto mt-4 max-w-[95%] grow min-h-[551px] "}
                 appear
                 show={true}
                 enter="transition-opacity duration-300"
