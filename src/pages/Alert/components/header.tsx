@@ -70,7 +70,7 @@ export default function AlertHeader({
         <div className='flex flex-col gap-1 divide-y'>
             <div className='flex flex-col flex-wrap justify-between pb-2 md:items-center gap-y-4 md:flex-row'>
                 <div className='flex flex-row flex-wrap items-center gap-4'>
-                    <div className='grid gap-2 p-1 rounded w-fit md:grid-cols-3 justify-stretch bg-brand'>
+                    <div className='grid gap-2 p-1 rounded w-full md:w-fit min-[600px]:grid-cols-3 md:grid-cols-3 justify-stretch bg-brand'>
                         {options.map((option, optionIdx) => (
                             <button
                                 key={optionIdx}

@@ -26,7 +26,7 @@ export function Tag({ tag }: { tag: VehicleTag }) {
                 backgroundColor: `#${tag.color}30`,
                 borderColor: `#${tag.color}`,
             }}
-            className={"px-4 text-sm text-center max-w-40 py-0.5 font-medium rounded-full border"}>
+            className={"px-4 text-sm text-center max-w-40 py-0.5 font-medium rounded-full border text-nowrap"}>
             {tag.name}
         </div>
     );
@@ -55,12 +55,78 @@ export default function VehicleModal({
         AMARILLO: "bg-yellow-400",
         GRIS: "bg-gray-500",
     };
+
+    const typeMap: Record<string, string> = {
+        car: "Vehículo",
+        truck: "Camión",
+        bus: "Autobús",
+        special: "Especial",
+    };
+
+    const subtypeMap: Record<string, string> = {
+        // car
+        sedan: "Sedan",
+        universal: "Universal",
+        hatchback: "Hatchback",
+        liftback: "Liftback",
+        limousine: "Limusina",
+        pickup: "Camioneta",
+        coupe: "Coupe-2 puertas",
+        coupe4d: "Coupe-4 puertas",
+        muscle: "Muscle car",
+        convertible: "Convertible",
+        phaeton: "Faetón",
+        lando: "Lando",
+        crossover: "Crossover",
+        roadster: "De turismo",
+        suv: "SUV",
+
+        // truck 
+        minivan: "Minivan",
+        tipper: "Volquete",
+        board: "Tarjeta",
+        covered: "Cubierto",
+        awning: "Con toldo",
+        mixer: "Mezclador",
+        tanker: "Cisterna",
+        refrigerator: "Refrigerador",
+        transporter: "Transportador",
+        container: "Contenedor",
+        tractor: "Trailer",
+
+        // bus
+        city: "Ciudad",
+        shuttle: "Microbús",
+        platform: "Plataforma",
+        school: "Escuela",
+        intercity: "Interurbano",
+        local: "Local",
+        sightseeing: "Turismo",
+
+        // special
+        mobile_crane: "Grúa",
+        racing: "Carreras",
+        buggy: "Buggy",
+        ambulance: "Ambulancia",
+        firefighter: "Bombero",
+        hearse: "Carroza fúnebre",
+        shop: "Concesionario de vehículos",
+        harvester: "Cosechadora",
+        snowplow: "Quitanieves",
+        grader: "Motoniveladora",
+        excavator: "Excavadora",
+        bulldozer: "Bulldozer",
+        armored: "Blindado",
+        amphibian: "Anfibio",
+        boat: "Barco",
+    };
+
     useEffect(() => {
         if (data) setVehicle(data.value);
     }, [data]);
 
     return (
-        <Modal className='h-screen overflow-y-auto md:overflow-y-clip md:h-min max-w-[900px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
+        <Modal className='h-screen md:h-min max-w-[900px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
             {isLoading ? (
                 <div className='relative h-[600px]'>
                     <LoadSpinner />
@@ -95,14 +161,14 @@ export default function VehicleModal({
                     </div>
                 </div>
             ) : vehicle ? (
-                <div className='flex flex-col h-full px-2'>
+                <div className='flex flex-col h-full px-2 overflow-y-auto'>
                     <div className='flex justify-between pb-4'>
                         <h1 className='text-lg font-semibold'>{rowData.name}</h1>
                         <button onClick={() => setIsOpen(false)}>
                             <i className='mgc_close_line'></i>
                         </button>
                     </div>
-                    <div className='grid h-full grid-cols-1 gap-8 overflow-y-auto md:grid-cols-2 md:overflow-y-visible'>
+                    <div className='grid grid-cols-1 gap-8 h-fit md:grid-cols-2'>
                         <div className='flex flex-col justify-between h-full overflow-hidden shadow-lg rounded-xl'>
                             <div>
                                 <div className='flex items-center justify-center object-contain overflow-hidden bg-green-300 rounded-xl align-center text-brand-blue h-44 border-brand-blue'>
@@ -114,7 +180,7 @@ export default function VehicleModal({
                                         loading='eager'
                                         referrerPolicy='no-referrer-when-downgrade'></iframe>
                                 </div>
-                                <div className='flex flex-col gap-2 p-6 pt-2 overflow-y-auto max-h-[200px]'>
+                                <div className='flex flex-col gap-2 p-6 pt-2'>
                                     <small>{rowData.address}</small>
                                     <div className='grid md:grid-cols-2'>
                                         <LabeledInput label='Inicio' className='text-sm' value={rowData.start_date} />
@@ -135,7 +201,7 @@ export default function VehicleModal({
                                 Seguimiento
                             </Link>
                         </div>
-                        <div className='flex flex-col justify-between'>
+                        <div className='flex flex-col justify-between mb-4'>
                             <div className='*:py-2'>
                                 <div className='grid grid-cols-2'>
                                     <LabeledInput
@@ -152,11 +218,11 @@ export default function VehicleModal({
                                                 : "-"
                                         }
                                     />
-                                    <LabeledInput label='Garaje' value={vehicle.garage_organization_name} />
+                                    <LabeledInput label='Garaje' value={vehicle.garage_organization_name != "" && vehicle.garage_id != null ? vehicle.garage_organization_name : "-"} />
                                 </div>
                                 <div className='grid grid-cols-2'>
-                                    <LabeledInput label='Tipo' value={vehicle.type == "truck" ? "Camión" : vehicle.type == "vehicle" ? "Vehículo" : "Otro"} />
-                                    <LabeledInput label='Subtipo' value={vehicle.subtype} />
+                                    <LabeledInput label='Tipo' value={typeMap[vehicle.type] ?? "Otro"} />
+                                    <LabeledInput label='Subtipo' className="capitalize" value={subtypeMap[vehicle.subtype] ?? "Otro"} />
                                 </div>
                                 <div className='grid grid-cols-2'>
                                     <LabeledInput label='Modelo' value={vehicle.model} />
@@ -173,13 +239,13 @@ export default function VehicleModal({
                                     </div>
                                 </div>
                                 <div className='grid grid-cols-2'>
-                                    <LabeledInput label='VIN/Chasis' value={vehicle.chassis_number != "" ? vehicle.chassis_number : vehicle.vin} />
+                                    <LabeledInput label='VIN/Chasis' value={vehicle.chassis_number != "" ? vehicle.chassis_number : vehicle.vin != "" ? vehicle.vin : "-"} />
                                     <LabeledInput label='No. de registro del tráiler' value={vehicle?.trailer_reg_number ?? "N/A"} />
                                 </div>
 
                                 <div className='grid grid-cols-2'>
                                     <LabeledInput label='Número de cuadro' value={vehicle.frame_number != "" ? vehicle.frame_number : "-"} />
-                                    <LabeledInput label='Año de fabricación' value={String(vehicle.manufacture_year)} />
+                                    <LabeledInput label='Año de fabricación' value={String(vehicle.manufacture_year ?? "-")} />
                                 </div>
                                 <div className='flex flex-col'>
                                     <span className='text-sm opacity-80'>Etiquetas</span>

@@ -4,7 +4,7 @@ import { useFetch } from "@hooks/useFetch";
 import { useEffect, useState } from "react";
 import AsyncSelectComponent from "./async-select";
 
-export default function ListOfAlerts({ setNotificationsQuery }: { setNotificationsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>; }) {
+export default function ListOfAlerts({ setNotificationsQuery }: { setNotificationsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>> }) {
     const { data, isLoading } = useFetch<Option[]>("/notifications/rules");
     const [alerts, setAlerts] = useState<Option[]>([{ value: "all", label: "Todas" }]);
     const [selectedOptions, setSelectedOptions] = useState<MultiValue<Option>>([alerts[0]]);
@@ -15,16 +15,18 @@ export default function ListOfAlerts({ setNotificationsQuery }: { setNotificatio
 
     function onChange(e: MultiValue<Option>) {
         const allOption = alerts[0];
-        
+
         if (!e || e.length === 0) {
-            setSelectedOptions([allOption]);
+            const newSelection = [allOption];
+            setSelectedOptions(newSelection);
+            setNotificationsQuery(newSelection.map((option) => option.value));
         } else {
             const isAllSelected = e.some((opt) => opt.value === allOption.value);
-            const isNewSelectedAll = e[e.length-1].value == allOption.value;
+            const isNewSelectedAll = e[e.length - 1].value == allOption.value;
             const wasAllSelected = selectedOptions.some((opt) => opt.value === allOption.value);
-    
+
             let newSelection: MultiValue<Option>;
-    
+
             if (isAllSelected && !wasAllSelected) {
                 // "Todos" just got selected after others: override everything
                 newSelection = [allOption];

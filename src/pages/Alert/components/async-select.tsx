@@ -80,6 +80,8 @@ export default function AsyncSelectComponent(
             defaultValue={data[0]}
             defaultOptions={defaultOptions}
             options={data}
+            loadingMessage={() => "Cargando..."}
+            noOptionsMessage={() => "No hay resultados"}
             value={value}
             loadOptions={loadOptions}
             onChange={onChange}

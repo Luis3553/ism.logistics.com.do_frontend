@@ -1,5 +1,5 @@
 import AsyncSelect from "react-select/async";
-import debounce from "debounce";
+import { debounce } from "lodash";
 import React, { useMemo } from "react";
 import { GroupBase, StylesConfig } from "react-select";
 import { AxiosResponse } from "axios";
@@ -84,8 +84,8 @@ export const ListOfConfigurations = ({
                     <React.Fragment key={config.id}>
                         <div className="grid grid-cols-[25px_1fr_1fr] items-center gap-2 mb-4">
                             <div className="group relative size-[25px]" onClick={() => onDelete(config.id)}>
-                                <i className="group-hover:invisible absolute visible mgc_close_square_line hover:mgc_close_square_fill text-2xl text-red-600 cursor-pointer"></i>
-                                <i className="group-hover:visible absolute invisible mgc_close_square_fill text-2xl text-red-600 cursor-pointer"></i>
+                                <i className="absolute visible text-2xl text-red-600 cursor-pointer group-hover:invisible mgc_close_square_line hover:mgc_close_square_fill"></i>
+                                <i className="absolute invisible text-2xl text-red-600 cursor-pointer group-hover:visible mgc_close_square_fill"></i>
                             </div>
                             <AsyncSelect
                                 isMulti
@@ -129,7 +129,7 @@ export const ListOfConfigurations = ({
                                 onChange={(val) => onSelectChange(config.id, "destiny", val as Option[])}
                             />
                         </div>
-                        <span className="border-b w-full border-gray-300 mb-4 block"></span>
+                        <span className="block w-full mb-4 border-b border-gray-300"></span>
                     </React.Fragment>
                 ))
             )}

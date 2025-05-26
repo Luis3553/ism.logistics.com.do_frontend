@@ -89,6 +89,7 @@ export type Vehicle = {
     additional_info: string;
     driver: Driver;
     frame_number: string;
+    garage_id?: number;
     garage_organization_name: string;
     label: string;
     id: number;

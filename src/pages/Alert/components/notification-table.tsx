@@ -19,7 +19,7 @@ export function VehicleModalButton({ alertName, column, rowData }: { alertName: 
     const [isOpen, setIsOpen] = useState(false);
     return (
         <>
-            <button onClick={() => setIsOpen(true)}>
+            <button className={cn(rowData.vehicle_id ? "cursor-pointer" : "cursor-default")} onClick={() => setIsOpen(true)}>
                 <span className='font-medium'>{`${rowData.name}`}</span>
                 {column == "name" && rowData.emergency && <i className='absolute text-brand-yellow bottom-3 mgc_notification_line'></i>}
             </button>
