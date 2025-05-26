@@ -7,6 +7,7 @@ import { Details } from "./pages/Details";
 import { Charts } from "./pages/Charts";
 import { Reports } from "./pages/Report";
 import { Alerts } from "./pages/Alert/index.tsx";
+import { NotFound } from "./pages/NotFound/index.tsx";
 
 function App() {
     return (
@@ -19,7 +20,7 @@ function App() {
                     <Route path="charts" element={<Charts />} />
                     <Route path="reports" element={<Reports />} />
                     <Route path="notifications" element={<Alerts />} />
-                    <Route path="*" element={<Navigate to="home" replace />} />
+                    <Route path="*" element={<NotFound />} />
                     <Route path="/" element={<Navigate to="/home" replace />} />
                 </Route>
             </Routes>

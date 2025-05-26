@@ -32,7 +32,7 @@ export const Header = () => {
                         </li>
                     ))}
                 </ul>
-                <button className="text-gray-700 transition duration-100 focus-visible:outline-0 focus-within:text-brand-blue hover:text-brand-blue">
+                <button className="text-gray-700 transition focus-visible:outline-0 focus-within:text-brand-blue hover:text-brand-blue">
                     <i onClick={() => setIsOpen(true)} className="text-3xl cursor-pointer mgc_settings_5_line" title="Configuración"></i>
                 </button>
                 <Modal onClose={() => setIsOpen(false)} isOpen={isOpen}>

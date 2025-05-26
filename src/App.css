@@ -1,7 +1,10 @@
-@import "tailwindcss";
 @import "./assets/mingCuteIcons/MingCute.css";
 @import 'rsuite/DateRangePicker/styles/index.css';
 @import 'rsuite/Table/styles/index.css';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
     --blue: #049cdb;
@@ -20,16 +23,7 @@
     /* font-family: 'Roboto', sans-serif !important; */
 }
 
-@theme {
-    --color-brand: var(--background-color);
-    --color-brand-blue: var(--blue);
-    --color-brand-light-blue: var(--light-blue);
-    --color-brand-dark-blue: var(--dark-blue);
-    --color-brand-light-gray: var(--light-gray);
-    --color-brand-gray: var(--gray);
-    --color-brand-dark-gray: var(--dark-gray);
-    --color-brand-yellow: var(--yellow);
-}
+
 
 html,
 body {
@@ -39,6 +33,10 @@ body {
 [class^="mgc_"]::before,
 [class*=" mgc_"]::before {
     color: inherit !important;
+}
+
+.rs-table-header-row-wrapper {
+    z-index: 0 !important;
 }
 
 .highcharts-credits {
