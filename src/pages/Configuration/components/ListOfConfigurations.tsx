@@ -1,5 +1,5 @@
 import AsyncSelect from "react-select/async";
-import debounce from "debounce";
+import { debounce } from "lodash";
 import React, { useMemo } from "react";
 import { GroupBase, StylesConfig } from "react-select";
 import { AxiosResponse } from "axios";
