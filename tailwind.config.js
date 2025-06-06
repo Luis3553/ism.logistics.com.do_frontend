@@ -5,14 +5,14 @@ module.exports = {
         extend: {
             colors: {
                 brand: {
-                    DEFAULT: "var(--background-color)",
-                    blue: "var(--blue)",
-                    ["light-blue"]: "var(--light-blue)",
-                    ["dark-blue"]: "var(--dark-blue)",
-                    ["light-gray"]: "var(--light-gray)",
-                    gray: "var(--gray)",
-                    ["dark-gray"]: "var(--dark-gray)",
-                    yellow: "var(--yellow)",
+                    DEFAULT: "#f3f6f9",
+                    blue: "#049cdb",
+                    ["light-blue"]: "#cdebf8",
+                    ["dark-blue"]: "#005174",
+                    ["light-gray"]: "#f3f4f6",
+                    gray: "#6d7080",
+                    ["dark-gray"]: "#4c5058",
+                    yellow: "#ff9800",
                 },
             },
         },

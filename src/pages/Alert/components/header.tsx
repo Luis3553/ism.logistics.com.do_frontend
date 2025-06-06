@@ -6,24 +6,32 @@ import React from "react";
 import ListOfTrackers from "./select-trackers";
 import ListOfGroups from "./select-groups";
 import ListOfAlerts from "./select-alerts";
+import ListOfTags from "./select-tags";
 
 export default function AlertHeader({
     options,
     selectedOption,
     from,
     to,
+    alertsData,
+    groupsData,
+    trackersData,
     setOption,
     setFrom,
     setTo,
     setGroupsQuery,
     setNotificationsQuery,
     setTrackersQuery,
+    setTagsQuery,
 }: {
     query: string;
     options: Option[];
     selectedOption: Option;
     from: Date | null;
     to: Date;
+    alertsData: any;
+    groupsData: any;
+    trackersData: any;
     setOption: React.Dispatch<React.SetStateAction<Option>>;
     setQuery: React.Dispatch<React.SetStateAction<string>>;
     setFrom: React.Dispatch<React.SetStateAction<Date | null>>;
@@ -31,6 +39,7 @@ export default function AlertHeader({
     setGroupsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
     setNotificationsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
     setTrackersQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
+    setTagsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
 }) {
     function handleChangeDate(e: Date | null, action: "from" | "to") {
         if (e)
@@ -129,17 +138,21 @@ export default function AlertHeader({
                 {(selectedOption.id == 0 || selectedOption.id == 1) && (
                     <div className='flex flex-row items-center w-full gap-3'>
                         <small className='mb-1 text-sm font-medium opacity-80'>Grupos</small>
-                        <ListOfGroups setGroupsQuery={setGroupsQuery} />
+                        <ListOfGroups data={groupsData.data} isLoading={groupsData.isLoading} setGroupsQuery={setGroupsQuery} />
                     </div>
                 )}
                 <div className='flex flex-row items-center w-full gap-3'>
                     <small className='mb-1 text-sm font-medium opacity-80'>Alertas</small>
-                    <ListOfAlerts setNotificationsQuery={setNotificationsQuery} />
+                    <ListOfAlerts data={alertsData.data} isLoading={alertsData.isLoading} setNotificationsQuery={setNotificationsQuery} />
                 </div>
                 <div className='flex flex-row items-center w-full gap-3'>
                     <small className='mb-1 text-sm font-medium opacity-80'>Objetos</small>
-                    <ListOfTrackers setTrackersQuery={setTrackersQuery} />
+                    <ListOfTrackers data={trackersData.data} isLoading={trackersData.isLoading} setTrackersQuery={setTrackersQuery} />
                 </div>
+                {/* <div className='flex flex-row items-center w-full gap-3'>
+                    <small className='mb-1 text-sm font-medium opacity-80'>Etiquetas</small>
+                    <ListOfTags setTagsQuery={setTrackersQuery} />
+                </div> */}
             </div>
         </div>
     );

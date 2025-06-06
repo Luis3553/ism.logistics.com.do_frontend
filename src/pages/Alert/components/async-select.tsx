@@ -77,6 +77,7 @@ export default function AsyncSelectComponent(
             className='w-full min-w-60 caret-brand-blue'
             placeholder={placeholder}
             isLoading={isLoading}
+            isClearable={false}
             defaultValue={data[0]}
             defaultOptions={defaultOptions}
             options={data}

@@ -106,3 +106,107 @@ export type Vehicle = {
     fuel_type: string;
     chassis_number: string;
 };
+
+export type FieldConfig = {
+    key: string;
+    type: "string" | "number" | "date" | "date[]" | "number[]" | "string[]";
+    defaultValue?: any;
+    component: React.FC<any>;
+    props: Record<string, any>;
+    onChangeType: "event" | "value" | "array";
+};
+
+export type ReportType = {
+    id: number;
+    name: string;
+    description: string;
+    fields: FieldConfig[];
+    list: "trackers" | "vehicles" | "drivers";
+    disabled: boolean;
+};
+
+export type ReportCategory = {
+    category: string;
+    types: ReportType[];
+};
+
+export type RetrievedReportSummaryRows = {
+    title: string;
+    value: string;
+};
+
+export type RetrievedReportContentCols = {
+    name: string;
+    key: string;
+};
+
+export type RetrievedReportContentRows = {
+    [key: string]: any;
+};
+
+export type RetrievedReportData = {
+    groupLabel: string;
+    bgColor: string;
+    content: {
+        columns: RetrievedReportContentCols[];
+        rows: RetrievedReportContentRows[];
+    };
+};
+export type RetrievedReport = {
+    title: string;
+    date: string;
+    summary: {
+        title: string;
+        color: string;
+        rows: RetrievedReportSummaryRows[];
+    };
+    data: RetrievedReportData[];
+    columns_dimensions_for_excel_file: {};
+};
+
+export type GeneratedReportRow = {
+    id: number;
+    title: string;
+    created_at: string;
+    report_payload: any;
+    updated_at: string;
+    percent: number;
+};
+
+export type GeneratedReport = {
+    category: string;
+    reports: GeneratedReportRow[];
+};
+
+export type TrackerObject = {
+    clone: boolean;
+    group_id: number;
+    id: number;
+    label: string;
+    source: {
+        blocked: boolean;
+        creation_date: string;
+        device_id: string;
+        id: number;
+        model: string;
+        phone: string;
+        status_listening_id?: number;
+        tariff_end_date: string;
+        tariff_id: number;
+    };
+    tag_bindings: number[];
+};
+
+export type TrackersGroup = {
+    name: string;
+    color: string;
+    trackers: TrackerObject[];
+};
+export type DriversGroup = {
+    name: string;
+    trackers: TrackerObject[];
+};
+export type VehiclesGroup = {
+    name: string;
+    trackers: TrackerObject[];
+};

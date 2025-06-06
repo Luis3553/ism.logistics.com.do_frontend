@@ -12,6 +12,7 @@
     "dependencies": {
         "@headlessui/react": "^1.7.19",
         "@react-spring/web": "^10.0.0",
+        "@tanstack/react-query": "^5.79.0",
         "apexcharts": "^4.7.0",
         "axios": "^1.9.0",
         "debounce": "^1.2.1",
@@ -25,7 +26,8 @@
         "react-router-dom": "^6.14.2",
         "react-select": "^5.10.1",
         "rsuite": "^5.80.3",
-        "use-resize-observer": "^9.1.0"
+        "use-resize-observer": "^9.1.0",
+        "xlsx": "^0.18.5"
     },
     "devDependencies": {
         "@types/highcharts": "^7.0.0",

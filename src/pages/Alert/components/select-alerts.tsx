@@ -1,11 +1,17 @@
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import { MultiValue } from "react-select";
-import { useFetch } from "@hooks/useFetch";
 import { useEffect, useState } from "react";
 import AsyncSelectComponent from "./async-select";
 
-export default function ListOfAlerts({ setNotificationsQuery }: { setNotificationsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>> }) {
-    const { data, isLoading } = useFetch<Option[]>("/notifications/rules");
+export default function ListOfAlerts({
+    data,
+    isLoading,
+    setNotificationsQuery,
+}: {
+    data: Option[];
+    isLoading: boolean;
+    setNotificationsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
+}) {
     const [alerts, setAlerts] = useState<Option[]>([{ value: "all", label: "Todas" }]);
     const [selectedOptions, setSelectedOptions] = useState<MultiValue<Option>>([alerts[0]]);
 

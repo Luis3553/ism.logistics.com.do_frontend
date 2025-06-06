@@ -8,6 +8,7 @@
     "baseUrl": ".",
     "strictNullChecks": true,
     "paths": {
+      "@api/*": ["src/api/*"],
       "@components/*": ["src/components/*"],
       "@constants/*": ["src/constants/*"],
       "@charts/*": ["src/charts/*"],

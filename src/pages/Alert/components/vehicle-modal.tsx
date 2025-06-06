@@ -26,7 +26,7 @@ export function Tag({ tag }: { tag: VehicleTag }) {
                 backgroundColor: `#${tag.color}30`,
                 borderColor: `#${tag.color}`,
             }}
-            className={"px-4 text-sm text-center max-w-40 py-0.5 font-medium rounded-full border text-nowrap"}>
+            className={"px-4 text-sm text-center py-0.5 font-medium rounded-full border"}>
             {tag.name}
         </div>
     );

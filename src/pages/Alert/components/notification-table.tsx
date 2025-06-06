@@ -6,6 +6,7 @@ import VehicleModal from "./vehicle-modal";
 import { Link } from "react-router-dom";
 import cn from "classnames";
 import { Tracker } from "@utils/types";
+import { Modal } from "@components/Modal";
 
 const keys = {
     name: { label: "Objeto", grow: 1.5, width: undefined, minWidth: 300 },
@@ -19,10 +20,24 @@ export function VehicleModalButton({ alertName, column, rowData }: { alertName: 
     const [isOpen, setIsOpen] = useState(false);
     return (
         <>
-            <button className={cn(rowData.vehicle_id ? "cursor-pointer" : "cursor-default")} onClick={() => setIsOpen(true)}>
+            <button
+                title={!rowData.vehicle_id ? "Este objeto no está relacionado con ningún vehículo" : undefined}
+                className={cn(rowData.vehicle_id ? "cursor-pointer" : "cursor-default")}
+                onClick={() => setIsOpen(true)}>
                 <span className='font-medium'>{`${rowData.name}`}</span>
                 {column == "name" && rowData.emergency && <i className='absolute text-brand-yellow bottom-3 mgc_notification_line'></i>}
             </button>
+            {isOpen && !rowData.vehicle_id && (
+                <Modal className='h-min w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
+                    <div className='flex justify-between pb-4'>
+                        <h1 className='text-lg font-semibold'>{rowData.name}</h1>
+                        <button onClick={() => setIsOpen(false)}>
+                            <i className='mgc_close_line'></i>
+                        </button>
+                    </div>
+                    <div className='text-center'>Este objeto no está relacionado con ningún vehículo</div>
+                </Modal>
+            )}
             {isOpen && rowData.vehicle_id && <VehicleModal alertName={alertName} rowData={rowData} isOpen={isOpen} setIsOpen={setIsOpen} />}
         </>
     );
