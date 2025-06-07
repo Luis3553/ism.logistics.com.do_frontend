@@ -21,15 +21,15 @@ export default function ListOfTrackers({
 
     function onChange(e: MultiValue<Option>) {
         const allOption = trackers[0];
+        let newSelection: MultiValue<Option>;
 
         if (!e || e.length === 0) {
-            setSelectedOptions([allOption]);
+            newSelection = [allOption];
         } else {
             const isAllSelected = e.some((opt) => opt.value === allOption.value);
             const isNewSelectedAll = e[e.length - 1].value == allOption.value;
             const wasAllSelected = selectedOptions.some((opt) => opt.value === allOption.value);
 
-            let newSelection: MultiValue<Option>;
 
             if (isAllSelected && !wasAllSelected) {
                 // "Todos" just got selected after others: override everything

@@ -87,6 +87,7 @@ export default function AsyncSelectComponent(
             loadOptions={loadOptions}
             onChange={onChange}
             styles={styles}
+            escapeClearsValue
         />
     );
 }
