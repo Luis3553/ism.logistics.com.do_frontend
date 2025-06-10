@@ -440,6 +440,7 @@ export const Alerts = () => {
                         options={[
                             {
                                 label: "PDF",
+                                disabled: true,
                                 onClick: () => {
                                     api.post("/reports/generate", { ...payload, format: "pdf" });
                                 },
@@ -447,6 +448,7 @@ export const Alerts = () => {
                             },
                             {
                                 label: "XLS",
+                                disabled: true,
                                 onClick: () => {
                                     api.post("/reports/generate", { ...payload, format: "xls" });
                                 },

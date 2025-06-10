@@ -3,6 +3,7 @@ import { Group, Item } from "../utils/check-boxes";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { useState } from "react";
 import { HiArrowPath } from "react-icons/hi2";
+import { expandAnimationProps } from "@utils/animations";
 
 export interface BaseItem {
     id: number;
@@ -31,7 +32,7 @@ export default function ItemsList({
     error,
     isLoading,
     selectedItems,
-    type,
+    // type,
     fetcher,
     toggleGroup,
     toggleItem,
@@ -73,13 +74,7 @@ export default function ItemsList({
                     {groups.map((group, groupIdx) => (
                         <Transition
                             key={groupIdx}
-                            appear
-                            enterFrom='opacity-0'
-                            enterTo='opacity-100'
-                            leaveFrom='opacity-100'
-                            leaveTo='opacity-0'
-                            enter='transition-all duration-500'
-                            leave='transition-all duration-500'
+                            {...expandAnimationProps}
                             unmount={false}>
                             <Group
                                 key={groupIdx}
@@ -92,13 +87,7 @@ export default function ItemsList({
                             />
                             <Transition
                                 show={!!openStates[groupIdx]}
-                                appear
-                                enterFrom='h-0 opacity-0'
-                                enterTo='h-full opacity-100'
-                                leaveFrom='h-full opacity-100'
-                                leaveTo='h-0 opacity-0'
-                                enter='transition-all duration-500'
-                                leave='transition-all duration-500'
+                                {...expandAnimationProps}
                                 unmount={false}>
                                 <>
                                     {group.trackers.map((item: any, itemIdx: number) => (

@@ -18,7 +18,7 @@ export default function ReportCreateScreen({
 }) {
     return (
         <>
-            <div className='flex items-center justify-between px-4 py-2'>
+            <div className='sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-white'>
                 <span className='font-medium text-gray-700'>Reportes disponibles</span>
                 <button
                     onClick={() => {
@@ -29,7 +29,7 @@ export default function ReportCreateScreen({
                     <HiChevronLeft />
                 </button>
             </div>
-            <Filter filter={filter} setFilter={setFilter} />
+            <Filter className="sticky z-50 top-10" filter={filter} setFilter={setFilter} />
             <ReportTypesList filter={filter} activeReportType={activeReportType} setActiveReportType={setActiveReportType} />
         </>
     );

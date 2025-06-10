@@ -1,8 +1,9 @@
 import { HiMagnifyingGlass, HiXMark } from "react-icons/hi2";
+import cn from "classnames";
 
-export function Filter({ filter, setFilter }: { filter: string; setFilter: React.Dispatch<React.SetStateAction<string>> }) {
+export function Filter({ filter, setFilter, className }: { filter: string; setFilter: React.Dispatch<React.SetStateAction<string>>; className?: string }) {
     return (
-        <div className='relative border-y'>
+        <div className={cn('relative border-y', className)}>
             <label htmlFor='search' className='absolute start-2 top-3.5'>
                 <HiMagnifyingGlass />
             </label>

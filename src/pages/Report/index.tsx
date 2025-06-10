@@ -6,7 +6,7 @@ import { DriversGroup, GeneratedReportRow, ReportType, TrackersGroup, VehiclesGr
 import api from "@api/index";
 import { toISOString } from "@utils/dateISOformatter";
 import { useApiQuery } from "@hooks/useQuery";
-import { appearAnimationProps } from "@utils/animations";
+import { appearAnimationProps, scaleAnimationProps } from "@utils/animations";
 import { ReportPreview } from "./components/report-preview";
 import ReportCreateScreen from "./components/report-create-screen";
 import ReportListScreen from "./components/report-list-screen";
@@ -165,123 +165,128 @@ export const Reports = () => {
 
     return (
         <div>
-            <h1 className='mb-2 text-lg font-medium text-brand-dark-gray'>Listado de reportes</h1>
-            <div className='w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
-                <Tab.Group as={Fragment}>
-                    <div className='grid grid-cols-[350px_auto] gap-x-4 h-full box-border'>
-                        <div className='relative flex flex-col object-contain h-full overflow-hidden border divide-y rounded-xl'>
-                            <Tab.List>
-                                <div className='grid grid-cols-2 *:w-full *:h-full min-h-10 divide-x *:transition font-medium *:border-b'>
-                                    {[
-                                        { label: "Reportes", active: true },
-                                        { label: "Horario", active: false },
-                                    ].map((title, titleIdx) => (
-                                        <Tab
-                                            disabled={!title.active}
-                                            key={titleIdx}
-                                            className={({ selected, disabled }) =>
-                                                cn(
-                                                    "hover:bg-gray-100 outline-none focus-visible:bg-gray-100",
-                                                    selected && "text-brand-blue border-b-brand-blue",
-                                                    disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
-                                                )
-                                            }>
-                                            {title.label}
-                                        </Tab>
-                                    ))}
-                                </div>
-                            </Tab.List>
-                            <Tab.Panels as={Fragment}>
-                                <Tab.Panel as={Fragment}>
-                                    <>
-                                        <Transition show={!createScreen} {...appearAnimationProps}>
-                                            <ReportListScreen
-                                                setActiveReport={setActiveReport}
-                                                setCreateScreen={setCreateScreen}
-                                                reports={reports}
-                                                isLoadingReports={isLoadingReports}
-                                                hasLoadedOnce={hasLoadedOnce}
-                                                refetchReports={refetchReports}
-                                                isError={isError}
-                                                filter={filter}
-                                                activeReport={activeReport}
-                                                setFilter={setFilter}
-                                            />
-                                        </Transition>
-                                        <Transition
-                                            show={createScreen}
-                                            {...appearAnimationProps}
-                                            enter='absolute top-10 w-full h-full transition-all duration-500'
-                                            leave='absolute top-10 w-full h-full transition-all duration-500'>
-                                            <ReportCreateScreen
-                                                setActiveReportType={setActiveReportType}
-                                                setCreateScreen={setCreateScreen}
-                                                filter={filter}
-                                                setFilter={setFilter}
-                                                activeReportType={activeReportType}
-                                            />
-                                        </Transition>
-                                    </>
-                                </Tab.Panel>
-                                <Tab.Panel className={"relative h-full"}>
-                                    <div className='absolute inset-0 m-auto'>Por implementar</div>
-                                </Tab.Panel>
-                            </Tab.Panels>
-                        </div>
-                        <div className='box-border w-full overflow-hidden border rounded-xl'>
-                            <>
-                                {activeReport && !activeReportType ? (
-                                    <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />
-                                ) : activeReportType && !activeReport ? (
-                                    <div className='grid h-full grid-cols-[0.5fr_1fr] divide-x overflow-hidden'>
-                                        <ReportCreateList
-                                            activeReportType={activeReportType}
-                                            trackerGroups={trackerGroups}
-                                            vehicleGroups={vehicleGroups}
-                                            driverGroups={driverGroups}
-                                            isLoadingTrackers={isLoadingTrackers}
-                                            trackersError={trackersError}
-                                            trackersFetcher={trackersFetcher}
-                                            isLoadingVehicles={isLoadingVehicles}
-                                            vehiclesError={vehiclesError}
-                                            vehiclesFetcher={vehiclesFetcher}
-                                            isLoadingDrivers={isLoadingDrivers}
-                                            driversError={driversError}
-                                            driversFetcher={driversFetcher}
-                                            selectedTrackers={selectedTrackers}
-                                            selectedVehicles={selectedVehicles}
-                                            selectedDrivers={selectedDrivers}
-                                            setSelectedTrackers={setSelectedTrackers}
-                                            setSelectedVehicles={setSelectedVehicles}
-                                            setSelectedDrivers={setSelectedDrivers}
-                                            allTrackerIds={allTrackerIds}
-                                            isAllSelected={isAllSelected}
-                                            filterItem={filterItem}
-                                            setFilterItem={setFilterItem}
-                                            isIndeterminate={isIndeterminate}
-                                        />
-                                        <ReportCreateForm
-                                            activeReportType={activeReportType}
-                                            fieldValues={fieldValues}
-                                            setFieldValues={setFieldValues}
-                                            isPayloadValid={isPayloadValid}
-                                            sendReportRequest={sendReportRequest}
-                                            errorMessage={errorMessage}
-                                            setActiveReportType={setActiveReportType}
-                                        />
+            <Transition show={true} {...scaleAnimationProps}>
+
+                <h1 className='mb-2 text-lg font-medium text-brand-dark-gray'>Listado de reportes</h1>
+                <div className='w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
+                    <Tab.Group as={Fragment}>
+                        <div className='grid grid-cols-[350px_auto] gap-x-4 h-full box-border'>
+                            <div className='relative flex flex-col object-contain h-full overflow-hidden border divide-y rounded-xl'>
+                                <Tab.List>
+                                    <div className='grid grid-cols-2 *:w-full *:h-full min-h-10 divide-x *:transition font-medium *:border-b'>
+                                        {[
+                                            { label: "Reportes", active: true },
+                                            { label: "Horario", active: false },
+                                        ].map((title, titleIdx) => (
+                                            <Tab
+                                                disabled={!title.active}
+                                                key={titleIdx}
+                                                className={({ selected, disabled }) =>
+                                                    cn(
+                                                        "hover:bg-gray-100 outline-none focus-visible:bg-gray-100",
+                                                        selected && "text-brand-blue border-b-brand-blue",
+                                                        disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
+                                                    )
+                                                }>
+                                                {title.label}
+                                            </Tab>
+                                        ))}
                                     </div>
-                                ) : (
-                                    <>
-                                        <div className='flex items-center justify-center h-full col-span-2 text-xl font-medium text-center text-slate-800'>
-                                            Seleccione un reporte para continuar
+                                </Tab.List>
+                                <Tab.Panels as={Fragment}>
+                                    <Tab.Panel as={Fragment}>
+                                        <>
+                                            <Transition show={!createScreen} {...appearAnimationProps} className="overflow-y-auto">
+                                                <ReportListScreen
+                                                    setActiveReport={setActiveReport}
+                                                    setCreateScreen={setCreateScreen}
+                                                    reports={reports}
+                                                    isLoadingReports={isLoadingReports}
+                                                    hasLoadedOnce={hasLoadedOnce}
+                                                    refetchReports={refetchReports}
+                                                    isError={isError}
+                                                    filter={filter}
+                                                    activeReport={activeReport}
+                                                    setFilter={setFilter}
+                                                />
+                                            </Transition>
+                                            <Transition
+                                                show={createScreen}
+                                                {...appearAnimationProps}
+                                                enter='transition-all duration-500'
+                                                leave='transition-all duration-500'
+                                                className="absolute w-full h-full overflow-y-auto top-10 "    
+                                            >
+                                                <ReportCreateScreen
+                                                    setActiveReportType={setActiveReportType}
+                                                    setCreateScreen={setCreateScreen}
+                                                    filter={filter}
+                                                    setFilter={setFilter}
+                                                    activeReportType={activeReportType}
+                                                />
+                                            </Transition>
+                                        </>
+                                    </Tab.Panel>
+                                    <Tab.Panel className={"relative h-full"}>
+                                        <div className='absolute inset-0 m-auto'>Por implementar</div>
+                                    </Tab.Panel>
+                                </Tab.Panels>
+                            </div>
+                            <div className='box-border w-full overflow-hidden border rounded-xl'>
+                                <>
+                                    {activeReport && !activeReportType ? (
+                                        <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />
+                                    ) : activeReportType && !activeReport ? (
+                                        <div className='grid h-full grid-cols-[0.5fr_1fr] divide-x overflow-hidden'>
+                                            <ReportCreateList
+                                                activeReportType={activeReportType}
+                                                trackerGroups={trackerGroups}
+                                                vehicleGroups={vehicleGroups}
+                                                driverGroups={driverGroups}
+                                                isLoadingTrackers={isLoadingTrackers}
+                                                trackersError={trackersError}
+                                                trackersFetcher={trackersFetcher}
+                                                isLoadingVehicles={isLoadingVehicles}
+                                                vehiclesError={vehiclesError}
+                                                vehiclesFetcher={vehiclesFetcher}
+                                                isLoadingDrivers={isLoadingDrivers}
+                                                driversError={driversError}
+                                                driversFetcher={driversFetcher}
+                                                selectedTrackers={selectedTrackers}
+                                                selectedVehicles={selectedVehicles}
+                                                selectedDrivers={selectedDrivers}
+                                                setSelectedTrackers={setSelectedTrackers}
+                                                setSelectedVehicles={setSelectedVehicles}
+                                                setSelectedDrivers={setSelectedDrivers}
+                                                allTrackerIds={allTrackerIds}
+                                                isAllSelected={isAllSelected}
+                                                filterItem={filterItem}
+                                                setFilterItem={setFilterItem}
+                                                isIndeterminate={isIndeterminate}
+                                            />
+                                            <ReportCreateForm
+                                                activeReportType={activeReportType}
+                                                fieldValues={fieldValues}
+                                                setFieldValues={setFieldValues}
+                                                isPayloadValid={isPayloadValid}
+                                                sendReportRequest={sendReportRequest}
+                                                errorMessage={errorMessage}
+                                                setActiveReportType={setActiveReportType}
+                                            />
                                         </div>
-                                    </>
-                                )}
-                            </>
+                                    ) : (
+                                        <>
+                                            <div className='flex items-center justify-center h-full col-span-2 text-xl font-medium text-center text-slate-800'>
+                                                Seleccione un reporte para continuar
+                                            </div>
+                                        </>
+                                    )}
+                                </>
+                            </div>
                         </div>
-                    </div>
-                </Tab.Group>
-            </div>
+                    </Tab.Group>
+                </div>
+            </Transition>
         </div>
     );
 };

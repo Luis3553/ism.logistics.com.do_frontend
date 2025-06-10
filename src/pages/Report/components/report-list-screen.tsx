@@ -28,10 +28,10 @@ export default function ReportListScreen({
 }) {
     return (
         <>
-            <div className='px-4 py-2 border-b'>
+            <div className='sticky top-0 z-50 px-4 py-2 bg-white border-b'>
                 <span className='font-medium text-gray-700'>Reportes disponibles</span>
             </div>
-            <div>
+            <div className="sticky z-50 bg-white top-[36px]">
                 <button
                     onClick={() => {
                         setActiveReport(null);
@@ -42,9 +42,7 @@ export default function ReportListScreen({
                     Crear reporte
                 </button>
             </div>
-            <div className='relative'>
-                <Filter filter={filter} setFilter={setFilter} />
-            </div>
+            <Filter className="sticky z-50 top-[71px]" filter={filter} setFilter={setFilter} />
             <ReportList
                 reports={reports}
                 showInitialLoading={isLoadingReports && !hasLoadedOnce.current}

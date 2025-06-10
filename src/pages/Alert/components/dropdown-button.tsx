@@ -1,9 +1,10 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
-import { HiChevronDown } from "react-icons/hi2";
+import { HiChevronUpDown } from "react-icons/hi2";
 
 type DropdownMenuOption = {
     label: string;
+    disabled?: boolean;
     onClick: () => void;
     icon?: React.ReactNode;
 }
@@ -16,7 +17,7 @@ export default function DropdownMenuButton({ name, icon, options }: { name: stri
                     <Menu.Button className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium transition rounded-md gap-x-2 text-brand-blue bg-brand-light-blue hover:bg-brand-blue hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75'>
                         {icon}
                         {name}
-                        <HiChevronDown className='w-5 h-5 ml-2 -mr-1' aria-hidden='true' />
+                        <HiChevronUpDown className='w-5 h-5 ml-2 -mr-1' aria-hidden='true' />
                     </Menu.Button>
                 </div>
                 <Transition
@@ -32,7 +33,7 @@ export default function DropdownMenuButton({ name, icon, options }: { name: stri
                             {options.map((option, optionIdx) => (
                                 <Menu.Item key={optionIdx}>
                                     {({ active }) => (
-                                        <button onClick={option.onClick} className={`${active ? "bg-brand-blue text-white" : "text-gray-900"} group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                        <button disabled={option.disabled} onClick={option.onClick} className={`${active ? "bg-brand-blue text-white" : "text-gray-900"} group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm ${option.disabled ? "cursor-not-allowed opacity-50" : ""}`}>
                                             {option.icon}
                                             {option.label}
                                         </button>

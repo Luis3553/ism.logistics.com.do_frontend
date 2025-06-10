@@ -6,7 +6,7 @@ import React from "react";
 import ListOfTrackers from "./select-trackers";
 import ListOfGroups from "./select-groups";
 import ListOfAlerts from "./select-alerts";
-import ListOfTags from "./select-tags";
+// import ListOfTags from "./select-tags";
 
 export default function AlertHeader({
     options,
@@ -22,7 +22,7 @@ export default function AlertHeader({
     setGroupsQuery,
     setNotificationsQuery,
     setTrackersQuery,
-    setTagsQuery,
+    // setTagsQuery,
 }: {
     query: string;
     options: Option[];
@@ -77,9 +77,9 @@ export default function AlertHeader({
 
     return (
         <div className='flex flex-col gap-1 divide-y'>
-            <div className='flex flex-col flex-wrap justify-between pb-2 md:items-center gap-y-4 md:flex-row'>
+            <div className='flex flex-col flex-wrap justify-between pb-2 lg:items-center gap-y-4 lg:flex-row'>
                 <div className='flex flex-row flex-wrap items-center gap-4'>
-                    <div className='grid gap-2 p-1 rounded w-full md:w-fit min-[600px]:grid-cols-3 md:grid-cols-3 justify-stretch bg-brand'>
+                    <div className='grid gap-2 p-1 rounded w-full lg:w-fit min-[600px]:grid-cols-3 lg:grid-cols-3 justify-stretch bg-brand'>
                         {options.map((option, optionIdx) => (
                             <button
                                 key={optionIdx}
@@ -92,7 +92,7 @@ export default function AlertHeader({
                         ))}
                     </div>
                 </div>
-                <div className='relative flex flex-row items-center gap-2'>
+                <div className='relative flex flex-row items-center justify-between w-full gap-2 lg:w-auto lg:justify-normal'>
                     {/* <button
                         onClick={() => setAsc(!isAsc)}
                         title={isAsc ? "Cambiar a descendente" : "Cambiar a ascendente"}
@@ -103,28 +103,28 @@ export default function AlertHeader({
                         {<i className='mgc_sort_descending_line'></i>}
                     </button> */}
                     <CustomProvider locale={esES}>
-                        <div className='flex flex-row items-center gap-2 text-brand-gray'>
+                        <div className='flex flex-row items-center w-full gap-2 lg:w-auto text-brand-gray'>
                             <small className='text-sm font-medium'>Desde</small>
                             <DatePicker
                                 lang='es'
                                 value={from}
                                 cleanable={true}
                                 shouldDisableDate={allowedRangeDates}
-                                className='rounded-md shadow'
+                                className='w-full rounded-md shadow'
                                 menuClassName='shadow-lg z-30'
                                 format='dd/MM/yyyy hh:mm:ss aa'
                                 placement='bottomEnd'
                                 onChange={(e: Date | null) => handleChangeDate(e, "from")}
                             />
                         </div>
-                        <div className='flex flex-row items-center gap-2 text-brand-gray ms-4'>
+                        <div className='flex flex-row items-center w-full gap-2 lg:w-auto text-brand-gray ms-4'>
                             <small className='text-sm font-medium'>Hasta</small>
                             <DatePicker
                                 lang='es'
                                 value={to}
                                 cleanable={false}
                                 shouldDisableDate={allowedRangeDates}
-                                className='rounded-md shadow'
+                                className='w-full rounded-md shadow'
                                 menuClassName='shadow-lg z-30'
                                 format='dd/MM/yyyy hh:mm:ss aa'
                                 placement='bottomEnd'

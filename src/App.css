@@ -17,10 +17,6 @@
     --yellow: #ff9800;
 }
 
-/* ::-webkit-scrollbar {
-    scrollbar-width: thin;
-} */
-
 * {
     box-sizing: border-box;
     scroll-behavior: smooth !important;

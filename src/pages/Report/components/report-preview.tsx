@@ -1,6 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import { GeneratedReportRow, RetrievedReport, RetrievedReportData } from "@utils/types";
-import { HiChevronDown, HiChevronUp, HiTrash, HiXMark } from "react-icons/hi2";
+import { HiChevronUp, HiTrash, HiXMark } from "react-icons/hi2";
 import { LuDownload } from "react-icons/lu";
 import { Fragment } from "react/jsx-runtime";
 import api from "@api/index";
@@ -10,8 +10,9 @@ import { useState } from "react";
 import cn from "classnames";
 import { Cell, Column, HeaderCell, Table } from "rsuite-table";
 import { LoadSpinner } from "@components/LoadSpinner";
+import { expandAnimationProps, scaleAnimationProps } from "@utils/animations";
 
-export function ReportGroup({ data, column_dimensions }: { data: RetrievedReportData; column_dimensions: { [key: string]: number; } }) {
+export function ReportGroup({ data, column_dimensions }: { data: RetrievedReportData; column_dimensions: { [key: string]: number } }) {
     const [open, setOpen] = useState(true);
     const colKeys = Object.values(column_dimensions);
 
@@ -19,27 +20,16 @@ export function ReportGroup({ data, column_dimensions }: { data: RetrievedReport
         <>
             <div className='grid my-4 overflow-hidden divide-y rounded-lg shadow'>
                 <div className='flex items-center justify-between text-white transition bg-brand-blue hover:bg-brand-dark-blue'>
-                    <span className="px-2 font-bold">{data.groupLabel}</span>
+                    <span className='px-2 font-bold'>{data.groupLabel}</span>
                     <button onClick={() => setOpen(!open)} className='h-full p-3 transition hover:bg-black/20'>
                         <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                     </button>
                 </div>
-                <Transition
-                show={open}
-                appear
-                as='div'
-                leave='transition-[height] duration-500'
-                enter='transition-[height] duration-500'
-                enterFrom='h-0!'
-                enterTo='h-full'
-                leaveFrom='h-full'
-                leaveTo='h-0!'>
+                <Transition show={open} as='div' {...expandAnimationProps}>
                     <Table data={data.content.rows} virtualized maxHeight={300} cellBordered>
                         {data.content.columns.map((col, colIdx) => (
                             <Column key={colIdx} flexGrow={colKeys[colIdx]} fullText>
-                                <HeaderCell className="font-bold">
-                                    {col.name}
-                                </HeaderCell>
+                                <HeaderCell className='font-bold'>{col.name}</HeaderCell>
                                 <Cell dataKey={col.key}>
                                     {(rowData) => {
                                         const cellValue = rowData[col.key];
@@ -74,16 +64,7 @@ export function ReportSummary({ data }: { data: RetrievedReport["summary"] }) {
                     <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                 </button>
             </div>
-            <Transition
-                show={open}
-                appear
-                as='div'
-                leave='transition-[height] duration-500'
-                enter='transition-[height] duration-500'
-                enterFrom='h-0!'
-                enterTo='h-full'
-                leaveFrom='h-full'
-                leaveTo='h-0!'>
+            <Transition show={open} as='div' {...expandAnimationProps}>
                 <>
                     {data.rows.map((row, rowIdx) => (
                         <div className='grid grid-cols-2 divide-x *:p-2 hover:bg-gray-100 transition' key={`row-${rowIdx}`}>
@@ -136,11 +117,12 @@ export function ReportPreview({
         },
     ];
 
-    if (isLoading) return (
-        <div className="relative h-full">
-            <LoadSpinner />
-        </div>
-    )
+    if (isLoading)
+        return (
+            <div className='relative h-full'>
+                <LoadSpinner />
+            </div>
+        );
 
     if (data)
         return (
@@ -151,14 +133,7 @@ export function ReportPreview({
                             <Menu.Button className='h-full text-white transition bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
                                 <LuDownload />
                             </Menu.Button>
-                            <Transition
-                                as={Fragment}
-                                enter='transition ease-out duration-100'
-                                enterFrom='transform opacity-0 scale-95'
-                                enterTo='transform opacity-100 scale-100'
-                                leave='transition ease-in duration-75'
-                                leaveFrom='transform opacity-100 scale-100'
-                                leaveTo='transform opacity-0 scale-95'>
+                            <Transition as={Fragment} {...scaleAnimationProps}>
                                 <Menu.Items className='absolute z-50 w-32 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg left-2 ring-1 ring-black/5 focus:outline-none'>
                                     <div className='px-1 py-1 '>
                                         {options.map((option, optionIdx) => (

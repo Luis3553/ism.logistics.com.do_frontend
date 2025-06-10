@@ -5,6 +5,7 @@ import cn from "classnames";
 import { DateField, DateRangeField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "../utils/fields";
 import { ReportCategory, ReportType } from "@utils/types";
 import { format } from "date-fns";
+import { expandAnimationProps } from "@utils/animations";
 
 const today = format(new Date(), "dd-MM-yyyy hh:mm");
 
@@ -201,7 +202,7 @@ export function ReportTypesList({
     const normalizedFilter = filter.trim().toLowerCase();
 
     return (
-        <div className='flex flex-col w-full h-full overflow-y-scroll divide-y'>
+        <div className='flex flex-col w-full h-full divide-y'>
             {reports.map((reportCategory, reportCategoryIdx) => {
                 const filteredReports = reportCategory.types.filter(
                     (type) => type.name.toLowerCase().includes(normalizedFilter) || type.description.toLowerCase().includes(normalizedFilter),
@@ -219,7 +220,7 @@ export function ReportTypesList({
                                 <HiOutlineChevronDown className={cn(openStates[reportCategoryIdx] && "rotate-180", "transition-all")} />
                             </button>
                         </div>
-                        <Transition show={!!openStates[reportCategoryIdx]}>
+                        <Transition show={!!openStates[reportCategoryIdx]} {...expandAnimationProps}>
                             {filteredReports.map((type) => {
                                 return <ReportTypeRow key={type.id} data={type} onClick={() => setActiveReportType(type)} selected={type.id === activeReportType?.id} />;
                             })}
