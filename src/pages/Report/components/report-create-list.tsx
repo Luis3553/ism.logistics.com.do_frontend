@@ -16,6 +16,8 @@ export default function ReportCreateList({
     isLoadingTrackers,
     trackersError,
     trackersFetcher,
+    selectedGroups,
+    setSelectedGroups,
     selectedTrackers,
     setSelectedTrackers,
     driverGroups,
@@ -35,11 +37,13 @@ export default function ReportCreateList({
     isAllSelected,
     isIndeterminate,
     allTrackerIds,
+    allGroupIds,
 }: {
     activeReportType: ReportType;
     trackerGroups: TrackersGroup[] | undefined;
     isLoadingTrackers: boolean;
     trackersError: boolean;
+    selectedGroups: Set<number>;
     selectedTrackers: Set<number>;
     driverGroups: DriversGroup[] | undefined;
     isLoadingDrivers: boolean;
@@ -53,10 +57,12 @@ export default function ReportCreateList({
     isAllSelected: boolean;
     isIndeterminate: boolean;
     allTrackerIds: number[];
+    allGroupIds: number[];
     trackersFetcher: () => void;
     driversFetcher: () => void;
     vehiclesFetcher: () => void;
     setFilterItem: React.Dispatch<React.SetStateAction<string>>;
+    setSelectedGroups: React.Dispatch<React.SetStateAction<Set<number>>>;
     setSelectedTrackers: React.Dispatch<React.SetStateAction<Set<number>>>;
     setSelectedDrivers: React.Dispatch<React.SetStateAction<Set<number>>>;
     setSelectedVehicles: React.Dispatch<React.SetStateAction<Set<number>>>;
@@ -64,8 +70,10 @@ export default function ReportCreateList({
     const toggleSelectAll = () => {
         if (isAllSelected) {
             setSelectedTrackers(new Set());
+            setSelectedGroups(new Set());
         } else {
             setSelectedTrackers(new Set(allTrackerIds));
+            setSelectedGroups(new Set(allGroupIds));
         }
     };
 
@@ -75,6 +83,19 @@ export default function ReportCreateList({
         selectedSet: Set<number>,
         setter: React.Dispatch<React.SetStateAction<Set<number>>>,
     ) {
+        if (activeReportType.list === "trackers") {
+            const groupId = trackerGroups?.find((g) => g.name === groupKey)?.id;
+            setSelectedGroups((prev) => {
+                const newSet = new Set(prev);
+                if (newSet.has(groupId!)) {
+                    newSet.delete(groupId!);
+                } else {
+                    newSet.add(groupId!);
+                }
+                return newSet;
+            });
+        }
+
         const items = group[groupKey] ?? [];
         const groupIds = items.map((item) => item.id);
         const allInGroup = groupIds.every((id) => selectedSet.has(id));
@@ -127,7 +148,26 @@ export default function ReportCreateList({
                         fetcher={trackersFetcher}
                         selectedTrackers={selectedTrackers}
                         toggleGroup={(group) => toggleGroupGeneric({ [group.name]: group.trackers }, group.name, selectedTrackers, setSelectedTrackers)}
-                        toggleItem={(id) => toggleItemGeneric(id, selectedTrackers, setSelectedTrackers)}
+                        toggleItem={(id) => {
+                            // Find the group for this tracker
+                            const group = trackerGroups?.find((g) => g.trackers.some((t) => t.id === id));
+                            console.log("Group for tracker ID", id, ":", group);
+                            const groupId = group ? group.id : undefined;
+                            const newSet = new Set(selectedTrackers);
+                            const newGroups = new Set(selectedGroups);
+                            if (newSet.has(id)) {
+                                newSet.delete(id);
+                                // If no other tracker in the group is selected, remove the group
+                                if (group && !group.trackers.some((t) => t.id !== id && newSet.has(t.id))) {
+                                    if (groupId !== undefined) newGroups.delete(groupId);
+                                }
+                            } else {
+                                newSet.add(id);
+                                if (groupId !== undefined) newGroups.add(groupId);
+                            }
+                            setSelectedTrackers(newSet);
+                            setSelectedGroups(newGroups);
+                        }}
                     />
                 ) : activeReportType.list == "drivers" ? (
                     <DriversList

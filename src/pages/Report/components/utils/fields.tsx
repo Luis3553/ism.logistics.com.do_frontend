@@ -5,6 +5,16 @@ import cn from "classnames";
 import { useFetch } from "@hooks/useFetch";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { CheckBox } from "./check-boxes";
+import ListboxComponent from "@components/listbox";
+
+export function GroupByField({ onChange, value, options }: { value: any; onChange: () => void; options: { value: any; label: string; }[] }) {
+    return (
+        <div className="flex flex-col">
+            <span className="text-sm font-medium">Agrupar por</span>
+            <ListboxComponent onChange={onChange} selectedOption={value} options={options} />
+        </div>
+    );
+}
 
 export function TitleField({ onChange, value }: { value: any; onChange: () => void }) {
     const [isValid, setValid] = useState(true);
@@ -42,8 +52,8 @@ export function TitleField({ onChange, value }: { value: any; onChange: () => vo
                 id='report_title'
                 value={value}
                 onChange={onChange}
-                className={cn("px-2 py-1 transition-all border rounded-md outline-none focus:border-brand-blue caret-brand-blue", !isValid && "border-red-500")}
-                placeholder=''
+                className={cn("px-2 py-2 transition-all border rounded-md outline-none focus:border-brand-blue caret-brand-blue", !isValid && "border-red-500")}
+                placeholder='Introduzca un título'
             />
             {!isValid && <small className='text-red-400'>Debe introducir un título para el reporte</small>}
             {hasInvalidCharacter && <small className='text-red-400'>El nombre del reporte no debe contener: / \ " * ? | &gt; &lt; :</small>}
@@ -191,7 +201,7 @@ export function DateField({ onChange, value, oldestAllowed }: { value: any; onCh
                 Hasta
             </label>
             <CustomProvider locale={esES}>
-                <DatePicker name='date' id='date' onChange={onChange} value={valueDate} placement='bottomEnd' shouldDisableDate={allowedRangeDates} />
+                <DatePicker name='date' id='date' onChange={onChange} value={valueDate} defaultValue={new Date()} cleanable={false} placement='bottomEnd' shouldDisableDate={allowedRangeDates} />
             </CustomProvider>
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}
         </div>
@@ -283,9 +293,9 @@ export function RulesList({ onChange, value }: { value: number[]; onChange: (val
 
     if (data && data.length > 0)
         return (
-            <div className=''>
+            <div>
                 <h2 className='text-sm font-medium'>Alertas</h2>
-                <div className='overflow-y-scroll max-h-52'>
+                <div className='overflow-y-scroll border rounded-lg max-h-52'>
                     {data.map((item: { label: string; value: number }) => (
                         <CheckBox key={item.value} label={item.label} checked={selected.has(item.value)} onChange={() => handleToggle(item.value)} />
                     ))}

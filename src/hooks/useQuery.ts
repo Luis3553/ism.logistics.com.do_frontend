@@ -13,6 +13,7 @@ export const useApiQuery = <T = any>(
         interval?: number | false;
         disable?: boolean;
         retry?: number | false;
+        staleTime?: number;
         params?: Record<string, any>;
     },
 ): UseQueryResult<T, Error> => {
@@ -22,6 +23,7 @@ export const useApiQuery = <T = any>(
         refetchInterval: options.interval ?? false,
         enabled: !options.disable,
         retry: options.retry,
-        refetchOnWindowFocus: false,
+        refetchOnWindowFocus: true,
+        staleTime: options.staleTime ?? Infinity, 
     });
 };

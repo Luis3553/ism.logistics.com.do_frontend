@@ -11,6 +11,9 @@ import cn from "classnames";
 import { Cell, Column, HeaderCell, Table } from "rsuite-table";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { expandAnimationProps, scaleAnimationProps } from "@utils/animations";
+import { Message, Tooltip, useToaster, Whisper } from "rsuite";
+import { Modal } from "@components/Modal";
+import { ReactNode } from "react";
 
 export function ReportGroup({ data, column_dimensions }: { data: RetrievedReportData; column_dimensions: { [key: string]: number } }) {
     const [open, setOpen] = useState(true);
@@ -21,7 +24,7 @@ export function ReportGroup({ data, column_dimensions }: { data: RetrievedReport
             <div className='grid my-4 overflow-hidden divide-y rounded-lg shadow'>
                 <div className='flex items-center justify-between text-white transition bg-brand-blue hover:bg-brand-dark-blue'>
                     <span className='px-2 font-bold'>{data.groupLabel}</span>
-                    <button onClick={() => setOpen(!open)} className='h-full p-3 transition hover:bg-black/20'>
+                    <button onClick={() => setOpen(!open)} className='h-full p-3 transition outline-none hover:bg-black/20 focus-visible:bg-black/20'>
                         <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                     </button>
                 </div>
@@ -57,10 +60,10 @@ export function ReportGroup({ data, column_dimensions }: { data: RetrievedReport
 export function ReportSummary({ data }: { data: RetrievedReport["summary"] }) {
     const [open, setOpen] = useState(true);
     return (
-        <div className='grid w-full overflow-hidden divide-y rounded-lg shadow lg:w-1/3'>
+        <div className='grid w-full overflow-hidden divide-y rounded-lg shadow lg:w-1/2'>
             <div className='flex items-center justify-between font-bold text-white transition bg-brand-blue hover:bg-brand-dark-blue'>
                 <span className='px-2'>{data.title}</span>
-                <button onClick={() => setOpen(!open)} className='h-full p-3 transition hover:bg-black/20'>
+                <button onClick={() => setOpen(!open)} className='h-full p-3 transition outline-none hover:bg-black/20 focus-visible:bg-black/20'>
                     <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                 </button>
             </div>
@@ -89,6 +92,43 @@ export function ReportPreview({
 }) {
     const { data, isLoading } = useApiQuery<RetrievedReport>(`/reports/${activeReport.id}/retrieve`, {});
 
+    const toaster = useToaster();
+
+    const messageToaster = (message: ReactNode, type: "warning" | "success" | "info" | "error" = "error") => (
+        <Message
+            className={cn(
+                "*:flex *:flex-row *:items-center my-2 *:gap-x-4 p-4 text-white rounded-lg transition-all duration-500 backdrop-blur-sm hover:backdrop-blur-md",
+                type === "success" && "bg-green-500/75",
+                type === "warning" && "bg-amber-400/75",
+                type === "info" && "bg-blue-500/75",
+                type === "error" && "bg-red-500/75",
+            )}
+            showIcon
+            type={type ?? "error"}
+            closable>
+            {message}
+        </Message>
+    );
+
+    const [isOpen, setIsOpen] = useState(false);
+
+    async function deleteReport() {
+        toaster.push(messageToaster(`Eliminando reporte ${activeReport.title}...`, "info"), { duration: 5000, placement: "topEnd" });
+        setIsOpen(false);
+        try {
+            await api.delete(`/reports/${activeReport.id}/delete`).then(() => {
+                toaster.push(messageToaster(`Reporte "${activeReport.title}" eliminado correctamente`, "success"), { duration: 5000, placement: "topEnd" });
+                setActiveReport(null);
+                refetch();
+            });
+        } catch (error) {
+            toaster.push(messageToaster(`No se ha podido eliminar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+            console.error("Failed to delete report:", error);
+        }
+    }
+
+    const tooltip = (message: string) => <Tooltip>{message}</Tooltip>;
+
     const options = [
         // {
         //     label: "PDF",
@@ -100,18 +140,24 @@ export function ReportPreview({
         {
             label: "XLS",
             onClick: async () => {
-                const response = await api.get(`/reports/${activeReport.id}/download?format=xlsx`, {
-                    responseType: "blob",
-                });
-                const blob = response.data as Blob;
-                const url = window.URL.createObjectURL(blob);
+                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                try {
+                    const response = await api.get(`/reports/${activeReport.id}/download?format=xlsx`, {
+                        responseType: "blob",
+                    });
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
 
-                const link = document.createElement("a");
-                link.href = url;
-                link.setAttribute("download", `${activeReport.title.replace(" ", "_")}.xlsx`); // or .xls
-                document.body.appendChild(link);
-                link.click();
-                link.remove();
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute("download", `${activeReport.title.split(" ").join("_")}.xlsx`); // or .xls
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                } catch (error) {
+                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+                    console.error("Failed to download report:", error);
+                }
             },
             icon: <PiFileXlsFill />,
         },
@@ -126,16 +172,16 @@ export function ReportPreview({
 
     if (data)
         return (
-            <div className='flex flex-col w-full'>
-                <div className='relative flex items-center justify-between w-full h-8 overflow-hidden bg-gray-100 border-b'>
-                    <div className='flex flex-row w-full h-full overflow-hidden rounded-t-lg'>
+            <div className='flex flex-col w-full h-full'>
+                <div className='relative flex items-center justify-between w-full h-8 bg-gray-100 border-b'>
+                    <div className='flex flex-row w-full h-full rounded-t-lg'>
                         <Menu as='div'>
-                            <Menu.Button className='h-full text-white transition bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
+                            <Menu.Button className='h-full text-white transition outline-none focus-visible:bg-brand-dark-blue bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
                                 <LuDownload />
                             </Menu.Button>
                             <Transition as={Fragment} {...scaleAnimationProps}>
-                                <Menu.Items className='absolute z-50 w-32 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg left-2 ring-1 ring-black/5 focus:outline-none'>
-                                    <div className='px-1 py-1 '>
+                                <Menu.Items className='absolute left-0 z-50 w-32 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none'>
+                                    <div className='px-1 py-1'>
                                         {options.map((option, optionIdx) => (
                                             <Menu.Item key={optionIdx}>
                                                 {({ active }) => (
@@ -154,27 +200,44 @@ export function ReportPreview({
                                 </Menu.Items>
                             </Transition>
                         </Menu>
-                        <button
-                            onClick={async () => {
-                                try {
-                                    await api.delete(`/reports/${activeReport.id}/delete`).then(() => {
-                                        setActiveReport(null);
-                                        refetch();
-                                    });
-                                } catch (error) {
-                                    console.error("Failed to delete report:", error);
-                                }
-                            }}
-                            className='h-full text-white rounded-tr-xl transition bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
+                        <button onClick={() => setIsOpen(true)} className='h-full text-white rounded-tr-xl transition outline-none focus-visible:bg-red-500 bg-brand-blue hover:bg-red-500 py-1.5 px-4'>
                             <HiTrash />
                         </button>
+                        <Modal className='h-min max-w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
+                            <div className='flex items-center justify-between mb-4'>
+                                <h1 className='text-lg font-semibold'>Confirmación</h1>
+                                <button
+                                    className='flex items-center justify-center p-1 transition rounded-full outline-none focus-visible:bg-black/10 hover:bg-black/10 active:bg-black/20'
+                                    onClick={() => setIsOpen(false)}>
+                                    <HiXMark className='size-5' />
+                                </button>
+                            </div>
+                            <div className=''>¿Está seguro de querer eliminar este reporte?</div>
+                            <small className='text-gray-500'>Esta acción no podrá revertirse.</small>
+                            <div className='flex justify-between mt-4'>
+                                <button
+                                    onClick={() => setIsOpen(false)}
+                                    className='py-1.5 px-4 bg-gray-100 text-gray-500 hover:bg-gray-500 active:bg-gray-600 shadow hover:text-white active:text-white focus-visible:bg-gray-400 focus-visible:text-white transition outline-none rounded-lg'>
+                                    Cancelar
+                                </button>
+                                <button
+                                    onClick={deleteReport}
+                                    className='py-1.5 px-4 bg-red-100 text-red-500 hover:bg-red-500 active:bg-red-600 shadow hover:text-white active:text-white focus-visible:bg-red-400 focus-visible:text-white transition outline-none rounded-lg'>
+                                    Eliminar
+                                </button>
+                            </div>
+                        </Modal>
                     </div>
-                    <div className='w-full font-medium text-gray-500 truncate ms-auto text-end pe-4 text-nowrap'>{activeReport.title}</div>
-                    <button className='p-2 text-red-600 transition hover:bg-red-300' onClick={() => setActiveReport(null)}>
+                    <div className='w-full text-sm font-medium text-gray-500 truncate ms-auto text-end pe-4 text-nowrap'>
+                        <Whisper speaker={tooltip(activeReport.title)} onMouseOver={() => tooltip} trigger='hover' placement='bottomStart'>
+                            {activeReport.title}
+                        </Whisper>
+                    </div>
+                    <button className='p-2 text-red-600 transition outline-none focus-visible:bg-red-300 hover:bg-red-300' onClick={() => setActiveReport(null)}>
                         <HiXMark />
                     </button>
                 </div>
-                <div className='p-4 overflow-y-scroll h-[calc(100vh-64px)] relative!'>
+                <div className='p-4 z-0 overflow-y-scroll h-full relative!'>
                     {data.summary && <ReportSummary data={data.summary} />}
                     {data.data.map((group, groupIdx) => (
                         <ReportGroup key={groupIdx} data={group} column_dimensions={data.columns_dimensions_for_excel_file} />

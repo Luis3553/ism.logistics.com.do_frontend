@@ -2,7 +2,7 @@ import { Transition } from "@headlessui/react";
 import { useState } from "react";
 import { HiOutlineChevronDown } from "react-icons/hi2";
 import cn from "classnames";
-import { DateField, DateRangeField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "../utils/fields";
+import { DateField, DateRangeField, GroupByField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "../utils/fields";
 import { ReportCategory, ReportType } from "@utils/types";
 import { format } from "date-fns";
 import { expandAnimationProps } from "@utils/animations";
@@ -87,39 +87,10 @@ export const reports: ReportCategory[] = [
         ],
     },
     {
-        category: "Gestión de flotas",
-        types: [
-            {
-                id: 3,
-                name: "Vencimiento de seguros",
-                description: "Vencimiento de pólizas de seguro de vehículos",
-                fields: [],
-                list: "vehicles",
-                disabled: true,
-            },
-            {
-                id: 4,
-                name: "Vencimiento de licencias",
-                description: "Vencimiento de permiso de conducir de los conductores",
-                fields: [],
-                list: "drivers",
-                disabled: true,
-            },
-            {
-                id: 5,
-                name: "Mantenimiento de vehículos",
-                description: "...",
-                fields: [],
-                list: "vehicles",
-                disabled: true,
-            },
-        ],
-    },
-    {
         category: "Eventos",
         types: [
             {
-                id: 6,
+                id: 3,
                 name: "Alertas",
                 description: "Alertas generadas por reglas",
                 disabled: false,
@@ -127,7 +98,7 @@ export const reports: ReportCategory[] = [
                     {
                         key: "title",
                         type: "string",
-                        defaultValue: "Reporte de eventos",
+                        defaultValue: `Reporte de eventos ${today}`,
                         component: TitleField,
                         props: {},
                         onChangeType: "event",
@@ -144,7 +115,24 @@ export const reports: ReportCategory[] = [
                         onChangeType: "value",
                     },
                     {
-                        key: "events",
+                        key: "groupBy",
+                        type: "options[]",
+                        defaultValue: {
+                            value: "notifications",
+                            label: "Eventos",
+                        },
+                        component: GroupByField,
+                        props: {
+                            options: [
+                                { value: "notifications", label: "Eventos" },
+                                { value: "trackers", label: "Objetos" },
+                                { value: "groups", label: "Grupos" },
+                            ],
+                        },
+                        onChangeType: "option",
+                    },
+                    {
+                        key: "notifications",
                         type: "number[]",
                         defaultValue: [],
                         component: RulesList,
@@ -153,6 +141,35 @@ export const reports: ReportCategory[] = [
                     },
                 ],
                 list: "trackers",
+            },
+        ],
+    },
+    {
+        category: "Gestión de flotas",
+        types: [
+            {
+                id: 4,
+                name: "Vencimiento de seguros",
+                description: "Vencimiento de pólizas de seguro de vehículos",
+                fields: [],
+                list: "vehicles",
+                disabled: true,
+            },
+            {
+                id: 5,
+                name: "Vencimiento de licencias",
+                description: "Vencimiento de permiso de conducir de los conductores",
+                fields: [],
+                list: "drivers",
+                disabled: true,
+            },
+            {
+                id: 6,
+                name: "Mantenimiento de vehículos",
+                description: "...",
+                fields: [],
+                list: "vehicles",
+                disabled: true,
             },
         ],
     },
@@ -177,8 +194,8 @@ export function ReportTypeRow({ data, selected, onClick }: { data: ReportType; s
                 !selected && !data.disabled && "focus-visible:bg-gray-50 active:bg-gray-100 hover:bg-gray-50",
             )}>
             <div className='flex flex-col w-full'>
-                <span className='font-medium'>{data.name}</span>
-                <small className='opacity-50'>{data.description}</small>
+                <span className='font-medium text-[.9rem]'>{data.name}</span>
+                <small className='opacity-50 text-[.75rem]'>{data.description}</small>
             </div>
         </button>
     );
@@ -202,10 +219,20 @@ export function ReportTypesList({
     const normalizedFilter = filter.trim().toLowerCase();
 
     return (
-        <div className='flex flex-col w-full h-full divide-y'>
+        <div className='flex flex-col w-full divide-y'>
             {reports.map((reportCategory, reportCategoryIdx) => {
                 const filteredReports = reportCategory.types.filter(
-                    (type) => type.name.toLowerCase().includes(normalizedFilter) || type.description.toLowerCase().includes(normalizedFilter),
+                    (type) =>
+                        type.name
+                            .toLowerCase()
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")
+                            .includes(normalizedFilter.normalize("NFD").replace(/[\u0300-\u036f]/g, "")) ||
+                        type.description
+                            .toLowerCase()
+                            .normalize("NFD")
+                            .replace(/[\u0300-\u036f]/g, "")
+                            .includes(normalizedFilter.normalize("NFD").replace(/[\u0300-\u036f]/g, "")),
                 );
 
                 if (filteredReports.length === 0) return null;
@@ -213,7 +240,7 @@ export function ReportTypesList({
                 return (
                     <div key={`category-${reportCategoryIdx}`}>
                         <div className='flex items-center justify-between font-medium text-gray-700 bg-gray-100 hover:bg-gray-200'>
-                            <span className='px-4 py-2'>{reportCategory.category}</span>
+                            <span className='px-4 py-2 text-[.9rem]'>{reportCategory.category}</span>
                             <button
                                 onClick={() => toggleOpen(reportCategoryIdx)}
                                 className='flex items-center justify-center p-3 transition outline-none focus-visible:bg-gray-300 hover:bg-gray-300 aspect-square'>

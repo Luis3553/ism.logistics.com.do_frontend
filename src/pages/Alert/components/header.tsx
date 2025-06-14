@@ -1,4 +1,4 @@
-import { CustomProvider, DatePicker } from "rsuite";
+import { CustomProvider, DatePicker, Message, useToaster } from "rsuite";
 import esES from "rsuite/locales/es_ES";
 import cn from "classnames";
 import { Option } from "@utils/types";
@@ -6,7 +6,6 @@ import React from "react";
 import ListOfTrackers from "./select-trackers";
 import ListOfGroups from "./select-groups";
 import ListOfAlerts from "./select-alerts";
-// import ListOfTags from "./select-tags";
 
 export default function AlertHeader({
     options,
@@ -41,13 +40,32 @@ export default function AlertHeader({
     setTrackersQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
     setTagsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
 }) {
+    const toaster = useToaster();
+    const message = (message: string) => (
+        <Message
+            className='*:flex *:flex-row my-2 *:gap-x-4 p-4 text-white rounded-lg bg-amber-400/75 transition-all duration-500 backdrop-blur-sm hover:backdrop-blur-md'
+            showIcon
+            type={"warning"}
+            closable>
+            <strong>Error!</strong> {message}
+        </Message>
+    );
+
     function handleChangeDate(e: Date | null, action: "from" | "to") {
-        if (e)
-            if (action == "from") {
-                setFrom(e);
-            } else if (action == "to") {
-                setTo(e);
+        if (!e) return;
+        if (action === "from") {
+            if (to && e > to) {
+                toaster.push(message('La fecha "Desde" no puede ser mayor que la fecha "Hasta".'), { duration: 5000, placement: "topEnd" });
+                return;
             }
+            setFrom(e);
+        } else if (action === "to") {
+            if (from && e < from) {
+                toaster.push(message('La fecha "Hasta" no puede ser menor que la fecha "Desde".'), { duration: 5000, placement: "topEnd" });
+                return;
+            }
+            setTo(e);
+        }
     }
 
     const allowedRangeDates = (date: Date) => {
@@ -87,21 +105,12 @@ export default function AlertHeader({
                                 aria-selected={selectedOption === option}
                                 className='flex items-center gap-2 font-medium btns-details-chart aria-selected:bg-brand-blue focus-visible:outline-1 outline-brand-blue aria-selected:text-white truncate bg-white py-0.5 px-3 rounded cursor-pointer shadow border border-transparent hover:border-brand-blue transition'>
                                 <i className={cn(option.icon)}></i>
-                                {option.value}
+                                {option.label}
                             </button>
                         ))}
                     </div>
                 </div>
                 <div className='relative flex flex-row items-center justify-between w-full gap-2 lg:w-auto lg:justify-normal'>
-                    {/* <button
-                        onClick={() => setAsc(!isAsc)}
-                        title={isAsc ? "Cambiar a descendente" : "Cambiar a ascendente"}
-                        className={cn(
-                            "transition-all rounded-lg cursor-pointer size-10 aspect-square text-brand-dark-gray hover:bg-brand-light-blue/50 active:bg-brand-light-blue focus-visible:text-white",
-                            isAsc && " rotate-x-180",
-                        )}>
-                        {<i className='mgc_sort_descending_line'></i>}
-                    </button> */}
                     <CustomProvider locale={esES}>
                         <div className='flex flex-row items-center w-full gap-2 lg:w-auto text-brand-gray'>
                             <small className='text-sm font-medium'>Desde</small>

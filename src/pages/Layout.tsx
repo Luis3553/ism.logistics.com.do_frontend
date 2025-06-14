@@ -3,6 +3,7 @@ import { Footer } from "@components/layout/Footer";
 import { MobileHeader } from "@components/layout/MobileHeader";
 import { Outlet, useLocation } from "react-router-dom";
 import { Transition } from "@headlessui/react";
+import { CustomProvider } from "rsuite";
 
 export const Layout = () => {
     const location = useLocation();
@@ -24,7 +25,9 @@ export const Layout = () => {
                 leaveFrom="opacity-100"
                 leaveTo="opacity-0"
                 as={"main"}>
-                <Outlet />
+                    <CustomProvider>
+                        <Outlet />
+                    </CustomProvider>
             </Transition>
             <Footer />
         </div>

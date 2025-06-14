@@ -1,6 +1,8 @@
 @import "./assets/mingCuteIcons/MingCute.css";
 @import "rsuite/DateRangePicker/styles/index.css";
 @import "rsuite/Table/styles/index.css";
+@import "rsuite/useToaster/styles/index.css";
+@import "rsuite/Tooltip/styles/index.css";
 
 @tailwind base;
 @tailwind components;
@@ -17,7 +19,34 @@
     --yellow: #ff9800;
 }
 
+body {
+    --sb-track-color: #ffffff;
+    --sb-thumb-color: #b9b9b9;
+    --sb-size: 8px;
+}
+
+body::-webkit-scrollbar {
+    width: var(--sb-size);
+}
+
+body::-webkit-scrollbar-track {
+    background: var(--sb-track-color);
+    border-radius: 5px;
+}
+
+body::-webkit-scrollbar-thumb {
+    background: var(--sb-thumb-color);
+    border-radius: 5px;
+}
+
+@supports not selector(::-webkit-scrollbar) {
+    body {
+        scrollbar-color: var(--sb-thumb-color) var(--sb-track-color);
+    }
+}
+
 * {
+    scrollbar-width: thin;
     box-sizing: border-box;
     scroll-behavior: smooth !important;
     /* font-family: 'Roboto', sans-serif !important; */

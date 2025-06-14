@@ -58,7 +58,8 @@ export type AlertsByTracker = {
 
 export type Option = {
     id: number;
-    value: string;
+    label: string;
+    value: any;
     component: (
         query: string,
         from: Date | null,
@@ -66,6 +67,9 @@ export type Option = {
         setGroupsQuery: Array<number | string>,
         setNotificationsQuery: Array<number | string>,
         setTrackersQuery: Array<number | string>,
+        allAlerts: Array<number | string>,
+        allGroups: Array<number>,
+        allTrackers: Array<number>,
     ) => JSX.Element;
     icon: string;
 };
@@ -109,11 +113,11 @@ export type Vehicle = {
 
 export type FieldConfig = {
     key: string;
-    type: "string" | "number" | "date" | "date[]" | "number[]" | "string[]";
+    type: "string" | "number" | "date" | "date[]" | "number[]" | "string[]" | "options[]";
     defaultValue?: any;
     component: React.FC<any>;
     props: Record<string, any>;
-    onChangeType: "event" | "value" | "array";
+    onChangeType: "event" | "value" | "array" | "option";
 };
 
 export type ReportType = {
@@ -198,6 +202,7 @@ export type TrackerObject = {
 };
 
 export type TrackersGroup = {
+    id: number;
     name: string;
     color: string;
     trackers: TrackerObject[];

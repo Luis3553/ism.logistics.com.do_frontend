@@ -18,18 +18,20 @@ export default function ReportCreateScreen({
 }) {
     return (
         <>
-            <div className='sticky top-0 z-50 flex items-center justify-between px-4 py-2 bg-white'>
-                <span className='font-medium text-gray-700'>Reportes disponibles</span>
-                <button
-                    onClick={() => {
-                        setActiveReportType(null);
-                        setCreateScreen(false);
-                    }}
-                    className='p-1 transition rounded-full outline-none hover:bg-black/10 focus-visible:bg-black/10'>
-                    <HiChevronLeft />
-                </button>
+            <div className='sticky top-0 z-50 bg-white'>
+                <div className='flex items-center justify-between px-4 py-2 bg-white'>
+                    <span className='font-medium text-gray-700'>Reportes disponibles</span>
+                    <button
+                        onClick={() => {
+                            setActiveReportType(null);
+                            setCreateScreen(false);
+                        }}
+                        className='p-1 transition rounded-full outline-none hover:bg-black/10 focus-visible:bg-black/10'>
+                        <HiChevronLeft />
+                    </button>
+                </div>
+                <Filter className="border-y" filter={filter} setFilter={setFilter} />
             </div>
-            <Filter className="sticky z-50 top-10" filter={filter} setFilter={setFilter} />
             <ReportTypesList filter={filter} activeReportType={activeReportType} setActiveReportType={setActiveReportType} />
         </>
     );

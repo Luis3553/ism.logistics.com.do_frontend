@@ -28,7 +28,7 @@ export function VehicleModalButton({ alertName, column, rowData }: { alertName: 
                 {column == "name" && rowData.emergency && <i className='absolute text-brand-yellow bottom-3 mgc_notification_line'></i>}
             </button>
             {isOpen && !rowData.vehicle_id && (
-                <Modal className='h-min w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
+                <Modal className='h-min max-w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
                     <div className='flex justify-between pb-4'>
                         <h1 className='text-lg font-semibold'>{rowData.name}</h1>
                         <button onClick={() => setIsOpen(false)}>
