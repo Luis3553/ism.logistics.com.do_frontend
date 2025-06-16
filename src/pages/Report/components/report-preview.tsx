@@ -175,34 +175,40 @@ export function ReportPreview({
             <div className='flex flex-col w-full h-full'>
                 <div className='relative flex items-center justify-between w-full h-8 bg-gray-100 border-b'>
                     <div className='flex flex-row w-full h-full rounded-t-lg'>
-                        <Menu as='div'>
-                            <Menu.Button className='h-full text-white transition outline-none focus-visible:bg-brand-dark-blue bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
-                                <LuDownload />
-                            </Menu.Button>
-                            <Transition as={Fragment} {...scaleAnimationProps}>
-                                <Menu.Items className='absolute left-0 z-50 w-32 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none'>
-                                    <div className='px-1 py-1'>
-                                        {options.map((option, optionIdx) => (
-                                            <Menu.Item key={optionIdx}>
-                                                {({ active }) => (
-                                                    <button
-                                                        onClick={option.onClick}
-                                                        className={`${
-                                                            active ? "bg-brand-blue text-white" : "text-gray-900"
-                                                        } group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm`}>
-                                                        {option.icon}
-                                                        {option.label}
-                                                    </button>
-                                                )}
-                                            </Menu.Item>
-                                        ))}
-                                    </div>
-                                </Menu.Items>
-                            </Transition>
-                        </Menu>
-                        <button onClick={() => setIsOpen(true)} className='h-full text-white rounded-tr-xl transition outline-none focus-visible:bg-red-500 bg-brand-blue hover:bg-red-500 py-1.5 px-4'>
-                            <HiTrash />
-                        </button>
+                        <Whisper speaker={tooltip("Eliminar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='top'>
+                            <Menu as='div'>
+                                <Menu.Button className='h-full text-white transition outline-none focus-visible:bg-brand-dark-blue bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
+                                    <LuDownload />
+                                </Menu.Button>
+                                <Transition as={Fragment} {...scaleAnimationProps}>
+                                    <Menu.Items className='absolute left-0 z-50 w-32 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none'>
+                                        <div className='px-1 py-1'>
+                                            {options.map((option, optionIdx) => (
+                                                <Menu.Item key={optionIdx}>
+                                                    {({ active }) => (
+                                                        <button
+                                                            onClick={option.onClick}
+                                                            className={`${
+                                                                active ? "bg-brand-blue text-white" : "text-gray-900"
+                                                            } group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                                            {option.icon}
+                                                            {option.label}
+                                                        </button>
+                                                    )}
+                                                </Menu.Item>
+                                            ))}
+                                        </div>
+                                    </Menu.Items>
+                                </Transition>
+                            </Menu>
+                        </Whisper>
+                        <Whisper speaker={tooltip("Eliminar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='top'>
+                            <button
+                                onClick={() => setIsOpen(true)}
+                                className='h-full text-white rounded-tr-xl transition outline-none focus-visible:bg-red-700 bg-red-500 hover:bg-red-700 py-1.5 px-4'>
+                                <HiTrash />
+                            </button>
+                        </Whisper>
                         <Modal className='h-min max-w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
                             <div className='flex items-center justify-between mb-4'>
                                 <h1 className='text-lg font-semibold'>Confirmación</h1>
@@ -233,9 +239,11 @@ export function ReportPreview({
                             {activeReport.title}
                         </Whisper>
                     </div>
-                    <button className='p-2 text-red-600 transition outline-none focus-visible:bg-red-300 hover:bg-red-300' onClick={() => setActiveReport(null)}>
-                        <HiXMark />
-                    </button>
+                    <Whisper speaker={tooltip("Cerrar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='topEnd'>
+                        <button className='p-2 text-red-600 transition outline-none focus-visible:bg-red-300 hover:bg-red-300' onClick={() => setActiveReport(null)}>
+                            <HiXMark />
+                        </button>
+                    </Whisper>
                 </div>
                 <div className='p-4 z-0 overflow-y-scroll h-full relative!'>
                     {data.summary && <ReportSummary data={data.summary} />}

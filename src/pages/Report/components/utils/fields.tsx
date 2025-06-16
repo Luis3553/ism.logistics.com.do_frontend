@@ -6,6 +6,7 @@ import { useFetch } from "@hooks/useFetch";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { CheckBox } from "./check-boxes";
 import ListboxComponent from "@components/listbox";
+import useWindowSize from "@utils/use-window-size";
 
 export function GroupByField({ onChange, value, options }: { value: any; onChange: () => void; options: { value: any; label: string; }[] }) {
     return (
@@ -50,7 +51,7 @@ export function TitleField({ onChange, value }: { value: any; onChange: () => vo
                 type='text'
                 name='report_title'
                 id='report_title'
-                value={value}
+                value={value ?? ""}
                 onChange={onChange}
                 className={cn("px-2 py-2 transition-all border rounded-md outline-none focus:border-brand-blue caret-brand-blue", !isValid && "border-red-500")}
                 placeholder='Introduzca un título'
@@ -64,6 +65,8 @@ export function TitleField({ onChange, value }: { value: any; onChange: () => vo
 export function DateRangeField({ onChange, value, limit, oldestAllowed }: { value: any; onChange: () => void; limit: number; oldestAllowed: number }) {
     const [tooOld, setOldness] = useState(false);
     const [tooWide, setWideness] = useState(false);
+
+    const { width } = useWindowSize();
 
     useEffect(() => {
         const [from, to] = value || [];
@@ -143,7 +146,7 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
                 Rango de fecha
             </label>
             <CustomProvider locale={esES}>
-                <DateRangePicker name='date_range' id='date_range' onChange={onChange} value={value} placement='bottomEnd' shouldDisableDate={allowedRangeDates} />
+                <DateRangePicker name='date_range' id='date_range' character=" &ndash; " onChange={onChange} value={value} placement={width! < 768 ? 'auto' : 'bottomEnd'} shouldDisableDate={allowedRangeDates} showOneCalendar={width! < 768} />
             </CustomProvider>
             {tooWide && <small className='text-red-400'>Rango permitido: {limit} días</small>}
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}

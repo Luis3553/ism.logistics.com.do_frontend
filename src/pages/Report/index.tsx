@@ -159,7 +159,11 @@ export const Reports = () => {
                             setSelectedDrivers(new Set());
                             setSelectedTrackers(new Set());
                             setSelectedVehicles(new Set());
+                            setSelectedGroups(new Set());
                             setCreateScreen(false);
+                            setErrorMessage(undefined);
+                            setPayload({ report_type_id: 0, report_payload: {} });
+                            setFieldValues({});
                             refetchReports();
                         } else {
                             toaster.push(messageToaster(r.message), { duration: 5000, placement: "topEnd" });
@@ -216,7 +220,7 @@ export const Reports = () => {
                 <div className='w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
                     <Tab.Group as={Fragment}>
                         <div className='relative grid max-d:grid-rows-2 md:grid-cols-[300px_auto] gap-4 h-full box-border'>
-                            <div className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[70%] transition-all max-md:aria-hidden:h-10 md:h-full overflow-hidden border divide-y rounded-xl' aria-expanded={isMenuOpen} aria-hidden={!isMenuOpen}>
+                            <div className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[60dvh] max-md:aria-expanded:min-h-[60dvh] transition-all max-md:aria-hidden:h-10 md:h-full overflow-hidden border divide-y rounded-xl' aria-expanded={isMenuOpen} aria-hidden={!isMenuOpen}>
                                 <Tab.List className="relative">
                                     <>
                                         <div className='grid grid-cols-2 *:w-full *:h-full min-h-10 divide-x *:transition font-medium *:border-b'>
@@ -245,7 +249,7 @@ export const Reports = () => {
                                 </Tab.List>
                                 <Tab.Panels as={Fragment}>
                                     <Tab.Panel as={Fragment}>
-                                        <div className='relative flex flex-col h-full overflow-hidden outline-none'>
+                                        <div className='relative flex flex-col h-full overflow-hidden outline-none grow'>
                                             <Transition show={!createScreen} unmount={false} {...appearAnimationProps} className='overflow-y-auto grow'>
                                                 <ReportListScreen
                                                     setActiveReport={setActiveReport}

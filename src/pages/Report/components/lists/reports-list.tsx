@@ -37,7 +37,7 @@ export function ReportRow({
     const [hasError, setHasError] = useState(data.percent < 0);
 
     const { data: updated } = useApiQuery<UpdatedReportMessage>(`/reports/${data.id}/status`, {
-        interval: pollingEnabled ? 1000 : false,
+        interval: pollingEnabled ? 1000 * 3 : false,
         disable: !pollingEnabled,
         retry: false,
         staleTime: 1000 * 60 * 2,
@@ -127,12 +127,15 @@ export function ReportRow({
                         </div>
                     )}
                 </div>
-                <Menu as='div'>
-                    <Menu.Button className='block p-1.5 transition mx-auto rounded-full outline-none hover:bg-black/10 active:bg-black/20 focus-visible:bg-black/20'>
+                <Menu as='div' className={"relative"}>
+                    <Menu.Button
+                        className='block p-1.5 transition mx-auto rounded-full outline-none hover:bg-black/10 active:bg-black/20 focus-visible:bg-black/20'
+                        onClick={e => e.stopPropagation()}
+                    >
                         <HiEllipsisVertical />
                     </Menu.Button>
                     <Transition as={Fragment} {...scaleAnimationProps}>
-                        <Menu.Items className='absolute z-50 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg w-28 right-2 ring-1 ring-black/5 focus:outline-none'>
+                        <Menu.Items className='absolute z-50 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg w-28 right-2 ring-1 ring-black/5 focus:outline-none'>
                             <div className='px-1 py-1'>
                                 <Menu.Item>
                                     {({ active }) => (
@@ -193,7 +196,7 @@ export function ReportRow({
                             <HiXMark className='size-5' />
                         </button>
                     </div>
-                    <div className=''>¿Está seguro de querer eliminar este reporte?</div>
+                    <div>¿Está seguro de querer eliminar este reporte?</div>
                     <small className='text-gray-500'>Esta acción no podrá revertirse.</small>
                     <div className='flex justify-between mt-4'>
                         <button

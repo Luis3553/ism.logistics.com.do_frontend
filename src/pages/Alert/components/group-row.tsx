@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react";
-import useWindowSize from "../use-window-size";
+import useWindowSize from "../../../utils/use-window-size";
 import cn from "classnames";
 import { NotificationRow } from "./notification-row";
 import { Group } from "@utils/types";
