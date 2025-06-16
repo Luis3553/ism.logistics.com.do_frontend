@@ -13,6 +13,9 @@ export default function ReportCreateForm({
     isPayloadValid,
     sendReportRequest,
     errorMessage,
+    setCreateScreen,
+    setActiveReportType,
+    setIsMenuOpen,
 }: {
     generatingReport: boolean;
     fieldValues: Record<string, any>;
@@ -22,13 +25,15 @@ export default function ReportCreateForm({
     isPayloadValid: boolean;
     sendReportRequest(): Promise<void>;
     errorMessage: string | undefined;
+    setCreateScreen: React.Dispatch<React.SetStateAction<boolean>>;
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const [buttonDisabled, setButtonDisabled] = useState(true);
 
     useEffect(() => {
         setButtonDisabled(!isPayloadValid || generatingReport);
     }, [isPayloadValid, generatingReport]);
-    
+
     return (
         <div className='relative flex flex-col h-full overflow-hidden'>
             <div className='flex flex-row items-center px-4 font-bold text-gray-700 bg-gray-200 min-h-10 max-h-10 gap-x-4'>
@@ -62,33 +67,48 @@ export default function ReportCreateForm({
                         );
                     })}
                 </fieldset>
-                <div className='absolute bottom-0 flex flex-row items-center w-full gap-3 p-2 mt-0 bg-white ps-4 end-0 ms-auto'>
+                <div className='absolute bottom-0 flex flex-col w-full gap-3 p-2 mt-0 bg-white max-md:items-center lg:flex-row ps-4 end-0 ms-auto'>
                     <Transition show={!isPayloadValid} {...appearAnimationProps}>
                         <small className='font-medium leading-none text-right text-red-500'>Hay uno o más campos vacíos</small>
                     </Transition>
                     <Transition show={errorMessage != undefined} {...appearAnimationProps}>
                         <small className='font-medium leading-none text-right text-red-500'>{errorMessage}</small>
                     </Transition>
-                    <button
-                        disabled={buttonDisabled}
-                        onClick={async (e) => {
-                            e.preventDefault();
-                            if (buttonDisabled) return;
-                            e.currentTarget.disabled = true; // Disable button immediately to prevent multiple clicks
-                            setButtonDisabled(true);
-                            try {
-                                await sendReportRequest();
-                            } finally {
-                                // Only re-enable if not generatingReport (in case it's still true)
-                                e.currentTarget.disabled = false; 
-                                setButtonDisabled(!isPayloadValid || generatingReport);
-                            }
-                        }}
-                        className={cn(
-                            "px-4 py-2 font-medium text-white transition rounded-md shadow outline-none ms-auto w-fit bg-brand-blue focus-visible:bg-brand-light-blue focus-visible:text-brand-blue hover:bg-brand-light-blue hover:text-brand-blue disabled:pointer-events-none disabled:bg-gray-300 disabled:cursor-not-allowed",
-                        )}>
-                        Generar
-                    </button>
+                    <div className='flex justify-end w-full ms-auto lg:w-80 gap-2 max-lg:flex-col *:w-full lg:flex-row'>
+                        <button
+                            onClick={() => {
+                                setActiveReportType(null);
+                                setFieldValues({});
+                                setButtonDisabled(true);
+                                setCreateScreen(false);
+                                setIsMenuOpen(true);
+                            }}
+                            className={cn(
+                                "px-4 py-2 w-40 font-medium text-white transition rounded-md shadow outline-none ms-auto bg-gray-400 focus-visible:bg-gray-500 hover:bg-gray-500",
+                            )}>
+                            Cancelar
+                        </button>
+                        <button
+                            disabled={buttonDisabled}
+                            onClick={async (e) => {
+                                e.preventDefault();
+                                if (buttonDisabled) return;
+                                e.currentTarget.disabled = true; // Disable button immediately to prevent multiple clicks
+                                setButtonDisabled(true);
+                                try {
+                                    await sendReportRequest();
+                                } finally {
+                                    // Only re-enable if not generatingReport (in case it's still true)
+                                    e.currentTarget.disabled = false;
+                                    setButtonDisabled(!isPayloadValid || generatingReport);
+                                }
+                            }}
+                            className={cn(
+                                "px-4 py-2 w-40 font-medium text-white transition rounded-md shadow outline-none bg-brand-blue focus-visible:bg-brand-light-blue focus-visible:text-brand-blue hover:bg-brand-light-blue hover:text-brand-blue disabled:pointer-events-none disabled:bg-gray-300 disabled:cursor-not-allowed",
+                            )}>
+                            Construir reporte
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>

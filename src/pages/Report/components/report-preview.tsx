@@ -29,7 +29,7 @@ export function ReportGroup({ data, column_dimensions }: { data: RetrievedReport
                     </button>
                 </div>
                 <Transition show={open} as='div' {...expandAnimationProps}>
-                    <Table data={data.content.rows} virtualized maxHeight={300} cellBordered>
+                    <Table data={data.content.rows} virtualized maxHeight={400} autoHeight cellBordered>
                         {data.content.columns.map((col, colIdx) => (
                             <Column key={colIdx} flexGrow={colKeys[colIdx]} fullText>
                                 <HeaderCell className='font-bold'>{col.name}</HeaderCell>

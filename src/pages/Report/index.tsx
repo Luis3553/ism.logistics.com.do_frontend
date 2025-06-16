@@ -216,8 +216,8 @@ export const Reports = () => {
     return (
         <div className='text-[0.9rem] px-0'>
             <Transition show={true} {...scaleAnimationProps}>
-                <h1 className='mb-2 text-lg font-medium text-brand-dark-gray'>Listado de reportes</h1>
-                <div className='relative w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
+                <h1 className='mb-2 text-lg font-medium text-brand-dark-gray'>Reportes personalizados</h1>
+                <div className='relative w-full bg-white shadow rounded-xl p-2 h-[85dvh] max-h-[85dvh]'>
                     <Tab.Group as={Fragment}>
                         <div
                             className={cn(
@@ -228,11 +228,7 @@ export const Reports = () => {
                                 className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[60dvh] max-md:aria-expanded:min-h-[60dvh] transition-all max-md:aria-hidden:h-10 md:aria-hidden:w-10 md:h-full overflow-hidden border divide- rounded-xl'
                                 aria-expanded={isMenuOpen}
                                 aria-hidden={!isMenuOpen}>
-                                <Transition
-                                    show={!isMenuOpen}
-                                    unmount={false}
-                                    {...appearAnimationProps}
-                                    className='absolute left-0 right-0 rotate-90 top-16'>
+                                <Transition show={!isMenuOpen} unmount={false} {...appearAnimationProps} className='absolute left-0 right-0 rotate-90 top-16'>
                                     <p className='font-medium text-gray-700 text-nowrap'>Reportes generados</p>
                                 </Transition>
                                 <Tab.List className={"relative"}>
@@ -251,7 +247,7 @@ export const Reports = () => {
                                                     key={titleIdx}
                                                     className={({ selected, disabled }) =>
                                                         cn(
-                                                            "hover:bg-gray-100 outline-none focus-visible:bg-gray-100",
+                                                            "uppercase hover:bg-gray-100 outline-none focus-visible:bg-gray-100",
                                                             selected && "text-brand-blue border-b-brand-blue",
                                                             disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
                                                         )
@@ -351,6 +347,8 @@ export const Reports = () => {
                                                 isIndeterminate={isIndeterminate}
                                             />
                                             <ReportCreateForm
+                                                setIsMenuOpen={setIsMenuOpen}
+                                                setCreateScreen={setCreateScreen}
                                                 generatingReport={generatingReport}
                                                 activeReportType={activeReportType}
                                                 fieldValues={fieldValues}
