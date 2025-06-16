@@ -93,7 +93,7 @@ export const reports: ReportCategory[] = [
                 id: 3,
                 name: "Alertas",
                 description: "Alertas generadas por reglas",
-                disabled: false,
+                disabled: true,
                 fields: [
                     {
                         key: "title",
