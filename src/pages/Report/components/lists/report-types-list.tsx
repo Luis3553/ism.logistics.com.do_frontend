@@ -48,7 +48,7 @@ export const reports: ReportCategory[] = [
                     {
                         key: "title",
                         type: "string",
-                        defaultValue: "Reporte de exceso de velocidad",
+                        defaultValue: `Reporte de exceso de velocidad ${today}`,
                         component: TitleField,
                         props: {}, // you will inject `value` and `onChange` dynamically
                         onChangeType: "event",
