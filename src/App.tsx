@@ -15,7 +15,7 @@ const queryClient = new QueryClient();
 function App() {
     return (
         <QueryClientProvider client={queryClient}>
-            <Router>
+            <Router basename={import.meta.env.VITE_BASE_URL}>
                 <Routes>
                     <Route element={<Layout />}>
                         <Route path="home" element={<Home />} />
