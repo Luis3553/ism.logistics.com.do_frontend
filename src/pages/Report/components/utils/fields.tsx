@@ -246,7 +246,7 @@ export function SpeedingMinimumDurationField({ onChange, value }: { value: numbe
     const [isValid, setValid] = useState(true);
 
     useEffect(() => {
-        if (value > 0 && value < 30) {
+        if (value >= 0 && value < 30) {
             setValid(true);
         } else setValid(false);
     }, [value]);
@@ -261,7 +261,7 @@ export function SpeedingMinimumDurationField({ onChange, value }: { value: numbe
                     type='number'
                     name='minimum_duration'
                     id='minimum_duration'
-                    value={Number(value)}
+                    value={Number(value) ?? 0}
                     onChange={onChange}
                     min={0}
                     max={30}

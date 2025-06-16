@@ -13,7 +13,7 @@ import ReportListScreen from "./components/report-list-screen";
 import ReportCreateForm from "./components/report-create-form";
 import ReportCreateList from "./components/report-create-list";
 import { Message, useToaster } from "rsuite";
-import { HiChevronUpDown } from "react-icons/hi2";
+import { HiChevronLeft, HiChevronUp } from "react-icons/hi2";
 // import { useApiQuery } from "@hooks/useQuery";
 
 type Response = {
@@ -147,7 +147,7 @@ export const Reports = () => {
     }
 
     async function sendReportRequest() {
-        toaster.push(messageToaster(`Validando reporte...`, "info"), { duration: 5000, placement: "topEnd" });
+        // toaster.push(messageToaster(`Validando reporte...`, "info"), { duration: 5000, placement: "topEnd" });
         setGeneratingReport(true);
         if (validatePayload()) {
             try {
@@ -211,19 +211,37 @@ export const Reports = () => {
         setPayloadValid(validatePayload());
     }, [payload]);
 
-    const [isMenuOpen, setIsMenuOpen] = useState(false);
+    const [isMenuOpen, setIsMenuOpen] = useState(true);
 
     return (
-        <div className='text-[0.9rem]'>
+        <div className='text-[0.9rem] px-0'>
             <Transition show={true} {...scaleAnimationProps}>
                 <h1 className='mb-2 text-lg font-medium text-brand-dark-gray'>Listado de reportes</h1>
-                <div className='w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
+                <div className='relative w-full bg-white shadow rounded-xl p-2 h-[80dvh] max-h-[80dvh]'>
                     <Tab.Group as={Fragment}>
-                        <div className='relative grid max-d:grid-rows-2 md:grid-cols-[300px_auto] gap-4 h-full box-border'>
-                            <div className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[60dvh] max-md:aria-expanded:min-h-[60dvh] transition-all max-md:aria-hidden:h-10 md:h-full overflow-hidden border divide-y rounded-xl' aria-expanded={isMenuOpen} aria-hidden={!isMenuOpen}>
-                                <Tab.List className="relative">
+                        <div
+                            className={cn(
+                                "relative grid max-d:grid-rows-2 gap-4 h-full box-border",
+                                isMenuOpen ? "md:grid-cols-[300px_auto] transition-all" : "md:grid-cols-[2.5rem_auto] transition-all",
+                            )}>
+                            <div
+                                className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[60dvh] max-md:aria-expanded:min-h-[60dvh] transition-all max-md:aria-hidden:h-10 md:aria-hidden:w-10 md:h-full overflow-hidden border divide- rounded-xl'
+                                aria-expanded={isMenuOpen}
+                                aria-hidden={!isMenuOpen}>
+                                <Transition
+                                    show={!isMenuOpen}
+                                    unmount={false}
+                                    {...appearAnimationProps}
+                                    className='absolute left-0 right-0 rotate-90 top-16'>
+                                    <p className='font-medium text-gray-700 text-nowrap'>Reportes generados</p>
+                                </Transition>
+                                <Tab.List className={"relative"}>
                                     <>
-                                        <div className='grid grid-cols-2 *:w-full *:h-full min-h-10 divide-x *:transition font-medium *:border-b'>
+                                        <div
+                                            className={cn(
+                                                "grid grid-cols-2 *:w-full *:h-full min-h-10 divide-x *:transition font-medium *:border-b",
+                                                isMenuOpen ? "md:visible md:opacity-100" : "md:invisible md:opacity-0",
+                                            )}>
                                             {[
                                                 { label: "Reportes", active: true },
                                                 { label: "Horario", active: false },
@@ -242,14 +260,25 @@ export const Reports = () => {
                                                 </Tab>
                                             ))}
                                         </div>
-                                        <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="absolute top-0 invisible hidden w-10 h-10 transition-all outline-none opacity-0 max-md:visible max-md:opacity-100 max-md:block hover:bg-black/20 focus-visible:bg-black/20">
-                                            <HiChevronUpDown className="m-auto size-5" />
+                                        <button
+                                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                            className='absolute top-0 visible block border-t-0! w-10 h-10 transition-all outline-none opacity-100 max-md:invisible max-md:opacity-0 max-md:hidden hover:bg-black/20 focus-visible:bg-black/20'>
+                                            <HiChevronLeft className={cn("m-auto size-4 transition-all", isMenuOpen ? "rotate-0" : "rotate-180")} />
+                                        </button>
+                                        <button
+                                            onClick={() => setIsMenuOpen(!isMenuOpen)}
+                                            className='absolute top-0 invisible hidden w-10 h-10 transition-all outline-none opacity-0 max-md:visible max-md:opacity-100 max-md:block hover:bg-black/20 focus-visible:bg-black/20'>
+                                            <HiChevronUp className={cn("m-auto size-4 transition-all", isMenuOpen ? "rotate-0" : "rotate-180")} />
                                         </button>
                                     </>
                                 </Tab.List>
                                 <Tab.Panels as={Fragment}>
                                     <Tab.Panel as={Fragment}>
-                                        <div className='relative flex flex-col h-full overflow-hidden outline-none grow'>
+                                        <div
+                                            className={cn(
+                                                "relative flex flex-col h-full overflow-hidden outline-none grow transition-opacity duration-500",
+                                                isMenuOpen ? "visible opacity-100" : "invisible opacity-0",
+                                            )}>
                                             <Transition show={!createScreen} unmount={false} {...appearAnimationProps} className='overflow-y-auto grow'>
                                                 <ReportListScreen
                                                     setActiveReport={setActiveReport}
@@ -281,7 +310,7 @@ export const Reports = () => {
                                             </Transition>
                                         </div>
                                     </Tab.Panel>
-                                    <Tab.Panel className={"relative h-full outline-none"}>
+                                    <Tab.Panel className={cn("relative h-full outline-none", isMenuOpen ? "visible" : "invisible")}>
                                         <div className='absolute inset-0 m-auto'>Por implementar</div>
                                     </Tab.Panel>
                                 </Tab.Panels>

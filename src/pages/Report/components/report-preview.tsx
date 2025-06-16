@@ -70,7 +70,7 @@ export function ReportSummary({ data }: { data: RetrievedReport["summary"] }) {
             <Transition show={open} as='div' {...expandAnimationProps}>
                 <>
                     {data.rows.map((row, rowIdx) => (
-                        <div className='grid grid-cols-2 divide-x *:p-2 hover:bg-gray-100 transition' key={`row-${rowIdx}`}>
+                        <div className='grid grid-cols-2 divide-x *:p-2 *:py-1 hover:bg-gray-100 transition' key={`row-${rowIdx}`}>
                             <div className='font-bold'>{row.title}</div>
                             <div>{row.value}</div>
                         </div>

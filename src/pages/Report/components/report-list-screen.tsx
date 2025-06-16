@@ -30,7 +30,7 @@ export default function ReportListScreen({
         <>
             <div className='sticky top-0 z-50 bg-white'>
                 <div className='px-4 py-2 bg-white '>
-                    <span className='font-medium text-gray-700'>Reportes disponibles</span>
+                    <span className='font-medium text-gray-700'>Reportes generados</span>
                 </div>
                 <div className='bg-white border-t'>
                     <button

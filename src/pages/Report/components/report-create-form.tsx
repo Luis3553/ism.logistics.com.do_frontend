@@ -36,7 +36,7 @@ export default function ReportCreateForm({
                 <span>Parámetros</span>
             </div>
             <div className='flex flex-col items-start justify-between h-full p-4 lg:gap-4'>
-                <fieldset className='grid w-full gap-4 lg:grid-cols-2 max-h-[calc(100%-6rem)] overflow-y-auto'>
+                <fieldset className='grid w-full gap-4 lg:grid-cols-2 max-h-[calc(100%-50px)] overflow-y-auto'>
                     {activeReportType!.fields.map((field, index) => {
                         const FieldComponent = field.component;
                         return (
