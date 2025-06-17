@@ -37,7 +37,13 @@ export default function ItemsList({
     toggleGroup,
     toggleItem,
 }: ItemsListProps) {
-    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>({});
+    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>(() => {
+        const initialStates: { [key: number]: boolean } = {};
+        groups?.forEach((_, idx) => {
+            initialStates[idx] = true;
+        });
+        return initialStates;
+    });
 
     const toggleOpen = (idx: number) => {
         setOpenStates((prev) => ({ ...prev, [idx]: !prev[idx] }));
@@ -64,7 +70,7 @@ export default function ItemsList({
                 </div>
             </div>
         );
-    
+
     if (!groups || groups.length === 0) return null;
 
     if (groups)
@@ -72,10 +78,7 @@ export default function ItemsList({
             return (
                 <div className='flex flex-col'>
                     {groups.map((group, groupIdx) => (
-                        <Transition
-                            key={groupIdx}
-                            {...expandAnimationProps}
-                            unmount={false}>
+                        <Transition key={groupIdx} {...expandAnimationProps} unmount={false}>
                             <Group
                                 key={groupIdx}
                                 label={group.name}
@@ -85,19 +88,10 @@ export default function ItemsList({
                                 toggleGroup={toggleGroup}
                                 setOpen={() => toggleOpen(groupIdx)}
                             />
-                            <Transition
-                                show={!!openStates[groupIdx]}
-                                {...expandAnimationProps}
-                                unmount={false}>
+                            <Transition show={!!openStates[groupIdx]} {...expandAnimationProps} unmount={false}>
                                 <>
                                     {group.trackers.map((item: any, itemIdx: number) => (
-                                        <Item
-                                            key={itemIdx}
-                                            label={item.label}
-                                            id={item.id}
-                                            selected={selectedItems.has(item.id)}
-                                            toggle={() => toggleItem(item.id)}
-                                        />
+                                        <Item key={itemIdx} label={item.label} id={item.id} selected={selectedItems.has(item.id)} toggle={() => toggleItem(item.id)} />
                                     ))}
                                 </>
                             </Transition>

@@ -6,8 +6,8 @@ import { ReportType } from "@utils/types";
 import { expandAnimationProps } from "@utils/animations";
 import { reports } from "../report-types";
 
-
 export const reportTypes: { id: number; name: string }[] = [];
+
 reports.forEach((category) => {
     category.types.forEach((type) => {
         reportTypes.push({ id: type.id, name: type.name });
@@ -44,7 +44,13 @@ export function ReportTypesList({
     setActiveReportType: React.Dispatch<React.SetStateAction<ReportType | null>>;
     setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>({});
+    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>(() => {
+        const initialStates: { [key: number]: boolean } = {};
+        reports.forEach((_, idx) => {
+            initialStates[idx] = true;
+        });
+        return initialStates;
+    });
 
     const toggleOpen = (idx: number) => {
         setOpenStates((prev) => ({ ...prev, [idx]: !prev[idx] }));
