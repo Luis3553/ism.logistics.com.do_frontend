@@ -143,7 +143,8 @@ export function ReportRow({
                                 <Menu.Item>
                                     {({ active }) => (
                                         <div
-                                            onClick={async () => {
+                                            onClick={async (e) => {
+                                                e.stopPropagation(); // Prevent event bubbling to parent elements
                                                 toaster.push(messageToaster(`Descargando reporte "${data.title}"`, "info"), { duration: 5000, placement: "topEnd" });
                                                 try {
                                                     const response = await api.get(`/reports/${data.id}/download?format=xlsx`, {
@@ -177,7 +178,10 @@ export function ReportRow({
                                 <Menu.Item>
                                     {({ active }) => (
                                         <div
-                                            onClick={() => setIsOpen(true)}
+                                            onClick={(e) => {
+                                                e.stopPropagation(); // Prevent event bubbling to parent elements
+                                                setIsOpen(true);
+                                            }}
                                             className={`${
                                                 active ? "bg-red-500 text-white" : "text-gray-900"
                                             } cursor-pointer group gap-x-4 transition divide-x divide-white flex flex-row w-full items-center rounded-md px-2 py-2 text-sm`}>

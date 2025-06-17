@@ -101,6 +101,7 @@ export default function ReportCreateForm({
                                     // Only re-enable if not generatingReport (in case it's still true)
                                     e.currentTarget.disabled = false;
                                     setButtonDisabled(!isPayloadValid || generatingReport);
+                                    setIsMenuOpen(true);
                                 }
                             }}
                             className={cn(
