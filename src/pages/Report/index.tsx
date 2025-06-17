@@ -287,6 +287,7 @@ export const Reports = () => {
                                                     filter={filterItem}
                                                     activeReport={activeReport}
                                                     setFilter={setFilterItem}
+                                                    setIsMenuOpen={setIsMenuOpen}
                                                 />
                                             </Transition>
                                             <Transition
@@ -300,6 +301,7 @@ export const Reports = () => {
                                                     setActiveReportType={setActiveReportType}
                                                     setCreateScreen={setCreateScreen}
                                                     filter={filter}
+                                                    setIsMenuOpen={setIsMenuOpen}
                                                     setFilter={setFilter}
                                                     activeReportType={activeReportType}
                                                 />
@@ -316,7 +318,7 @@ export const Reports = () => {
                                     {activeReport && !activeReportType ? (
                                         <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />
                                     ) : activeReportType && !activeReport ? (
-                                        <div className='grid h-full max-md:grid-rows-2 md:grid-cols-[1fr_1fr] xl:grid-cols-[0.5fr_1fr] divide-x overflow-hidden'>
+                                        <div className='grid h-full max-md:grid-rows-[0.75fr_1fr] md:grid-cols-[1fr_1fr] xl:grid-cols-[0.5fr_1fr] divide-x overflow-hidden'>
                                             <ReportCreateList
                                                 activeReportType={activeReportType}
                                                 trackerGroups={trackerGroups}

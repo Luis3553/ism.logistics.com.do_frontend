@@ -9,30 +9,32 @@ export default function ReportCreateScreen({
     filter,
     setFilter,
     activeReportType,
+    setIsMenuOpen,
 }: {
     setActiveReportType: React.Dispatch<React.SetStateAction<ReportType | null>>;
     setCreateScreen: React.Dispatch<React.SetStateAction<boolean>>;
     filter: string;
     setFilter: React.Dispatch<React.SetStateAction<string>>;
     activeReportType: ReportType | null;
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     return (
         <>
             <div className='sticky top-0 z-50 bg-white'>
-                <div className='flex items-center justify-between px-4 py-2 bg-white'>
+                <div className='flex items-center justify-between py-2 bg-white ps-4 pe-2'>
                     <span className='font-medium text-gray-700'>Reportes disponibles</span>
                     <button
                         onClick={() => {
                             setActiveReportType(null);
                             setCreateScreen(false);
                         }}
-                        className='p-1 transition rounded-full outline-none hover:bg-black/10 focus-visible:bg-black/10'>
+                        className='p-1 transition rounded-full outline-none bg-black/5 hover:bg-black/10 focus-visible:bg-black/10 active:bg-black/20'>
                         <HiChevronLeft />
                     </button>
                 </div>
-                <Filter className="border-y" filter={filter} setFilter={setFilter} />
+                <Filter className='border-y' filter={filter} setFilter={setFilter} />
             </div>
-            <ReportTypesList filter={filter} activeReportType={activeReportType} setActiveReportType={setActiveReportType} />
+            <ReportTypesList filter={filter} activeReportType={activeReportType} setActiveReportType={setActiveReportType} setIsMenuOpen={setIsMenuOpen} />
         </>
     );
 }

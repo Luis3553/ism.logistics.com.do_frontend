@@ -121,7 +121,7 @@ export default function ReportCreateList({
 
     return (
         <div className='flex flex-col overflow-hidden'>
-            <div className='flex flex-row items-center px-4 font-bold text-gray-700 bg-gray-200 min-h-10 max-h-10 gap-x-4'>
+            <div className='flex flex-row items-center px-4 font-bold text-gray-700 bg-gray-200 md:min-h-10 md:max-h-10 min-h-8 max-h-8 gap-x-4'>
                 {activeReportType?.list === "trackers" ? (
                     <TiLocationArrow className='size-6' />
                 ) : activeReportType?.list === "drivers" ? (

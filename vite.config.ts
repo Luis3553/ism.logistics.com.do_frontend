@@ -7,7 +7,7 @@ export default defineConfig({
     build: {
         sourcemap: true,
     },
-    base: "/frontend/",
+    base: "/",
     server: {
         allowedHosts: true,
     },

@@ -151,22 +151,62 @@ export const reports: ReportCategory[] = [
                 id: 4,
                 name: "Vencimiento de seguros",
                 description: "Vencimiento de pólizas de seguro de vehículos",
-                fields: [],
+                fields: [
+                    {
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de vencimiento de seguros ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
+                    },
+                    {
+                        key: "range",
+                        type: "date[]",
+                        defaultValue: [new Date(), new Date()],
+                        component: DateRangeField,
+                        props: {
+                            limit: 31,
+                            oldestAllowed: 120,
+                        },
+                        onChangeType: "value",
+                    },
+                ],
                 list: "vehicles",
-                disabled: true,
+                disabled: false,
             },
             {
                 id: 5,
                 name: "Vencimiento de licencias",
                 description: "Vencimiento de permiso de conducir de los conductores",
-                fields: [],
+                fields: [
+                    {
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de vencimiento de licencias ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
+                    },
+                    {
+                        key: "range",
+                        type: "date[]",
+                        defaultValue: [new Date(), new Date()],
+                        component: DateRangeField,
+                        props: {
+                            limit: 31,
+                            oldestAllowed: 120,
+                        },
+                        onChangeType: "value",
+                    },
+                ],
                 list: "drivers",
-                disabled: true,
+                disabled: false,
             },
             {
                 id: 6,
                 name: "Mantenimiento de vehículos",
-                description: "...",
+                description: "Mantenimiento de vehículos programados",
                 fields: [],
                 list: "vehicles",
                 disabled: true,
@@ -188,7 +228,7 @@ export function ReportTypeRow({ data, selected, onClick }: { data: ReportType; s
             onClick={onClick}
             disabled={data.disabled}
             className={cn(
-                "flex w-full outline-none text-start items-center border-t justify-between flex-row px-5 py-3 transition-all",
+                "flex w-full outline-none text-start items-center border-t justify-between flex-row px-5 py-2 md:py-3 transition-all",
                 selected && "bg-brand-blue focus-visible:bg-brand-dark-blue text-white hover:bg-brand-dark-blue",
                 data.disabled && "bg-gray-100 text-gray-500 cursor-not-allowed",
                 !selected && !data.disabled && "focus-visible:bg-gray-50 active:bg-gray-100 hover:bg-gray-50",
@@ -205,10 +245,12 @@ export function ReportTypesList({
     filter = "",
     activeReportType,
     setActiveReportType,
+    setIsMenuOpen
 }: {
     filter: string;
     activeReportType: ReportType | null;
     setActiveReportType: React.Dispatch<React.SetStateAction<ReportType | null>>;
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>({});
 
@@ -240,16 +282,19 @@ export function ReportTypesList({
                 return (
                     <div key={`category-${reportCategoryIdx}`}>
                         <div className='flex items-center justify-between font-medium text-gray-700 bg-gray-100 hover:bg-gray-200'>
-                            <span className='px-4 py-2 text-[.9rem]'>{reportCategory.category}</span>
+                            <span className='px-4 py-1 md:py-2 text-[.9rem]'>{reportCategory.category}</span>
                             <button
                                 onClick={() => toggleOpen(reportCategoryIdx)}
-                                className='flex items-center justify-center p-3 transition outline-none focus-visible:bg-gray-300 hover:bg-gray-300 aspect-square'>
+                                className='flex items-center justify-center p-2 transition outline-none md:p-3 focus-visible:bg-gray-300 hover:bg-gray-300 aspect-square'>
                                 <HiOutlineChevronDown className={cn(openStates[reportCategoryIdx] && "rotate-180", "transition-all")} />
                             </button>
                         </div>
                         <Transition show={!!openStates[reportCategoryIdx]} {...expandAnimationProps}>
                             {filteredReports.map((type) => {
-                                return <ReportTypeRow key={type.id} data={type} onClick={() => setActiveReportType(type)} selected={type.id === activeReportType?.id} />;
+                                return <ReportTypeRow key={type.id} data={type} onClick={() => {
+                                    setActiveReportType(type);
+                                    setIsMenuOpen(false);
+                                }} selected={type.id === activeReportType?.id} />;
                             })}
                         </Transition>
                     </div>

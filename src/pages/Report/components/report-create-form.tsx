@@ -36,12 +36,12 @@ export default function ReportCreateForm({
 
     return (
         <div className='relative flex flex-col h-full overflow-hidden'>
-            <div className='flex flex-row items-center px-4 font-bold text-gray-700 bg-gray-200 min-h-10 max-h-10 gap-x-4'>
+            <div className='flex flex-row items-center px-4 font-bold text-gray-700 bg-gray-200 md:min-h-10 md:max-h-10 min-h-8 max-h-8 gap-x-4'>
                 <HiDocument />
                 <span>Parámetros</span>
             </div>
             <div className='flex flex-col items-start justify-between h-full p-4 lg:gap-4'>
-                <fieldset className='grid w-full gap-4 lg:grid-cols-2 max-h-[calc(100%-50px)] overflow-y-auto'>
+                <fieldset className='grid w-full gap-4 lg:grid-cols-2 max-h-[calc(100%-70px)] overflow-y-auto'>
                     {activeReportType!.fields.map((field, index) => {
                         const FieldComponent = field.component;
                         return (
@@ -67,14 +67,14 @@ export default function ReportCreateForm({
                         );
                     })}
                 </fieldset>
-                <div className='absolute bottom-0 flex flex-col w-full gap-3 p-2 mt-0 bg-white max-md:items-center lg:flex-row ps-4 end-0 ms-auto'>
+                <div className='absolute bottom-0 flex flex-col w-full gap-3 p-2 mt-0 bg-white border-t max-md:items-center lg:flex-row ps-4 end-0 ms-auto'>
                     <Transition show={!isPayloadValid} {...appearAnimationProps}>
                         <small className='font-medium leading-none text-right text-red-500'>Hay uno o más campos vacíos</small>
                     </Transition>
                     <Transition show={errorMessage != undefined} {...appearAnimationProps}>
                         <small className='font-medium leading-none text-right text-red-500'>{errorMessage}</small>
                     </Transition>
-                    <div className='flex justify-end w-full ms-auto lg:w-80 gap-2 max-lg:flex-col *:w-full lg:flex-row'>
+                    <div className='flex justify-end w-full ms-auto lg:w-80 gap-2 md:flex-col *:w-full lg:flex-row'>
                         <button
                             onClick={() => {
                                 setActiveReportType(null);

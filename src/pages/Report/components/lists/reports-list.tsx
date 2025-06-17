@@ -105,10 +105,13 @@ export function ReportRow({
     if (!hasError)
         return (
             <button
-                onClick={onClick}
+                onClick={(e) => {
+                    e.stopPropagation(); // Prevent event bubbling to parent elements
+                    onClick();
+                }}
                 disabled={isLoading}
                 className={cn(
-                    "grid grid-cols-[90%_10%] w-full outline-none text-start items-center border-t justify-between flex-row px-5 py-3 transition-all",
+                    "grid grid-cols-[90%_10%] w-full outline-none text-start items-center border-t justify-between flex-row px-5 py-2 md:py-3 transition-all",
                     selected && "bg-brand-blue focus-visible:bg-brand-dark-blue text-white hover:bg-brand-dark-blue",
                     isLoading && "bg-gray-50 *:pointer-events-none cursor-not-allowed",
                     !selected && !isLoading && "hover:bg-brand-light-blue",
@@ -223,6 +226,7 @@ export function ReportList({
     refetch,
     activeReport,
     setActiveReport,
+    setIsMenuOpen,
 }: {
     reports: GeneratedReportRow[];
     isError: boolean;
@@ -231,6 +235,7 @@ export function ReportList({
     filter: string;
     activeReport: GeneratedReportRow | null;
     setActiveReport: React.Dispatch<React.SetStateAction<GeneratedReportRow | null>>;
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>; 
 }) {
     if (showInitialLoading)
         return (
@@ -274,7 +279,10 @@ export function ReportList({
                 <ReportRow
                     key={type.id} // avoid key collision
                     data={type}
-                    onClick={() => setActiveReport(type)}
+                    onClick={() => {
+                        setActiveReport(type)
+                        setIsMenuOpen(false);
+                    }}
                     refetch={refetch}
                     setActiveReport={setActiveReport}
                     selected={type.id === activeReport?.id}

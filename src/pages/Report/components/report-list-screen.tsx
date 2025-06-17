@@ -14,6 +14,7 @@ export default function ReportListScreen({
     filter,
     activeReport,
     setFilter,
+    setIsMenuOpen
 }: {
     setActiveReport: React.Dispatch<React.SetStateAction<GeneratedReportRow | null>>;
     activeReport: GeneratedReportRow | null;
@@ -25,6 +26,7 @@ export default function ReportListScreen({
     isError: boolean;
     filter: string;
     setFilter: React.Dispatch<React.SetStateAction<string>>;
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>; // Optional prop for menu state management
 }) {
     return (
         <>
@@ -38,7 +40,7 @@ export default function ReportListScreen({
                             setActiveReport(null);
                             setCreateScreen(true);
                         }}
-                        className='flex flex-row items-center w-full h-full gap-4 px-4 py-2 font-medium transition outline-none focus-visible:bg-brand-light-blue text-brand-blue hover:bg-brand-light-blue'>
+                        className='flex flex-row items-center w-full h-full gap-4 px-4 py-1.5 font-medium transition outline-none md:py-2 focus-visible:bg-brand-light-blue text-brand-blue hover:bg-brand-light-blue'>
                         <HiPlus className='size-5' />
                         Crear reporte
                     </button>
@@ -53,6 +55,7 @@ export default function ReportListScreen({
                 filter={filter}
                 activeReport={activeReport}
                 setActiveReport={setActiveReport}
+                setIsMenuOpen={setIsMenuOpen}
             />
         </>
     );
