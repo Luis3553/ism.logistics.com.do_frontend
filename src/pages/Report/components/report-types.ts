@@ -16,6 +16,7 @@ export const reports: ReportCategory[] = [
                 disabled: false,
                 fields: [
                     {
+                        required: true,
                         key: "title",
                         type: "string",
                         defaultValue: `Reporte odómetro ${today}`,
@@ -24,11 +25,13 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
+                        required: true,
                         key: "date",
                         type: "date",
                         defaultValue: new Date(),
                         component: DateField,
                         props: {
+                            label: "Fecha",
                             oldestAllowed: 120,
                         }, // you will inject `value` and `onChange` dynamically
                         onChangeType: "value",
@@ -43,6 +46,7 @@ export const reports: ReportCategory[] = [
                 disabled: false,
                 fields: [
                     {
+                        required: true,
                         key: "title",
                         type: "string",
                         defaultValue: `Reporte de exceso de velocidad ${today}`,
@@ -51,6 +55,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
+                        required: true,
                         key: "range",
                         type: "date[]",
                         defaultValue: [new Date(format(new Date(), "MM/dd/yyyy 00:00:00")), new Date(format(new Date(), "MM/dd/yyyy 23:59:59"))],
@@ -62,6 +67,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "value",
                     },
                     {
+                        required: true,
                         key: "allowed_speed",
                         type: "number",
                         defaultValue: 80,
@@ -70,6 +76,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
+                        required: true,
                         key: "min_duration",
                         type: "number",
                         defaultValue: 5,
@@ -88,10 +95,11 @@ export const reports: ReportCategory[] = [
                 id: 3,
                 name: "Alertas",
                 description: "Alertas generadas por reglas",
-                disabled: true,
+                disabled: false,
                 list: "trackers",
                 fields: [
                     {
+                        required: true,
                         key: "title",
                         type: "string",
                         defaultValue: `Reporte de eventos ${today}`,
@@ -100,9 +108,10 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
+                        required: true,
                         key: "range",
                         type: "date[]",
-                        defaultValue: [new Date(), new Date()],
+                        defaultValue: [new Date(format(new Date(), "MM/dd/yyyy 00:00:00")), new Date(format(new Date(), "MM/dd/yyyy 23:59:59"))],
                         component: DateRangeField,
                         props: {
                             limit: 31,
@@ -111,6 +120,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "value",
                     },
                     {
+                        required: true,
                         key: "groupBy",
                         type: "options[]",
                         defaultValue: {
@@ -128,6 +138,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "option",
                     },
                     {
+                        required: true,
                         key: "notifications",
                         type: "number[]",
                         defaultValue: [],
@@ -146,10 +157,11 @@ export const reports: ReportCategory[] = [
                 id: 4,
                 name: "Vencimiento de seguros",
                 description: "Vencimiento de pólizas de seguro de vehículos",
-                list: "vehicles",
-                disabled: true,
+                list: "trackers",
+                disabled: false,
                 fields: [
                     {
+                        required: false,
                         key: "title",
                         type: "string",
                         defaultValue: `Reporte de vencimiento de seguros ${today}`,
@@ -158,13 +170,26 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
-                        key: "range",
-                        type: "date[]",
-                        defaultValue: [new Date(), new Date()],
-                        component: DateRangeField,
+                        required: false,
+                        key: "from",
+                        type: "date",
+                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 00:00:00")),
+                        component: DateField,
                         props: {
-                            limit: 31,
-                            oldestAllowed: 120,
+                            label: "Desde",
+                            nullable: true,
+                        },
+                        onChangeType: "value",
+                    },
+                    {
+                        required: true,
+                        key: "to",
+                        type: "date",
+                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 23:59:59")),
+                        component: DateField,
+                        props: {
+                            label: "Hasta",
+                            nullable: true,
                         },
                         onChangeType: "value",
                     },
@@ -178,6 +203,7 @@ export const reports: ReportCategory[] = [
                 disabled: true,
                 fields: [
                     {
+                        required: true,
                         key: "title",
                         type: "string",
                         defaultValue: `Reporte de vencimiento de licencias ${today}`,
@@ -186,9 +212,10 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
+                        required: true,
                         key: "range",
                         type: "date[]",
-                        defaultValue: [new Date(), new Date()],
+                        defaultValue: [new Date(format(new Date(), "MM/dd/yyyy 00:00:00")), new Date(format(new Date(), "MM/dd/yyyy 23:59:59"))],
                         component: DateRangeField,
                         props: {
                             limit: 31,

@@ -4,7 +4,6 @@ import cn from "classnames";
 import { useFetch } from "@hooks/useFetch";
 import { DriversGroup, GeneratedReportRow, ReportType, TrackersGroup, VehiclesGroup } from "@utils/types";
 import api from "@api/index";
-import { toISOString } from "@utils/dateISOformatter";
 import { useApiQuery } from "@hooks/useQuery";
 import { appearAnimationProps, scaleAnimationProps } from "@utils/animations";
 import { ReportPreview } from "./components/report-preview";
@@ -14,7 +13,6 @@ import ReportCreateForm from "./components/report-create-form";
 import ReportCreateList from "./components/report-create-list";
 import { Message, useToaster } from "rsuite";
 import { HiChevronLeft, HiChevronUp } from "react-icons/hi2";
-// import { useApiQuery } from "@hooks/useQuery";
 
 type Response = {
     message: string;
@@ -99,11 +97,20 @@ export const Reports = () => {
             let newPayload: { report_type_id: number; report_payload: any } = { report_type_id: activeReportType.id, report_payload: { ...fieldValues } };
 
             if (fieldValues.date) {
-                newPayload.report_payload.date = toISOString(fieldValues.date);
+                newPayload.report_payload.date = fieldValues.date ? fieldValues.date.toISOString().split(".")[0] + "Z" : "";
             }
+
+            if (fieldValues.from && !fieldValues.range) {
+                newPayload.report_payload.from = fieldValues.from ? fieldValues.from.toISOString().split(".")[0] + "Z" : "";
+            }
+
+            if (fieldValues.to && !fieldValues.range) {
+                newPayload.report_payload.to = fieldValues.to ? fieldValues.to.toISOString().split(".")[0] + "Z" : "";
+            }
+
             if (fieldValues.range) {
-                newPayload.report_payload.from = toISOString(fieldValues.range[0]);
-                newPayload.report_payload.to = toISOString(fieldValues.range[1]);
+                newPayload.report_payload.from = fieldValues.range[0] ? fieldValues.range[0].toISOString().split(".")[0] + "Z" : "";
+                newPayload.report_payload.to = fieldValues.range[1] ? fieldValues.range[1].toISOString().split(".")[0] + "Z" : "";
                 delete newPayload.report_payload.range;
             }
             if (fieldValues.groupBy) {
@@ -132,15 +139,17 @@ export const Reports = () => {
         if (!payload.report_payload.trackers && !payload.report_payload.drivers && !payload.report_payload.vehicles) return false;
         const keys = Object.keys(payload.report_payload);
         for (let i = 0; i < keys.length; i++) {
-            if (
-                payload.report_payload[keys[i]] === undefined ||
-                payload.report_payload[keys[i]] === null ||
-                payload.report_payload[keys[i]].lenght === 0 ||
-                payload.report_payload[keys[i]].size === 0 ||
-                payload.report_payload[keys[i]] == ""
-            ) {
-                return false;
-            }
+            // if (keys[i] !== "from" && keys[i] !== "to") {
+                if (
+                    (payload.report_payload[keys[i]] === undefined ||
+                    payload.report_payload[keys[i]] === null ||
+                    (typeof payload.report_payload[keys[i]] === "string" && payload.report_payload[keys[i]].length === 0) ||
+                    (payload.report_payload[keys[i]] && typeof payload.report_payload[keys[i]].size === "number" && payload.report_payload[keys[i]].size === 0) ||
+                    payload.report_payload[keys[i]] === "") && activeReportType.fields[i]?.required
+                ) {
+                    return false;
+                }
+            // }
         }
 
         return true;
@@ -221,14 +230,14 @@ export const Reports = () => {
                     <Tab.Group as={Fragment}>
                         <div
                             className={cn(
-                                "relative grid max-d:grid-rows-2 gap-4 h-full box-border",
-                                isMenuOpen ? "md:grid-cols-[300px_auto] transition-all" : "md:grid-cols-[2.5rem_auto] transition-all",
+                                "relative grid max-d:grid-rows-2 gap-2 h-full box-border",
+                                isMenuOpen ? "md:grid-cols-[340px_auto] transition-all" : "md:grid-cols-[2.5rem_auto] transition-all",
                             )}>
                             <div
                                 className='absolute top-0 md:relative w-full bg-white z-50 aria-expanded:max-md:shadow-md shadow-none flex flex-col object-contain max-md:aria-expanded:max-h-[60dvh] max-md:aria-expanded:min-h-[60dvh] transition-all max-md:aria-hidden:h-10 md:aria-hidden:w-10 md:h-full overflow-hidden border divide- rounded-xl'
                                 aria-expanded={isMenuOpen}
                                 aria-hidden={!isMenuOpen}>
-                                <Transition show={!isMenuOpen} unmount={false} {...appearAnimationProps} className='absolute left-0 right-0 rotate-90 top-16'>
+                                <Transition show={!isMenuOpen} unmount={false} {...appearAnimationProps} className='absolute left-0 right-0 invisible rotate-90 top-16 md:visible'>
                                     <p className='font-medium text-gray-700 text-nowrap'>Reportes generados</p>
                                 </Transition>
                                 <Tab.List className={"relative"}>
@@ -313,7 +322,7 @@ export const Reports = () => {
                                     </Tab.Panel>
                                 </Tab.Panels>
                             </div>
-                            <div className='box-border w-full overflow-hidden border mt-14 md:mt-0 rounded-xl'>
+                            <div className='box-border w-full mt-12 overflow-hidden border md:mt-0 rounded-xl'>
                                 <>
                                     {activeReport && !activeReportType ? (
                                         <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />

@@ -1,6 +1,6 @@
 import { Menu, Transition } from "@headlessui/react";
 import { GeneratedReportRow, RetrievedReport, RetrievedReportData } from "@utils/types";
-import { HiChevronUp, HiTrash, HiXMark } from "react-icons/hi2";
+import { HiChevronDown, HiChevronUp, HiTrash, HiXMark } from "react-icons/hi2";
 import { LuDownload } from "react-icons/lu";
 import { Fragment } from "react/jsx-runtime";
 import api from "@api/index";
@@ -15,37 +15,47 @@ import { Message, Tooltip, useToaster, Whisper } from "rsuite";
 import { Modal } from "@components/Modal";
 import { ReactNode } from "react";
 
-export function ReportGroup({ data, column_dimensions }: { data: RetrievedReportData; column_dimensions: { [key: string]: number } }) {
+export function ReportGroup({ data, column_dimensions, nested = false }: { data: RetrievedReportData; column_dimensions: { [key: string]: number }; nested?: boolean }) {
     const [open, setOpen] = useState(true);
     const colKeys = Object.values(column_dimensions);
 
+    const isNested = Array.isArray(data.content);
+
     return (
         <>
-            <div className='grid my-4 overflow-hidden divide-y rounded-lg shadow'>
-                <div className='flex items-center justify-between text-white transition bg-brand-blue hover:bg-brand-dark-blue'>
+            <div className={cn("grid overflow-hidden divide-y shadow", !nested && "my-3 rounded-lg")}>
+                <div
+                    className={cn(
+                        "flex items-center justify-between transition",
+                        nested ? "bg-[#EFEFEF] hover:bg-[#DFDFDF] text-gray-800" : "text-white bg-brand-blue hover:bg-brand-dark-blue",
+                    )}>
                     <span className='px-2 font-bold'>{data.groupLabel}</span>
                     <button onClick={() => setOpen(!open)} className='h-full p-3 transition outline-none hover:bg-black/20 focus-visible:bg-black/20'>
                         <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                     </button>
                 </div>
                 <Transition show={open} as='div' {...expandAnimationProps}>
-                    <Table data={data.content.rows} virtualized maxHeight={400} autoHeight cellBordered>
-                        {data.content.columns.map((col, colIdx) => (
-                            <Column key={colIdx} flexGrow={colKeys[colIdx]} fullText>
-                                <HeaderCell className='font-bold'>{col.name}</HeaderCell>
-                                <Cell dataKey={col.key}>
-                                    {(rowData) => {
-                                        const cellValue = rowData[col.key];
-                                        return (
-                                            <span className={cn("text-sm", col.key === "name" && "font-semibold")}>
-                                                {cellValue !== null && cellValue !== undefined ? cellValue.toString() : "-"}
-                                            </span>
-                                        );
-                                    }}
-                                </Cell>
-                            </Column>
-                        ))}
-                    </Table>
+                    {isNested ? (
+                        (data.content as RetrievedReportData[]).map((child, idx) => <ReportGroup key={idx} data={child} column_dimensions={column_dimensions} nested={true} />)
+                    ) : (
+                        <Table data={(data.content as any).rows} virtualized maxHeight={400} autoHeight cellBordered>
+                            {(data.content as any).columns.map((col: any, colIdx: number) => (
+                                <Column key={colIdx} flexGrow={colKeys[colIdx]} fullText>
+                                    <HeaderCell className='font-bold'>{col.name}</HeaderCell>
+                                    <Cell dataKey={col.key}>
+                                        {(rowData) => {
+                                            const cellValue = rowData[col.key];
+                                            return (
+                                                <span className={cn("text-sm", col.key === "name" && "font-semibold")}>
+                                                    {cellValue !== null && cellValue !== undefined ? cellValue.toString() : "-"}
+                                                </span>
+                                            );
+                                        }}
+                                    </Cell>
+                                </Column>
+                            ))}
+                        </Table>
+                    )}
                     {/* <div className={cn(`grid grid-cols-${data.content.columns.length}`)}>
                         {data.content.columns.map((col, colIdx) => (
                             <div className=''>{col.name}</div>
@@ -63,7 +73,7 @@ export function ReportSummary({ data }: { data: RetrievedReport["summary"] }) {
         <div className='grid w-full overflow-hidden divide-y rounded-lg shadow lg:w-1/2'>
             <div className='flex items-center justify-between font-bold text-white transition bg-brand-blue hover:bg-brand-dark-blue'>
                 <span className='px-2'>{data.title}</span>
-                <button onClick={() => setOpen(!open)} className='h-full p-3 transition outline-none hover:bg-black/20 focus-visible:bg-black/20'>
+                <button onClick={() => setOpen(!open)} className='h-full p-2 transition outline-none hover:bg-black/20 focus-visible:bg-black/20'>
                     <HiChevronUp className={cn("transition", !open && "rotate-180")} />
                 </button>
             </div>
@@ -175,33 +185,39 @@ export function ReportPreview({
             <div className='flex flex-col w-full h-full'>
                 <div className='relative flex items-center justify-between w-full h-8 bg-gray-100 border-b'>
                     <div className='flex flex-row w-full h-full rounded-t-lg'>
-                        <Whisper speaker={tooltip("Eliminar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='top'>
-                            <Menu as='div'>
-                                <Menu.Button className='h-full text-white transition outline-none focus-visible:bg-brand-dark-blue bg-brand-blue hover:bg-brand-dark-blue py-1.5 px-4'>
-                                    <LuDownload />
-                                </Menu.Button>
-                                <Transition as={Fragment} {...scaleAnimationProps}>
-                                    <Menu.Items className='absolute left-0 z-50 w-32 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none'>
-                                        <div className='px-1 py-1'>
-                                            {options.map((option, optionIdx) => (
-                                                <Menu.Item key={optionIdx}>
-                                                    {({ active }) => (
-                                                        <button
-                                                            onClick={option.onClick}
-                                                            className={`${
-                                                                active ? "bg-brand-blue text-white" : "text-gray-900"
-                                                            } group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm`}>
-                                                            {option.icon}
-                                                            {option.label}
-                                                        </button>
-                                                    )}
-                                                </Menu.Item>
-                                            ))}
-                                        </div>
-                                    </Menu.Items>
-                                </Transition>
-                            </Menu>
-                        </Whisper>
+                        <Menu as='div'>
+                            {({ open }) => (
+                                <>
+                                    <Whisper speaker={tooltip("Descargar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='top'>
+                                        <Menu.Button className='h-full flex items-center text-white transition outline-none focus-visible:bg-brand-dark-blue bg-brand-blue hover:bg-sky-600 aria-expanded:bg-brand-dark-blue py-1.5 px-4 pe-3'>
+                                            <LuDownload />
+                                            <HiChevronDown className={cn("ms-2 size-3 transition-all", open ? "rotate-180" : "rotate-0")} />
+                                        </Menu.Button>
+                                    </Whisper>
+
+                                    <Transition as={Fragment} {...scaleAnimationProps}>
+                                        <Menu.Items className='absolute left-0 z-50 w-32 mt-2 origin-top-left bg-white divide-y divide-gray-100 rounded-md shadow-lg ring-1 ring-black/5 focus:outline-none'>
+                                            <div className='px-1 py-1'>
+                                                {options.map((option, optionIdx) => (
+                                                    <Menu.Item key={optionIdx}>
+                                                        {({ active }) => (
+                                                            <button
+                                                                onClick={option.onClick}
+                                                                className={`${
+                                                                    active ? "bg-brand-blue text-white" : "text-gray-900"
+                                                                } group gap-x-4 flex w-full items-center rounded-md px-2 py-2 text-sm`}>
+                                                                {option.icon}
+                                                                {option.label}
+                                                            </button>
+                                                        )}
+                                                    </Menu.Item>
+                                                ))}
+                                            </div>
+                                        </Menu.Items>
+                                    </Transition>
+                                </>
+                            )}
+                        </Menu>
                         <Whisper speaker={tooltip("Eliminar reporte")} onMouseOver={() => tooltip} trigger='hover' placement='top'>
                             <button
                                 onClick={() => setIsOpen(true)}

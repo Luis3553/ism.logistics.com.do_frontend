@@ -146,7 +146,7 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
                 Rango de fecha
             </label>
             <CustomProvider locale={esES}>
-                <DateRangePicker name='date_range' id='date_range' character=" &ndash; " onChange={onChange} value={value} placement={width! < 768 ? 'auto' : 'bottomEnd'} shouldDisableDate={allowedRangeDates} showOneCalendar={width! < 768} />
+                <DateRangePicker name='date_range' id='date_range' format="dd/MM/yyyy HH:mm" character=" &ndash; " onChange={onChange} value={value} placement={width! < 768 ? 'auto' : 'bottomEnd'} shouldDisableDate={allowedRangeDates} showOneCalendar={width! < 768} />
             </CustomProvider>
             {tooWide && <small className='text-red-400'>Rango permitido: {limit} días</small>}
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}
@@ -154,8 +154,9 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
     );
 }
 
-export function DateField({ onChange, value, oldestAllowed }: { value: any; onChange: () => void; oldestAllowed: number }) {
-    const valueDate = new Date(value);
+export function DateField({ onChange, value, oldestAllowed, label, nullable = false }: { value: any; onChange: (value: Date | null) => void; oldestAllowed: number; label: string; nullable?: boolean }) {
+    // Only create a Date object if value is not null/undefined/empty
+    const valueDate = value ? new Date(value) : null;
 
     const [tooOld, setOldness] = useState(false);
 
@@ -170,9 +171,6 @@ export function DateField({ onChange, value, oldestAllowed }: { value: any; onCh
 
         let isOld = false;
 
-        if (valueDate && (valueDate < minDate || valueDate > today)) {
-            isOld = true;
-        }
         if (valueDate && (valueDate < minDate || valueDate > today)) {
             isOld = true;
         }
@@ -200,11 +198,20 @@ export function DateField({ onChange, value, oldestAllowed }: { value: any; onCh
 
     return (
         <div className='flex flex-col w-full gap-2'>
-            <label htmlFor='date' className='text-sm font-medium'>
-                Hasta
+            <label htmlFor={label.toLowerCase()} className='text-sm font-medium'>
+                {label}
             </label>
             <CustomProvider locale={esES}>
-                <DatePicker name='date' id='date' onChange={onChange} value={valueDate} defaultValue={new Date()} cleanable={false} placement='bottomEnd' shouldDisableDate={allowedRangeDates} />
+                <DatePicker
+                    name={label.toLowerCase()}
+                    id={label.toLowerCase()}
+                    onChange={onChange}
+                    value={valueDate}
+                    defaultValue={null}
+                    cleanable={nullable}
+                    placement='bottomEnd'
+                    shouldDisableDate={allowedRangeDates}
+                />
             </CustomProvider>
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}
         </div>
@@ -299,8 +306,24 @@ export function RulesList({ onChange, value }: { value: number[]; onChange: (val
             <div>
                 <h2 className='text-sm font-medium'>Alertas</h2>
                 <div className='overflow-y-scroll border rounded-lg max-h-52'>
+                    <CheckBox
+                        truncate={false}
+                        label="Seleccionar todo"
+                        checked={data.every((item: { value: number }) => selected.has(item.value))}
+                        indeterminate={
+                            selected.size > 0 &&
+                            selected.size < data.length
+                        }
+                        onChange={() => {
+                            if (data.every((item: { value: number }) => selected.has(item.value))) {
+                                onChange([]);
+                            } else {
+                                onChange(data.map((item: { value: number }) => item.value));
+                            }
+                        }}
+                    />
                     {data.map((item: { label: string; value: number }) => (
-                        <CheckBox key={item.value} label={item.label} checked={selected.has(item.value)} onChange={() => handleToggle(item.value)} />
+                        <CheckBox truncate={false} key={item.value} label={item.label} checked={selected.has(item.value)} onChange={() => handleToggle(item.value)} />
                     ))}
                 </div>
             </div>

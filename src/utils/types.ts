@@ -118,6 +118,7 @@ export type FieldConfig = {
     component: React.FC<any>;
     props: Record<string, any>;
     onChangeType: "event" | "value" | "array" | "option";
+    required: boolean;
 };
 
 export type ReportType = {
@@ -154,7 +155,7 @@ export type RetrievedReportData = {
     content: {
         columns: RetrievedReportContentCols[];
         rows: RetrievedReportContentRows[];
-    };
+    } | RetrievedReportData[];
 };
 export type RetrievedReport = {
     title: string;

@@ -1,0 +1,365 @@
+{
+  "title": "Informe de Odómetro",
+  "date": "Fecha: 17/06/2025 02:42 PM",
+  "summary": {
+    "title": "Resumen General",
+    "color": "#eeece1",
+    "rows": [
+      {
+        "title": "Total de Objetos",
+        "value": "44"
+      },
+      {
+        "title": "Total Km",
+        "value": "4,339,047.42"
+      }
+    ]
+  },
+  "data": [
+    {
+      "groupLabel": "1003-SC (44 Vehículos) (4,339,047.42 Km)",
+      "bgColor": "#eeece1",
+      "content": {
+        "columns": [
+          {
+            "name": "Nombre del objeto",
+            "key": "name"
+          },
+          {
+            "name": "Placa (Matrícula)",
+            "key": "reg_number"
+          },
+          {
+            "name": "Odómetro en Km",
+            "key": "odometer"
+          },
+          {
+            "name": "Última Actividad",
+            "key": "last_activity"
+          },
+          {
+            "name": "Código SAP",
+            "key": "sap_code"
+          }
+        ],
+        "rows": [
+          {
+            "name": "L514531 EDUARD RODRIGUEZ-03",
+            "reg_number": "L514531",
+            "odometer": "8,934.85",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900001790"
+          },
+          {
+            "name": "L515995 SANTO MARTINEZ-03",
+            "reg_number": "L515995",
+            "odometer": "9,166.20",
+            "last_activity": "17/06/2025 02:31 PM",
+            "sap_code": "900001868"
+          },
+          {
+            "name": "L506066-LUIS ENCARNACION-03",
+            "reg_number": "L506066",
+            "odometer": "10,795.08",
+            "last_activity": "17/06/2025 02:39 PM",
+            "sap_code": "900001675"
+          },
+          {
+            "name": "L506276 DANNY DE LA CRUZ-03",
+            "reg_number": "L506276",
+            "odometer": "13,727.62",
+            "last_activity": "17/06/2025 02:43 PM",
+            "sap_code": "900001682"
+          },
+          {
+            "name": "L506277 ELIMELEC SILVERIO-03",
+            "reg_number": "L506277",
+            "odometer": "16,504.70",
+            "last_activity": "17/06/2025 02:30 PM",
+            "sap_code": "900001693"
+          },
+          {
+            "name": "L483135 PEDRO LUIS TAVAREZ-03",
+            "reg_number": "L483135",
+            "odometer": "166,914.74",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900000759"
+          },
+          {
+            "name": "L496546 ERICK ALMONTE-03",
+            "reg_number": "L496546",
+            "odometer": "12,293.33",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900001534"
+          },
+          {
+            "name": "L458420 JOSE LUIS VARGAS-03",
+            "reg_number": "L458420",
+            "odometer": "48,407.02",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900001196"
+          },
+          {
+            "name": "L483192 STARLIN BAUTISTA-03 ",
+            "reg_number": "L483192",
+            "odometer": "94,605.61",
+            "last_activity": "17/06/2025 02:30 PM",
+            "sap_code": "900000897"
+          },
+          {
+            "name": "L439890 EDISON TEJADA-03",
+            "reg_number": "L439890",
+            "odometer": "1,801.95",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900001119"
+          },
+          {
+            "name": "L484889 YEURY NUÑEZ-03",
+            "reg_number": "L484889",
+            "odometer": "236,242.51",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900000565"
+          },
+          {
+            "name": "L452997 STARLING TORIBIO-03",
+            "reg_number": "L452997",
+            "odometer": "39,348.15",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900001200"
+          },
+          {
+            "name": " L506067 JOSE RAMON SANTOS-03",
+            "reg_number": "L506067",
+            "odometer": "19,511.63",
+            "last_activity": "17/06/2025 02:31 PM",
+            "sap_code": "900001674"
+          },
+          {
+            "name": "L431132 CORNIEL OGANDO-03",
+            "reg_number": "L431132",
+            "odometer": "57,486.36",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900001056"
+          },
+          {
+            "name": "L483114 SAURY RODRIGUEZ-03",
+            "reg_number": "L483114",
+            "odometer": "281,299.12",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900000117"
+          },
+          {
+            "name": "L483101 ALBENI AQUINO-03",
+            "reg_number": "L483101",
+            "odometer": "159,322.46",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900000547"
+          },
+          {
+            "name": "L484838 TRASLADOUB-03",
+            "reg_number": "L484838",
+            "odometer": "586,165.37",
+            "last_activity": "17/06/2025 02:42 PM",
+            "sap_code": "900000252"
+          },
+          {
+            "name": "L476322 WILLY BAUTISTA -03",
+            "reg_number": "L476322",
+            "odometer": "34,612.17",
+            "last_activity": "17/06/2025 02:30 PM",
+            "sap_code": "900001290"
+          },
+          {
+            "name": "L484818 ALEXANDER CORREA-03",
+            "reg_number": "L484818",
+            "odometer": "196,318.41",
+            "last_activity": "17/06/2025 02:32 PM",
+            "sap_code": "900000550"
+          },
+          {
+            "name": "L505931 ARGENIS PARRA-03",
+            "reg_number": "L505931",
+            "odometer": "13,447.77",
+            "last_activity": "17/06/2025 02:33 PM",
+            "sap_code": "900001684"
+          },
+          {
+            "name": "L514539 JEURY FRANCISCO-03",
+            "reg_number": "L514539",
+            "odometer": "10,410.53",
+            "last_activity": "17/06/2025 02:31 PM",
+            "sap_code": "900001792"
+          },
+          {
+            "name": "L472263 CARLOS INOA DISLA-03",
+            "reg_number": "L472263",
+            "odometer": "26,187.39",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900001285"
+          },
+          {
+            "name": "L484851 JESUS RAMON ABREU-03",
+            "reg_number": "L484851",
+            "odometer": "271,000.52",
+            "last_activity": "17/06/2025 02:38 PM",
+            "sap_code": "900000282"
+          },
+          {
+            "name": "L472268 EDISON SANTANA-03 ",
+            "reg_number": "L472268",
+            "odometer": "50,723.83",
+            "last_activity": "17/06/2025 02:42 PM",
+            "sap_code": "900001276"
+          },
+          {
+            "name": "L483195 WILSON MILANES-03",
+            "reg_number": "L483195",
+            "odometer": "88,249.56",
+            "last_activity": "17/06/2025 02:28 PM",
+            "sap_code": "900000888"
+          },
+          {
+            "name": "L514537- ALGENY LACHAPELLE-03",
+            "reg_number": "L514537",
+            "odometer": "10,266.72",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900001797"
+          },
+          {
+            "name": "L484799 CRISTOPHER SALAZAR-03",
+            "reg_number": "L484799",
+            "odometer": "146,419.16",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900000555"
+          },
+          {
+            "name": "L484900 DIOGENES CAMACHO-03",
+            "reg_number": "L484900",
+            "odometer": "283,449.10",
+            "last_activity": "17/06/2025 02:39 PM",
+            "sap_code": "900000166"
+          },
+          {
+            "name": "L377053 PINTORES-03",
+            "reg_number": "L377053",
+            "odometer": "157,805.34",
+            "last_activity": "17/06/2025 02:43 PM",
+            "sap_code": "900000781"
+          },
+          {
+            "name": "L483122 AQUILINO RODRIGUEZ-03",
+            "reg_number": "L483122",
+            "odometer": "111,565.42",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900000769"
+          },
+          {
+            "name": "L485885 JORGE LUIS ORTIZ CA-03",
+            "reg_number": "L485885",
+            "odometer": "79,365.93",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900001437"
+          },
+          {
+            "name": "L505099 DARLYN TEJADA-03",
+            "reg_number": "L505099",
+            "odometer": "11,309.24",
+            "last_activity": "17/06/2025 02:42 PM",
+            "sap_code": "900001671"
+          },
+          {
+            "name": "L480742 FERNANDITO MORETA-03",
+            "reg_number": "L480742",
+            "odometer": "35,742.47",
+            "last_activity": "17/06/2025 02:37 PM",
+            "sap_code": "900001373"
+          },
+          {
+            "name": "L431125 CAL RISKEN PEÑA-03",
+            "reg_number": "L431125",
+            "odometer": "57,117.74",
+            "last_activity": "17/06/2025 02:36 PM",
+            "sap_code": "900001045"
+          },
+          {
+            "name": "L514341 RAMON REINOSO-03",
+            "reg_number": "L514341",
+            "odometer": "11,219.26",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900001793"
+          },
+          {
+            "name": "L498606 ELIMENIO RODRIGUEZ-03",
+            "reg_number": "L498606",
+            "odometer": "19,269.54",
+            "last_activity": "17/06/2025 02:40 PM",
+            "sap_code": "900001538"
+          },
+          {
+            "name": " L491746 DANNY BETANCES-03",
+            "reg_number": "L491746",
+            "odometer": "236,608.20",
+            "last_activity": "29/05/2025 11:17 AM",
+            "sap_code": "900000174"
+          },
+          {
+            "name": "L484850 JUNIOR R. VARGAS -03",
+            "reg_number": "L484850",
+            "odometer": "17,099.61",
+            "last_activity": "17/06/2025 02:32 PM",
+            "sap_code": "900000154"
+          },
+          {
+            "name": "L514532 MIGUEL RODRIGUEZ-03",
+            "reg_number": "L514532",
+            "odometer": "11,937.36",
+            "last_activity": "17/06/2025 02:43 PM",
+            "sap_code": "900001794"
+          },
+          {
+            "name": "L500054 REMBERTO POLO SOSA-03",
+            "reg_number": "L500054",
+            "odometer": "17,336.98",
+            "last_activity": "17/06/2025 02:33 PM",
+            "sap_code": "900001570"
+          },
+          {
+            "name": "L484825 EDUARDO MERAN-03",
+            "reg_number": "L484825",
+            "odometer": "169,652.09",
+            "last_activity": "17/06/2025 02:33 PM",
+            "sap_code": "900000042"
+          },
+          {
+            "name": " L515967 ANDERSON CHALE-03",
+            "reg_number": "L515967",
+            "odometer": "9,259.67",
+            "last_activity": "17/06/2025 02:36 PM",
+            "sap_code": "900001866"
+          },
+          {
+            "name": "L377088 TRANSPOR-GOMEROSUB-03",
+            "reg_number": "L377088",
+            "odometer": "379,819.64",
+            "last_activity": "17/06/2025 02:41 PM",
+            "sap_code": "900000783"
+          },
+          {
+            "name": "L356856 WAILIN RODRIGUEZ-03",
+            "reg_number": "L356856",
+            "odometer": "120,327.06",
+            "last_activity": "17/06/2025 02:34 PM",
+            "sap_code": "900000648"
+          }
+        ]
+      }
+    }
+  ],
+  "columns_dimensions_for_excel_file": {
+    "A": 43,
+    "B": 20,
+    "C": 16,
+    "D": 19,
+    "E": 23
+  }
+}

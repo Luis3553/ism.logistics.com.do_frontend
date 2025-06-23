@@ -37,13 +37,16 @@ export default function ItemsList({
     toggleGroup,
     toggleItem,
 }: ItemsListProps) {
-    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>(() => {
-        const initialStates: { [key: number]: boolean } = {};
-        groups?.forEach((_, idx) => {
-            initialStates[idx] = true;
-        });
-        return initialStates;
-    });
+    const [openStates, setOpenStates] = useState<{ [key: number]: boolean }>(
+        // () => {
+        //     const initialStates: { [key: number]: boolean } = {};
+        //     groups?.forEach((_, idx) => {
+        //         initialStates[idx] = true;
+        //     });
+        //     return initialStates;
+        // }
+        {}
+    );
 
     const toggleOpen = (idx: number) => {
         setOpenStates((prev) => ({ ...prev, [idx]: !prev[idx] }));

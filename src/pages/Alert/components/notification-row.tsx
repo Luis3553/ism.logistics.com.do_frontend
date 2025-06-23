@@ -17,7 +17,16 @@ export function NotificationRow({ notification, width, type }: { notification: N
                         <div className='text-center text-md'>
                             {width! >= 768 && <span>{type == "alert" ? "Alerta" : type == "group" ? "Grupo" : "Objeto"}: </span>}
                             <span>{notification.name}</span>
-                            {width! < 768 && <span> - ({formatNumber((notification as Notification).trackers.length ?? (notification as Alert).events.length)})</span>}
+                            {width! < 768 && (
+                                <span>
+                                    {" "}
+                                    - (
+                                    {(notification as Notification).trackers
+                                        ? formatNumber((notification as Notification).trackers?.length)
+                                        : formatNumber((notification as Alert).events?.length)}
+                                    )
+                                </span>
+                            )}
                         </div>
                         <button
                             title={open ? "Cerrar grupo" : "Abrir grupo"}

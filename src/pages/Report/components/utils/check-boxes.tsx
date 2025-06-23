@@ -3,13 +3,27 @@ import { HiChevronDown } from "react-icons/hi2";
 import cn from "classnames";
 import { Tooltip, Whisper } from "rsuite";
 
-export function CheckBox({ label, checked, indeterminate, onChange, id }: { label: string; checked?: boolean; indeterminate?: boolean; onChange?: () => void; id?: string }) {
+export function CheckBox({
+    label,
+    checked,
+    indeterminate,
+    onChange,
+    id,
+    truncate = true,
+}: {
+    label: string;
+    checked?: boolean;
+    indeterminate?: boolean;
+    onChange?: () => void;
+    id?: string;
+    truncate?: boolean;
+}) {
     const ref = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
         if (ref.current) ref.current.indeterminate = indeterminate ?? false;
     }, [indeterminate]);
-    
+
     const tooltip = <Tooltip>{label}</Tooltip>;
 
     return (
@@ -38,7 +52,11 @@ export function CheckBox({ label, checked, indeterminate, onChange, id }: { labe
             <div className='text-sm/6'>
                 <label htmlFor={`group-${id}-${label.replace(/ /g, "-")}`} className='font-medium text-gray-900'>
                     <Whisper speaker={tooltip} onMouseOver={() => tooltip} trigger='hover' placement='top'>
-                        {label.split(" ").length > 4 ? label.split(" ").slice(0, 4).join(" ") + "..." : label.length > 20 ? label.slice(0, 20) + "..." : label}
+                        {truncate ? (
+                            <>{label.split(" ").length > 4 ? label.split(" ").slice(0, 4).join(" ") + "..." : label.length > 20 ? label.slice(0, 20) + "..." : label}</>
+                        ) : (
+                            <>{label}</>
+                        )}
                     </Whisper>
                 </label>
             </div>

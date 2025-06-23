@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { HiArrowPath, HiEllipsisVertical, HiOutlineTrash, HiXMark } from "react-icons/hi2";
 import cn from "classnames";
 import { format } from "date-fns";
@@ -6,11 +6,12 @@ import { GeneratedReportRow } from "@utils/types";
 import { useApiQuery } from "@hooks/useQuery";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { Message, Tooltip, useToaster, Whisper } from "rsuite";
-import { Menu, Transition } from "@headlessui/react";
+import { Popover, Portal, Transition } from "@headlessui/react";
 import { scaleAnimationProps } from "@utils/animations";
 import { LuDownload } from "react-icons/lu";
 import { Modal } from "@components/Modal";
 import api from "@api/index";
+import usePopoverPosition from "@utils/use-popover-position";
 
 export const reportTypes: { id: number; name: string }[] = [{ id: 0, name: "Todos" }];
 
@@ -45,6 +46,7 @@ export function ReportRow({
 
     const toaster = useToaster();
     const [isOpen, setIsOpen] = useState(false);
+    const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     async function deleteReport() {
         toaster.push(messageToaster(`Eliminando reporte "${data.title}"...`, "info"), { duration: 5000, placement: "topEnd" });
@@ -60,6 +62,9 @@ export function ReportRow({
             console.error("Failed to delete report:", error);
         }
     }
+
+    const buttonRef = useRef<HTMLButtonElement>(null);
+    const { top, left } = usePopoverPosition(isPopoverOpen, buttonRef, 70);
 
     const messageToaster = (message: string, type: "warning" | "success" | "info" | "error" = "error") => (
         <Message
@@ -130,70 +135,76 @@ export function ReportRow({
                         </div>
                     )}
                 </div>
-                <Menu as='div' className={"relative"}>
-                    <Menu.Button
-                        className='block p-1.5 transition mx-auto rounded-full outline-none hover:bg-black/10 active:bg-black/20 focus-visible:bg-black/20'
-                        onClick={e => e.stopPropagation()}
-                    >
-                        <HiEllipsisVertical />
-                    </Menu.Button>
-                    <Transition as={Fragment} {...scaleAnimationProps}>
-                        <Menu.Items className='absolute z-50 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg w-28 right-2 ring-1 ring-black/5 focus:outline-none'>
-                            <div className='px-1 py-1'>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <div
-                                            onClick={async (e) => {
-                                                e.stopPropagation(); // Prevent event bubbling to parent elements
-                                                toaster.push(messageToaster(`Descargando reporte "${data.title}"`, "info"), { duration: 5000, placement: "topEnd" });
-                                                try {
-                                                    const response = await api.get(`/reports/${data.id}/download?format=xlsx`, {
-                                                        responseType: "blob",
-                                                    });
-                                                    const blob = response.data as Blob;
-                                                    const url = window.URL.createObjectURL(blob);
+                <Popover>
+                    {/*// @ts-ignore */}
+                    {({ open }) => {
+                        setIsPopoverOpen(open);
+                        return (
+                            <>
+                                <Popover.Button
+                                    ref={buttonRef}
+                                    className='block p-1.5 transition mx-auto rounded-full outline-none hover:bg-black/10 active:bg-black/20 focus-visible:bg-black/20'
+                                    onClick={(e) => e.stopPropagation()}>
+                                    <HiEllipsisVertical />
+                                </Popover.Button>
+                                <Portal>
+                                    <div
+                                        className='absolute bg-white rounded shadow-lg'
+                                        style={{
+                                            position: "absolute",
+                                            top: `${top + 10}px`,
+                                            left: `${left + 60}px`,
+                                        }}>
+                                        <Transition as={Fragment} {...scaleAnimationProps}>
+                                            <Popover.Panel className='absolute z-50 mt-2 origin-top-right bg-white divide-y divide-gray-100 rounded-md shadow-lg w-28 right-2 ring-1 ring-black/5 focus:outline-none'>
+                                                <div className='px-1 py-1'>
+                                                    <div
+                                                        onClick={async (e) => {
+                                                            e.stopPropagation();
+                                                            toaster.push(messageToaster(`Descargando reporte "${data.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                                                            try {
+                                                                const response = await api.get(`/reports/${data.id}/download?format=xlsx`, {
+                                                                    responseType: "blob",
+                                                                });
+                                                                const blob = response.data as Blob;
+                                                                const url = window.URL.createObjectURL(blob);
 
-                                                    const link = document.createElement("a");
-                                                    link.href = url;
-                                                    link.setAttribute("download", `${data.title.split(" ").join("_")}.xlsx`); 
-                                                    document.body.appendChild(link);
-                                                    link.click();
-                                                    link.remove();
-                                                } catch (error) {
-                                                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${data.title}"`, "error"), {
-                                                        duration: 5000,
-                                                        placement: "topEnd",
-                                                    });
-                                                    console.error("Failed to download report:", error);
-                                                }
-                                            }}
-                                            className={`${
-                                                active ? "bg-brand-blue text-white" : "text-gray-900"
-                                            } cursor-pointer group gap-x-4 transition flex w-full items-center rounded-md px-2 py-2 text-sm`}>
-                                            <LuDownload />
-                                            Excel
-                                        </div>
-                                    )}
-                                </Menu.Item>
-                                <Menu.Item>
-                                    {({ active }) => (
-                                        <div
-                                            onClick={(e) => {
-                                                e.stopPropagation(); // Prevent event bubbling to parent elements
-                                                setIsOpen(true);
-                                            }}
-                                            className={`${
-                                                active ? "bg-red-500 text-white" : "text-gray-900"
-                                            } cursor-pointer group gap-x-4 transition divide-x divide-white flex flex-row w-full items-center rounded-md px-2 py-2 text-sm`}>
-                                            <HiOutlineTrash />
-                                            Eliminar
-                                        </div>
-                                    )}
-                                </Menu.Item>
-                            </div>
-                        </Menu.Items>
-                    </Transition>
-                </Menu>
+                                                                const link = document.createElement("a");
+                                                                link.href = url;
+                                                                link.setAttribute("download", `${data.title.split(" ").join("_")}.xlsx`);
+                                                                document.body.appendChild(link);
+                                                                link.click();
+                                                                link.remove();
+                                                            } catch (error) {
+                                                                toaster.push(messageToaster(`No se ha podido descargar el reporte "${data.title}"`, "error"), {
+                                                                    duration: 5000,
+                                                                    placement: "topEnd",
+                                                                });
+                                                                console.error("Failed to download report:", error);
+                                                            }
+                                                        }}
+                                                        className='flex items-center w-full px-2 py-2 text-sm text-gray-900 transition rounded-md cursor-pointer group gap-x-4 hover:bg-brand-blue hover:text-white'>
+                                                        <LuDownload />
+                                                        Excel
+                                                    </div>
+                                                    <div
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            setIsOpen(true);
+                                                        }}
+                                                        className='flex flex-row items-center w-full px-2 py-2 text-sm text-gray-900 transition divide-x divide-white rounded-md cursor-pointer group gap-x-4 hover:bg-red-500 hover:text-white'>
+                                                        <HiOutlineTrash />
+                                                        Eliminar
+                                                    </div>
+                                                </div>
+                                            </Popover.Panel>
+                                        </Transition>
+                                    </div>
+                                </Portal>
+                            </>
+                        );
+                    }}
+                </Popover>
                 <Modal className='h-min max-w-[500px]' onClose={() => setIsOpen(false)} isOpen={isOpen}>
                     <div className='flex items-center justify-between mb-4'>
                         <h1 className='text-lg font-semibold'>Confirmación</h1>
@@ -239,7 +250,7 @@ export function ReportList({
     filter: string;
     activeReport: GeneratedReportRow | null;
     setActiveReport: React.Dispatch<React.SetStateAction<GeneratedReportRow | null>>;
-    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>; 
+    setIsMenuOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     if (showInitialLoading)
         return (
@@ -284,7 +295,7 @@ export function ReportList({
                     key={type.id} // avoid key collision
                     data={type}
                     onClick={() => {
-                        setActiveReport(type)
+                        setActiveReport(type);
                         setIsMenuOpen(false);
                     }}
                     refetch={refetch}

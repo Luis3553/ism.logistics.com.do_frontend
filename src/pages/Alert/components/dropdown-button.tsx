@@ -1,6 +1,7 @@
 import { Menu, Transition } from "@headlessui/react";
 import { Fragment } from "react";
 import { HiChevronUpDown } from "react-icons/hi2";
+import cn from "classnames";
 
 type DropdownMenuOption = {
     label: string;
@@ -9,9 +10,9 @@ type DropdownMenuOption = {
     icon?: React.ReactNode;
 }
 
-export default function DropdownMenuButton({ name, icon, options }: { name: string; icon?: React.ReactNode; options: DropdownMenuOption[] }) {
+export default function DropdownMenuButton({ name, icon, options, className }: { name: string; icon?: React.ReactNode; options: DropdownMenuOption[]; className?: string }) {
     return (
-        <div className='w-56 text-right top-16'>
+        <div className={cn('w-fit text-right top-16', className)}>
             <Menu as='div' className='relative inline-block text-left'>
                 <div>
                     <Menu.Button className='inline-flex items-center justify-center w-full px-4 py-2 text-sm font-medium transition rounded-md gap-x-2 text-brand-blue bg-brand-light-blue hover:bg-brand-blue hover:text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-white/75'>

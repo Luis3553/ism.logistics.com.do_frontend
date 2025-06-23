@@ -67,7 +67,7 @@ export default function ReportCreateForm({
                         );
                     })}
                 </fieldset>
-                <div className='absolute bottom-0 flex flex-col w-full gap-3 p-2 mt-0 transition-all duration-500 bg-white border-t max-md:items-center lg:flex-row ps-4 end-0 ms-auto'>
+                <div className='absolute bottom-0 flex flex-col w-full gap-2 p-2 pt-1 mt-0 transition-all duration-500 bg-white border-t md:pt-2 md:gap-3 max-md:items-center lg:flex-row ps-4 end-0 ms-auto'>
                     <Transition show={!isPayloadValid} {...appearAnimationProps}>
                         <small className='font-medium leading-none text-right text-red-500'>Hay uno o más campos vacíos</small>
                     </Transition>
@@ -97,12 +97,14 @@ export default function ReportCreateForm({
                                 setButtonDisabled(true);
                                 try {
                                     await sendReportRequest();
+                                    setIsMenuOpen(true);
                                 } finally {
                                     // Only re-enable if not generatingReport (in case it's still true)
                                     e.currentTarget.disabled = false;
                                     setButtonDisabled(!isPayloadValid || generatingReport);
                                     setIsMenuOpen(true);
                                 }
+                                setIsMenuOpen(true);
                             }}
                             className={cn(
                                 "px-4 py-2 w-40 font-medium text-white transition rounded-md shadow outline-none bg-brand-blue focus-visible:bg-brand-light-blue focus-visible:text-brand-blue hover:bg-brand-light-blue hover:text-brand-blue disabled:pointer-events-none disabled:bg-blue-300 disabled:cursor-not-allowed",

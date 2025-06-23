@@ -117,7 +117,7 @@ export default function AlertHeader({
                             <DatePicker
                                 lang='es'
                                 value={from}
-                                cleanable={true}
+                                cleanable={false}
                                 shouldDisableDate={allowedRangeDates}
                                 className='w-full rounded-md shadow'
                                 menuClassName='shadow-lg z-30'
