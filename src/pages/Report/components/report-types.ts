@@ -182,7 +182,7 @@ export const reports: ReportCategory[] = [
                         onChangeType: "value",
                     },
                     {
-                        required: true,
+                        required: false,
                         key: "to",
                         type: "date",
                         defaultValue: new Date(format(new Date(), "MM/dd/yyyy 23:59:59")),
