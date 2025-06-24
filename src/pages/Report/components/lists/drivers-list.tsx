@@ -32,7 +32,7 @@ export default function DriversList({
             selectedItems={selectedDrivers}
             toggleGroup={toggleGroup}
             toggleItem={toggleItem}
-            type='trackers'
+            type='drivers'
         />
     );
 }

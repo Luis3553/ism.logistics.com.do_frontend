@@ -37,6 +37,7 @@ export default function ReportCreateList({
     isAllSelected,
     isIndeterminate,
     allTrackerIds,
+    allDriversIds,
     allGroupIds,
 }: {
     activeReportType: ReportType;
@@ -57,6 +58,7 @@ export default function ReportCreateList({
     isAllSelected: boolean;
     isIndeterminate: boolean;
     allTrackerIds: number[];
+    allDriversIds: number[];
     allGroupIds: number[];
     trackersFetcher: () => void;
     driversFetcher: () => void;
@@ -68,12 +70,22 @@ export default function ReportCreateList({
     setSelectedVehicles: React.Dispatch<React.SetStateAction<Set<number>>>;
 }) {
     const toggleSelectAll = () => {
-        if (isAllSelected) {
-            setSelectedTrackers(new Set());
-            setSelectedGroups(new Set());
-        } else {
-            setSelectedTrackers(new Set(allTrackerIds));
-            setSelectedGroups(new Set(allGroupIds));
+        if (activeReportType.list === "trackers") {
+            if (isAllSelected) {
+                setSelectedTrackers(new Set());
+                setSelectedGroups(new Set());
+            } else {
+                setSelectedTrackers(new Set(allTrackerIds));
+                setSelectedGroups(new Set(allGroupIds));
+            }
+        } else if (activeReportType.list === "drivers") {
+            if (isAllSelected) {
+                setSelectedDrivers(new Set());
+                setSelectedGroups(new Set());
+            } else {
+                setSelectedDrivers(new Set(allDriversIds));
+                setSelectedGroups(new Set(allGroupIds));
+            }
         }
     };
 
@@ -176,7 +188,7 @@ export default function ReportCreateList({
                         error={driversError}
                         fetcher={driversFetcher}
                         selectedDrivers={selectedDrivers}
-                        toggleGroup={(group) => toggleGroupGeneric({ [group.name]: group.trackers }, group.name, selectedTrackers, setSelectedTrackers)}
+                        toggleGroup={(group) => toggleGroupGeneric({ [group.name]: group.employees }, group.name, selectedDrivers, setSelectedDrivers)}
                         toggleItem={(id) => toggleItemGeneric(id, selectedDrivers, setSelectedDrivers)}
                     />
                 ) : (

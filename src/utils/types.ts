@@ -209,8 +209,10 @@ export type TrackersGroup = {
     trackers: TrackerObject[];
 };
 export type DriversGroup = {
+    id: number;
     name: string;
-    trackers: TrackerObject[];
+    color: string;
+    employees: TrackerObject[];
 };
 export type VehiclesGroup = {
     name: string;

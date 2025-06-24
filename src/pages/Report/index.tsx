@@ -47,13 +47,19 @@ export const Reports = () => {
     const [errorMessage, setErrorMessage] = useState<string>();
 
     const { data: trackersData, isLoading: isLoadingTrackers, error: trackersError, fetcher: trackersFetcher } = useFetch<TrackersGroup[]>("/reports/panel/trackers");
-    const { data: driversData, isLoading: isLoadingDrivers, error: driversError, fetcher: driversFetcher } = useFetch<TrackersGroup[]>("/reports/panel/trackers");
+    const { data: driversData, isLoading: isLoadingDrivers, error: driversError, fetcher: driversFetcher } = useFetch<DriversGroup[]>("/reports/panel/employees");
     const { data: vehiclesData, isLoading: isLoadingVehicles, error: vehiclesError, fetcher: vehiclesFetcher } = useFetch<TrackersGroup[]>("/reports/panel/trackers");
 
     const allTrackerIds = trackerGroups?.flatMap((g) => g.trackers.map((t) => t.id)) ?? [];
+    const allDriversIds = driverGroups?.flatMap((g) => g.employees.map((t) => t.id)) ?? [];
     const allGroupIds = trackerGroups?.flatMap((g) => g.id) ?? [];
 
-    const isAllSelected = allTrackerIds.length > 0 && allTrackerIds.every((id) => selectedTrackers.has(id));
+    let isAllSelected = false; 
+    if (activeReportType?.list === "trackers") {
+        isAllSelected = allTrackerIds.length > 0 && allTrackerIds.every((id) => selectedTrackers.has(id));
+    } else if (activeReportType?.list === "drivers") {
+        isAllSelected = allDriversIds.length > 0 && allDriversIds.every((id) => selectedDrivers.has(id));
+    }
     const isIndeterminate = selectedTrackers.size > 0 && !isAllSelected;
 
     const [payload, setPayload] = useState<{ report_type_id: number; report_payload: any }>({ report_type_id: 0, report_payload: {} });
@@ -122,7 +128,7 @@ export const Reports = () => {
                 newPayload.report_payload.groups = Array.from(selectedGroups);
             }
             if (activeReportType.list === "drivers") {
-                newPayload.report_payload.drivers = Array.from(selectedDrivers);
+                newPayload.report_payload.employees = Array.from(selectedDrivers);
             }
             if (activeReportType.list === "vehicles") {
                 newPayload.report_payload.vehicles = Array.from(selectedVehicles);
@@ -136,7 +142,7 @@ export const Reports = () => {
         if (!activeReportType) return false;
         if (selectedDrivers.size === 0 && selectedTrackers.size === 0 && selectedVehicles.size === 0) return false;
         if (!payload.report_payload) return false;
-        if (!payload.report_payload.trackers && !payload.report_payload.drivers && !payload.report_payload.vehicles) return false;
+        if (!payload.report_payload.trackers && !payload.report_payload.employees && !payload.report_payload.vehicles) return false;
         const keys = Object.keys(payload.report_payload);
         for (let i = 0; i < keys.length; i++) {
             // if (keys[i] !== "from" && keys[i] !== "to") {
@@ -209,11 +215,11 @@ export const Reports = () => {
     }, [trackersData]);
 
     useEffect(() => {
-        if (driversData) if (driversData.length > 0) setVehicleGroups(driversData);
+        if (driversData) if (driversData.length > 0) setDriverGroups(driversData);
     }, [driversData]);
 
     useEffect(() => {
-        if (vehiclesData) if (vehiclesData.length > 0) setDriverGroups(vehiclesData);
+        if (vehiclesData) if (vehiclesData.length > 0) setVehicleGroups(vehiclesData);
     }, [vehiclesData]);
 
     useEffect(() => {
@@ -351,6 +357,7 @@ export const Reports = () => {
                                                 setSelectedVehicles={setSelectedVehicles}
                                                 setSelectedDrivers={setSelectedDrivers}
                                                 allTrackerIds={allTrackerIds}
+                                                allDriversIds={allDriversIds}
                                                 allGroupIds={allGroupIds}
                                                 isAllSelected={isAllSelected}
                                                 filterItem={filterItem}

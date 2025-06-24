@@ -45,7 +45,7 @@ export default function ItemsList({
         //     });
         //     return initialStates;
         // }
-        {}
+        {},
     );
 
     const toggleOpen = (idx: number) => {
@@ -93,9 +93,23 @@ export default function ItemsList({
                             />
                             <Transition show={!!openStates[groupIdx]} {...expandAnimationProps} unmount={false}>
                                 <>
-                                    {group.trackers.map((item: any, itemIdx: number) => (
-                                        <Item key={itemIdx} label={item.label} id={item.id} selected={selectedItems.has(item.id)} toggle={() => toggleItem(item.id)} />
-                                    ))}
+                                    {group.trackers ? (
+                                        <>
+                                            {group.trackers.map((item: any, itemIdx: number) => (
+                                                <Item key={itemIdx} label={item.label} id={item.id} selected={selectedItems.has(item.id)} toggle={() => toggleItem(item.id)} />
+                                            ))}
+                                        </>
+                                    ) : group.employees ? (
+                                        <>
+                                            {group.employees.map((item: any, itemIdx: number) => (
+                                                <Item key={itemIdx} label={
+                                                    item.label ? item.label : item.full_name
+                                                } id={item.id} selected={selectedItems.has(item.id)} toggle={() => toggleItem(item.id)} />
+                                            ))}
+                                        </>
+                                    ) : (
+                                        <></>
+                                    )}
                                 </>
                             </Transition>
                         </Transition>

@@ -79,7 +79,12 @@ export function Group({
     toggleGroup: (group: any) => void;
     setOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-    const allIds = group.trackers.map((t: any) => t.id);
+    let allIds = [];
+    if (group.trackers) {
+        allIds = group.trackers.map((t: any) => t.id);
+    } else if (group.employees) { 
+        allIds = group.employees.map((t: any) => t.id);
+    }
     const allChecked = allIds.every((id: any) => selectedItems.has(id));
     const someChecked = allIds.some((id: any) => selectedItems.has(id));
     return (
