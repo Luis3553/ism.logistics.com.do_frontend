@@ -2,7 +2,7 @@ import { Option } from "src/pages/Configuration/components/ListOfConfigurations"
 import { MultiValue } from "react-select";
 import { useFetch } from "@hooks/useFetch";
 import { useEffect, useState } from "react";
-import AsyncSelectComponent from "./async-select";
+import AsyncSelectComponent from "../../../components/async-select";
 
 export default function ListOfTags({ setTagsQuery }: { setTagsQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>; }) {
     const { data, isLoading } = useFetch<Option[]>("/notifications/tags");

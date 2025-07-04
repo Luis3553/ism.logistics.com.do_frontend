@@ -152,10 +152,12 @@ export type RetrievedReportContentRows = {
 export type RetrievedReportData = {
     groupLabel: string;
     bgColor: string;
-    content: {
-        columns: RetrievedReportContentCols[];
-        rows: RetrievedReportContentRows[];
-    } | RetrievedReportData[];
+    content:
+        | {
+              columns: RetrievedReportContentCols[];
+              rows: RetrievedReportContentRows[];
+          }
+        | RetrievedReportData[];
 };
 export type RetrievedReport = {
     title: string;
@@ -212,9 +214,29 @@ export type DriversGroup = {
     id: number;
     name: string;
     color: string;
-    employees: TrackerObject[];
+    employees: TrackerObject[] | any[];
 };
 export type VehiclesGroup = {
     name: string;
     trackers: TrackerObject[];
+};
+
+export type TaskData = {
+    list: Task[];
+};
+
+export type Task = {
+    days_of_week: number[];
+    employee: string;
+    frequency: "every_x_weeks" | "every_x_months";
+    frequency_value: number;
+    weekday_ordinal: number;
+    id: number;
+    label: string;
+    start_date: string;
+    task_id: number;
+    tracker: string;
+    tracker_id: number;
+    is_active: boolean;
+    is_valid: boolean;
 };

@@ -48,6 +48,15 @@ const styles: StylesConfig<Option, true, GroupBase<Option>> = {
         ...base,
         padding: "0 10px",
     }),
+    menuList(base) {
+        return {
+            ...base,
+            maxHeight: "16rem",
+            overflowY: "auto",
+            padding: 0,
+            zIndex: 1000,
+        };
+    },
 };
 
 export default function AsyncSelectComponent(
@@ -59,6 +68,7 @@ export default function AsyncSelectComponent(
         value,
         loadOptions,
         onChange,
+        isMulti = true,
      }: { 
         data: Array<Option>; 
         isLoading: boolean; 
@@ -67,27 +77,51 @@ export default function AsyncSelectComponent(
         defaultOptions: Array<Option>;
         loadOptions: (inputValue: string, callback: (options: Option[]) => void) => void;
         onChange: (e: MultiValue<Option>) => void;
+        isMulti?: boolean;
     }
 ) {
-    return (
-        <AsyncSelect
-            isMulti
-            isSearchable
-            cacheOptions
-            className='w-full min-w-60 caret-brand-blue'
-            placeholder={placeholder}
-            isLoading={isLoading}
-            isClearable={false}
-            defaultValue={data[0]}
-            defaultOptions={defaultOptions}
-            options={data}
-            loadingMessage={() => "Cargando..."}
-            noOptionsMessage={() => "No hay resultados"}
-            value={value}
-            loadOptions={loadOptions}
-            onChange={onChange}
-            styles={styles}
-            escapeClearsValue
-        />
-    );
+    if (isMulti) {
+        return (
+            <AsyncSelect
+                isMulti
+                isSearchable
+                cacheOptions
+                className='w-full min-w-60 caret-brand-blue'
+                placeholder={placeholder}
+                isLoading={isLoading}
+                isClearable={false}
+                defaultValue={data[0]}
+                defaultOptions={defaultOptions}
+                options={data}
+                loadingMessage={() => "Cargando..."}
+                noOptionsMessage={() => "No hay resultados"}
+                value={value}
+                loadOptions={loadOptions}
+                onChange={onChange}
+                styles={styles}
+                escapeClearsValue
+            />
+        );
+    } else {
+        return (
+            <AsyncSelect
+                isSearchable
+                cacheOptions
+                className='w-full min-w-60 caret-brand-blue'
+                placeholder={placeholder}
+                isLoading={isLoading}
+                isClearable={false}
+                defaultValue={data[0]}
+                defaultOptions={defaultOptions}
+                options={data}
+                loadingMessage={() => "Cargando..."}
+                noOptionsMessage={() => "No hay resultados"}
+                value={value}
+                loadOptions={loadOptions}
+                onChange={onChange}
+                styles={styles}
+                escapeClearsValue
+            />
+        );
+    }
 }

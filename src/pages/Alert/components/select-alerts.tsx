@@ -1,7 +1,7 @@
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import { MultiValue } from "react-select";
 import { useEffect, useState } from "react";
-import AsyncSelectComponent from "./async-select";
+import AsyncSelectComponent from "../../../components/async-select";
 
 export default function ListOfAlerts({
     data,

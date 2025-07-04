@@ -1,8 +1,21 @@
 import { Fragment, useEffect, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { HiCheck, HiChevronUpDown } from "react-icons/hi2";
+import cn from "classnames";
 
-export default function ListboxComponent({ options, selectedOption, onChange }: { options: { label: string; value: any }[]; selectedOption: { label: string; value: any }; onChange?: (value: any) => void }) {
+export default function ListboxComponent({
+    options,
+    selectedOption,
+    onChange,
+    shadow,
+    classNames = "",
+}: {
+    options: { label: string; value: any }[];
+    selectedOption: { label: string; value: any };
+    onChange?: (value: any) => void;
+    shadow?: boolean;
+    classNames?: string;
+}) {
     const [selected, setSelected] = useState(selectedOption ?? options[0]);
 
     useEffect(() => {
@@ -10,19 +23,26 @@ export default function ListboxComponent({ options, selectedOption, onChange }: 
     }, [selectedOption, options]);
 
     return (
-        <Listbox value={selected} onChange={(val) => {
-            setSelected(val);
-            onChange?.(val);
-        }}>
-            <div className='relative mt-1'>
-                <Listbox.Button className='relative w-full py-2 pl-3 pr-10 text-left bg-white border rounded-lg cursor-pointer focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-orange-300 sm:text-sm'>
+        <Listbox
+            value={selected}
+            onChange={(val) => {
+                setSelected(val);
+                onChange?.(val);
+            }}>
+            <div className='relative w-full'>
+                <Listbox.Button
+                    className={cn(
+                        "relative w-full py-2 pl-3 pr-10 text-left bg-white border rounded-lg cursor-pointer md:min-w-20 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-blue sm:text-sm",
+                        shadow && "shadow",
+                        classNames,
+                    )}>
                     <span className='block truncate'>{selected.label}</span>
                     <span className='absolute inset-y-0 right-0 flex items-center pr-2 pointer-events-none'>
                         <HiChevronUpDown className='w-5 h-5 text-gray-400' aria-hidden='true' />
                     </span>
                 </Listbox.Button>
                 <Transition as={Fragment} leave='transition ease-in duration-100' leaveFrom='opacity-100' leaveTo='opacity-0'>
-                    <Listbox.Options className='absolute w-full py-1 mt-1 overflow-auto text-base bg-white border rounded-md shadow-lg max-h-60 ring-1 ring-black/5 focus:outline-none sm:text-sm'>
+                    <Listbox.Options className='absolute z-50 w-full py-1 mt-1 overflow-auto text-base bg-white border rounded-md shadow-lg max-h-60 ring-1 ring-black/5 focus:outline-none sm:text-sm'>
                         {options.map((option, optionIdx) => (
                             <Listbox.Option
                                 onChange={onChange}

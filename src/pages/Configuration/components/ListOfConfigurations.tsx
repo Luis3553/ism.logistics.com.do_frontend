@@ -10,6 +10,7 @@ import api from "../../../api";
 export type Option = {
     value: number | string;
     label: string;
+    [key: string]: any;
 };
 
 export type ConfigurationItem = {

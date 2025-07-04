@@ -8,6 +8,10 @@
 @tailwind components;
 @tailwind utilities;
 
+[data-testid="picker-popup"] {
+    z-index: 9999 !important;
+}
+
 :root {
     --blue: #049cdb;
     --light-blue: #cdebf8;

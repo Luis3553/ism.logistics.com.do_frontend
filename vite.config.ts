@@ -22,6 +22,7 @@ export default defineConfig(({ mode }) => ({
             "@utils": path.resolve(__dirname, "src/utils"),
             "@assets": path.resolve(__dirname, "src/assets"),
             "@public": path.resolve(__dirname, "public"),
+            "@contexts": path.resolve(__dirname, "src/contexts"),
             // Add others as needed
         },
     },
