@@ -41,6 +41,21 @@ export const Tasks = () => {
         interval: 1000 * 60 * 5,
     });
 
+    const [filteredData, setFilteredData] = useState<TaskData>();
+
+    useEffect(() => {
+        if (taskData.data) {
+            if (selectedOption.value === "all") {
+                setFilteredData(taskData.data);
+            } else if (selectedOption.value === "every_x_weeks" || selectedOption.value === "every_x_months") {
+                const filtered = taskData.data?.list.filter((task) => task.frequency === selectedOption.value);
+                setFilteredData({ list: filtered ?? [] });
+            } else {
+                setFilteredData(taskData.data);
+            }
+        }
+    }, [selectedOption, taskData.data]);
+
     useEffect(() => {
         if (trackersData) {
             const allTrackers = trackersData.map((tracker) => ({
@@ -94,7 +109,7 @@ export const Tasks = () => {
                         <button
                             onClick={() => {
                                 // openModal()
-                                openModal("TASK_CONFIG", { trackers, tasks, taskModalData, setTaskModalData, refetch: taskData.refetch });
+                                openModal("TASK_CONFIG", { trackers, tasks, taskModalData, setTaskModalData, refetch: taskData.refetch, setFilteredData });
                             }}
                             className='flex justify-center w-full gap-2 p-2 font-medium transition rounded-lg outline-none focus-visible:bg-brand-blue focus-visible:text-white md:w-fit bg-brand-light-blue text-brand-blue hover:bg-brand-blue hover:text-white'>
                             <HiPlus className='size-6' />
@@ -120,6 +135,8 @@ export const Tasks = () => {
                         tooltip={tooltip}
                         selectedOption={selectedOption}
                         setTaskModalData={setTaskModalData}
+                        setFilteredData={setFilteredData}
+                        filteredData={filteredData}
                     />
                 )}
             </main>

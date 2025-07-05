@@ -11,7 +11,7 @@ import { RadioGroup, Transition } from "@headlessui/react";
 import { appearAnimationProps } from "@utils/animations";
 import AsyncSelectComponent from "@components/async-select";
 import messageToaster from "@utils/toaster";
-import { Task } from "@utils/types";
+import { Task, TaskData } from "@utils/types";
 import { LoadSpinner } from "@components/LoadSpinner";
 import { useUIContext } from "@contexts/ui-context";
 import { useModalAction } from "@contexts/modal-context";
@@ -35,18 +35,23 @@ export default function TaskCreateModal({
     taskModalData,
     setTaskModalData,
     refetch,
+    setFilteredData,
 }: {
     open: boolean;
     taskModalData: Task | undefined;
     setTaskModalData: React.Dispatch<React.SetStateAction<Task | undefined>>;
     refetch: () => void;
+    setFilteredData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
 }) {
-    console.log("TaskCreateModal", taskModalData);
     const [trackers, setTrackers] = useState<Option[]>();
     const [tasks, setTasks] = useState<Option[]>();
 
-    const { data: trackersData } = useApiQuery<Option[]>("/notifications/trackers", {});
-    const { data: tasksData } = useApiQuery<{ list: Option[] }>("/tasks/schedule/list", {});
+    const { data: trackersData, isLoading: isLoadingTrackers, isRefetching: isRefetchingTrackers } = useApiQuery<Option[]>("/notifications/trackers", {});
+    const { data: tasksData, isLoading: isLoadingTasks, isRefetching: isRefetchingTasks, refetch: refreshTasks } = useApiQuery<{ list: Option[] }>("/tasks/schedule/list", {});
+
+    useEffect(() => {
+        refreshTasks();
+    }, [open]);
 
     useEffect(() => {
         if (trackersData) {
@@ -127,20 +132,20 @@ export default function TaskCreateModal({
 
     function resetFields() {
         setSelectedOption(options[0]);
-        setFrequencyValue(2);
-        setSelectedDays([new Date().getDay() === 0 ? 7 : new Date().getDay()]);
-        setStartDate(new Date());
+        setFrequencyValue(1);
+        setSelectedDays([]);
+        setStartDate(null);
         setSelectedTracker(null);
         setSelectedTask(null);
         setPayload({
             id: undefined,
             task_id: null,
             tracker_id: null,
-            start_date: new Date(),
+            start_date: null,
             frequency: options[0].value,
             frequency_value: 1,
-            weekday_ordinal: weeks[0].value,
-            days_of_week: [new Date().getDay() === 0 ? 7 : new Date().getDay()],
+            weekday_ordinal: null,
+            days_of_week: [],
         });
         setErrors({});
     }
@@ -198,7 +203,7 @@ export default function TaskCreateModal({
                 setIsLoading(true);
                 api.put(`/tasks/schedule/${taskModalData.id}/update`, payload)
                     .then((res) => {
-                        if (res.status !== 201) {
+                        if (res.status !== 200) {
                             toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
                                 duration: 1000 * 5,
                                 placement: "topStart",
@@ -207,6 +212,13 @@ export default function TaskCreateModal({
                         toaster.push(messageToaster(`Configuración actualizada correctamente`, "success"), {
                             duration: 1000 * 5,
                             placement: "topStart",
+                        });
+                        setFilteredData((prev) => {
+                            if (!prev) {
+                                return { list: [res.data.data as Task] };
+                            }
+                            const updatedList = prev.list.map((task) => (task.id === res.data.data.id ? (res.data.data as Task) : task));
+                            return { ...prev, list: updatedList };
                         });
                     })
                     .catch(() => {
@@ -217,6 +229,7 @@ export default function TaskCreateModal({
                     })
                     .finally(() => {
                         closeModal();
+                        refreshTasks();
                         setTaskModalData(undefined);
                         resetFields();
                         refetch();
@@ -232,6 +245,15 @@ export default function TaskCreateModal({
                                 placement: "topStart",
                             });
                         }
+
+                        setFilteredData((prev) => {
+                            if (!prev) {
+                                return { list: [res.data.data as Task] };
+                            }
+                            return { ...prev, list: [...prev.list, res.data.data as Task] };
+                        });
+                        setTasks((prev) => prev?.filter((task) => task.value !== payload.task_id));
+
                         toaster.push(messageToaster(`Configuración creada correctamente`, "success"), {
                             duration: 1000 * 5,
                             placement: "topStart",
@@ -244,6 +266,7 @@ export default function TaskCreateModal({
                         });
                     })
                     .finally(() => {
+                        refreshTasks();
                         closeModal();
                         setTaskModalData(undefined);
                         resetFields();
@@ -296,7 +319,7 @@ export default function TaskCreateModal({
                                 data={tasks || []}
                                 isMulti={false}
                                 defaultOptions={(tasks || []).slice(0, 10) ?? []}
-                                isLoading={false}
+                                isLoading={isLoadingTasks || isRefetchingTasks}
                                 onChange={(e) => setSelectedTask(Array.isArray(e) ? e[0] ?? null : e ?? null)}
                                 value={selectedTask ? [selectedTask] : []}
                                 loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, tasks)}
@@ -312,7 +335,7 @@ export default function TaskCreateModal({
                                 data={trackers || []}
                                 isMulti={false}
                                 defaultOptions={(trackers || []).slice(0, 10) ?? []}
-                                isLoading={false}
+                                isLoading={isLoadingTrackers || isRefetchingTrackers}
                                 onChange={(e) => setSelectedTracker(Array.isArray(e) ? e[0] ?? null : e ?? null)}
                                 value={selectedTracker ? [selectedTracker] : []}
                                 loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, trackers)}

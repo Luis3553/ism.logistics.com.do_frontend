@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useState } from "react";
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import { HiEllipsisVertical, HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import { Menu, Switch, Transition } from "@headlessui/react";
@@ -143,7 +143,7 @@ export const TaskItem = ({
                 <div className='flex items-center gap-2 max-sm:mt-4'>
                     <Switch
                         disabled={isLoading}
-                        checked={task.is_active}
+                        checked={active}
                         onChange={(checked: boolean) => {
                             setActive(checked);
                             updateActiveState(checked);
@@ -247,30 +247,20 @@ export const TaskItem = ({
 export const TasksList = ({
     taskModalData,
     tooltip,
-    selectedOption,
     setTaskModalData,
-    taskData: { data, isLoading, error, refetch },
+    filteredData,
+    setFilteredData,
+    taskData: { isLoading, error, refetch },
 }: {
     taskModalData: Task | undefined;
     selectedOption: Option;
     tooltip: (message: string) => JSX.Element;
     setTaskModalData: React.Dispatch<React.SetStateAction<Task | undefined>>;
     taskData: UseQueryResult<TaskData, Error>;
+    filteredData?: TaskData;
+    setFilteredData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
 }) => {
-    const [filteredData, setFilteredData] = useState<TaskData>();
-
-    useEffect(() => {
-        if (data) {
-            if (selectedOption.value === "all") {
-                setFilteredData(data);
-            } else if (selectedOption.value === "every_x_weeks" || selectedOption.value === "every_x_months") {
-                const filtered = data?.list.filter((task) => task.frequency === selectedOption.value);
-                setFilteredData({ list: filtered ?? [] });
-            } else {
-                setFilteredData(data);
-            }
-        }
-    }, [selectedOption, data]);
+    
 
     return (
         <>
@@ -284,7 +274,7 @@ export const TasksList = ({
                     <div></div>
                 </div>
                 <div className='max-h-[calc(100vh-300px)]'>
-                    {isLoading && !data ? (
+                    {isLoading && !filteredData ? (
                         <div className='relative h-52'>
                             <LoadSpinner />
                         </div>
@@ -293,7 +283,7 @@ export const TasksList = ({
                             <i className='mgc_warning_fill me-2'></i>
                             Ha ocurrido un error al cargar los datos.
                         </div>
-                    ) : data && data.list.length > 0 ? (
+                    ) : filteredData && filteredData.list.length > 0 ? (
                         <>
                             {filteredData?.list.map((task) => (
                                 <TaskItem
