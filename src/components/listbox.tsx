@@ -32,7 +32,7 @@ export default function ListboxComponent({
             <div className='relative w-full'>
                 <Listbox.Button
                     className={cn(
-                        "relative w-full py-2 pl-3 pr-10 text-left bg-white border rounded-lg cursor-pointer md:min-w-20 focus:outline-none focus-visible:border-indigo-500 focus-visible:ring-2 focus-visible:ring-white/75 focus-visible:ring-offset-2 focus-visible:ring-offset-brand-blue sm:text-sm",
+                        "relative w-full aria-expanded:border-brand-blue py-2 pl-3 pr-10 text-left bg-white border rounded-lg cursor-pointer md:min-w-20 focus:outline-none focus-visible:border-brand-blue sm:text-sm",
                         shadow && "shadow",
                         classNames,
                     )}>

@@ -1,30 +1,21 @@
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import { MultiValue } from "react-select";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import AsyncSelectComponent from "../../../components/async-select";
 
-export default function ListOfTrackers({
+export default function ListOfTasks({
     data,
     isLoading,
-    setTrackersQuery,
+    setTasksQuery,
 }: {
     data: Option[];
     isLoading: boolean;
-    setTrackersQuery: React.Dispatch<React.SetStateAction<Array<number | string>>>;
+    setTasksQuery: React.Dispatch<React.SetStateAction<Array<Option>>>;
 }) {
-    const [trackers, setTrackers] = useState<Option[]>([{ value: "all", label: "Todos" }]);
-    const [selectedOptions, setSelectedOptions] = useState<MultiValue<Option>>([trackers[0]]);
+    const [selectedOptions, setSelectedOptions] = useState<MultiValue<Option>>([{ value: "all", label: "Todos" }]);
 
-    useEffect(() => {
-        if (data) {
-            const ALL_OPTION = { value: "all", label: "Todos" };
-            const merged = [ALL_OPTION, ...data.filter((d) => d.value !== "all")];
-            setTrackers(merged);
-        }
-    }, [data]);
-    
     function onChange(e: MultiValue<Option>) {
-        const allOption = trackers[0];
+        const allOption = data[0];
         let newSelection: MultiValue<Option>;
 
         if (!e || e.length === 0) {
@@ -33,6 +24,7 @@ export default function ListOfTrackers({
             const isAllSelected = e.some((opt) => opt.value === allOption.value);
             const isNewSelectedAll = e[e.length - 1].value == allOption.value;
             const wasAllSelected = selectedOptions.some((opt) => opt.value === allOption.value);
+
 
             if (isAllSelected && !wasAllSelected) {
                 // "Todos" just got selected after others: override everything
@@ -45,19 +37,19 @@ export default function ListOfTrackers({
                 newSelection = e;
             }
             setSelectedOptions(newSelection);
-            setTrackersQuery(newSelection.map((option) => option.value));
+            setTasksQuery(newSelection.map((option) => option));
         }
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = trackers.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = data.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (
         <AsyncSelectComponent
             isLoading={isLoading}
-            defaultOptions={trackers.slice(undefined, 21)}
-            data={trackers}
+            defaultOptions={data.slice(undefined, 21)}
+            data={data}
             value={selectedOptions}
             loadOptions={loadOptions}
             onChange={onChange}

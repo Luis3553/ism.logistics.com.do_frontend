@@ -1,4 +1,4 @@
-import { createContext, ReactNode, useContext, useState } from "react";
+import { createContext, ReactNode, useContext } from "react";
 import { useToaster } from "rsuite";
 import { ToastContainerProps } from "rsuite/esm/toaster/ToastContainer";
 
@@ -8,27 +8,22 @@ type UIContextType = {
         remove: (key: string) => void;
         clear: () => void;
     };
-    openModal: () => void;
-    closeModal: () => void;
-    modalOpen: boolean;
 };
 
 const UIContext = createContext<UIContextType | undefined>(undefined);
 
 export const UIProvider = ({ children }: { children: ReactNode }) => {
     const toaster = useToaster();
+    // const [brandColor, setBrandColor] = useState<string>("#1E40AF");
 
-    const [modalOpen, setOpenModal] = useState<boolean>(false);
+    // useEffect(() => {
+    //     const root = document.documentElement;
+    //     root.style.setProperty("--brand-color", brandColor);
+    //     root.style.setProperty("--brand-color-light", `${brandColor}33`);
+    //     root.style.setProperty("--brand-color-dark", `${brandColor}99`);
+    // }, [brandColor]);
 
-    function openModal() {
-        setOpenModal(true);
-    }
-
-    function closeModal() {
-        setOpenModal(false);
-    }
-
-    return <UIContext.Provider value={{ toaster, openModal, closeModal, modalOpen }}>{children}</UIContext.Provider>;
+    return <UIContext.Provider value={{ toaster }}>{children}</UIContext.Provider>;
 };
 
 export const useUIContext = () => {

@@ -100,17 +100,6 @@ export default function TaskCreateModal({
     //     return false;
     // };
 
-    useEffect(() => {
-        if (taskModalData) {
-            setSelectedTracker({ label: taskModalData.tracker, value: taskModalData.tracker_id });
-            setSelectedTask({ label: taskModalData.label, value: taskModalData.task_id });
-            setStartDate(new Date(taskModalData.start_date));
-            setSelectedOption(options.find((o) => o.value === taskModalData.frequency) || options[0]);
-            setFrequencyValue(taskModalData.frequency_value);
-            setSelectedDays(taskModalData.days_of_week);
-        }
-    }, [taskModalData]);
-
     const [payload, setPayload] = useState({
         id: taskModalData ? taskModalData.id : undefined,
         task_id: selectedTask ? selectedTask.value : null,
@@ -185,6 +174,17 @@ export default function TaskCreateModal({
     }
 
     useEffect(() => {
+        if (taskModalData) {
+            setSelectedTracker({ label: taskModalData.tracker, value: taskModalData.tracker_id });
+            setSelectedTask({ label: taskModalData.label, value: taskModalData.task_id });
+            setStartDate(new Date(taskModalData.start_date));
+            setSelectedOption(options.find((o) => o.value === taskModalData.frequency) || options[0]);
+            setFrequencyValue(taskModalData.frequency_value);
+            setSelectedDays(taskModalData.days_of_week);
+        }
+    }, [payload]);
+
+    useEffect(() => {
         setPayload({
             id: taskModalData ? taskModalData.id : undefined,
             task_id: selectedTask ? selectedTask.value : null,
@@ -204,24 +204,29 @@ export default function TaskCreateModal({
                 api.put(`/tasks/schedule/${taskModalData.id}/update`, payload)
                     .then((res) => {
                         if (res.status !== 200) {
+                            console.log("error updating task", res);
                             toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
                                 duration: 1000 * 5,
                                 placement: "topStart",
                             });
+                            return;
                         }
                         toaster.push(messageToaster(`Configuración actualizada correctamente`, "success"), {
                             duration: 1000 * 5,
                             placement: "topStart",
                         });
                         setFilteredData((prev) => {
+                            console.log("not found task to update");
                             if (!prev) {
                                 return { list: [res.data.data as Task] };
                             }
+                            console.log("found task to update");
                             const updatedList = prev.list.map((task) => (task.id === res.data.data.id ? (res.data.data as Task) : task));
                             return { ...prev, list: updatedList };
                         });
                     })
-                    .catch(() => {
+                    .catch((err) => {
+                        console.log("API PUT error:", err);
                         toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
                             duration: 1000 * 5,
                             placement: "topStart",
@@ -299,14 +304,15 @@ export default function TaskCreateModal({
                     <HiXMark className='size-5' />
                 </button>
             </div>
-            <div className='p-2 overflow-y-auto'>
-                <div className='flex flex-col gap-8 md:grid'>
+            <div className='h-full p-2 overflow-y-auto'>
+                <div className='flex flex-col gap-6 md:grid'>
                     <div className='flex flex-col gap-4'>
                         <div className='flex flex-col'>
                             <div className='flex items-center justify-between mb-1'>
                                 <span className='font-medium'>Tarea recurrente</span>
                                 <Whisper
-                                    speaker={tooltip("Sólo se muestran tareas sin empleado asignado y sin configuraciones creadas.")}
+                                    speaker={tooltip(`En este menú podrá gestionar las tareas recurrentes creadas desde "Servicio de campo → Tareas recurrentes", siempre que no tengan un empleado asignado ni
+                configuraciones previas. Además, el valor del campo "Repetir" será omitido en esta vista.`)}
                                     onMouseOver={() => tooltip}
                                     trigger='hover'
                                     placement='topEnd'>
@@ -401,7 +407,7 @@ export default function TaskCreateModal({
                                 <Transition show={selectedOption.value === "every_x_months"} {...appearAnimationProps}>
                                     <ListboxComponent
                                         shadow={false}
-                                        classNames='h-full! w-52'
+                                        classNames='h-full! w-48'
                                         options={weeks}
                                         selectedOption={selectedWeekDay}
                                         onChange={(e) => setSelectedWeekDay(e)}
@@ -473,7 +479,7 @@ export default function TaskCreateModal({
                     </div>
                 </div>
             </div>
-            <div className='flex flex-row justify-end w-full gap-2 p-2 mt-4 bg-white'>
+            <div className='flex flex-row justify-end w-full gap-2 mt-2 bg-white'>
                 <button
                     onClick={() => {
                         closeModal();
@@ -485,7 +491,7 @@ export default function TaskCreateModal({
                 </button>
                 <button
                     onClick={onSubmit}
-                    disabled={Object.keys(errors).length > 0}
+                    // disabled={Object.keys(errors).length > 0}
                     className='flex items-center justify-center gap-2 p-2 font-medium text-white transition-all rounded-lg outline-none w-28 bg-brand-blue focus-visible:bg-brand-dark-blue hover:bg-brand-dark-blue disabled:bg-gray-300 disabled:cursor-not-allowed'>
                     Guardar
                 </button>

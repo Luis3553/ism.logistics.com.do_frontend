@@ -9,7 +9,7 @@ export const Layout = () => {
     const location = useLocation();
     return (
         <div className="flex flex-col bg-[var(--background-color)]">
-            {(location.pathname !== "/notifications" && location.pathname !== "/reports") && <>
+            {(location.pathname !== "/notifications" && location.pathname !== "/reports" && location.pathname != "/tasks") && <>
                 <Header />
                 <MobileHeader /> 
             </>}

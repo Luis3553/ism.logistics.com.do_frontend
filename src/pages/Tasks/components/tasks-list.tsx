@@ -1,6 +1,5 @@
 import { Fragment, useState } from "react";
-import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
-import { HiEllipsisVertical, HiOutlineEye, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
+import { HiEllipsisVertical, HiOutlineMapPin, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import { Menu, Switch, Transition } from "@headlessui/react";
 import { useToaster, Whisper } from "rsuite";
 import { Task, TaskData } from "@utils/types";
@@ -11,6 +10,7 @@ import messageToaster from "@utils/toaster";
 import { UseQueryResult } from "@tanstack/react-query";
 import { VscLoading } from "react-icons/vsc";
 import { useModalAction } from "@contexts/modal-context";
+import { format } from "date-fns";
 
 const days_of_week = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 const avatar_colors = [
@@ -29,14 +29,14 @@ const avatar_colors = [
 ];
 
 export const TaskItem = ({
-    // data,
-    taskModalData,
+    setFilteredData,
     setData,
     task,
     tooltip,
     setTaskModalData,
     refetch,
 }: {
+    setFilteredData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
     taskModalData: Task | undefined;
     setData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
     task: Task;
@@ -44,10 +44,9 @@ export const TaskItem = ({
     setTaskModalData: React.Dispatch<React.SetStateAction<Task | undefined>>;
     refetch: () => void;
 }) => {
-    console.log(taskModalData);
     const [active, setActive] = useState<boolean>(task.is_active);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-
+    const toaster = useToaster();
     const { openModal } = useModalAction();
 
     async function updateActiveState(checked: boolean) {
@@ -86,16 +85,49 @@ export const TaskItem = ({
             });
     }
 
-    const toaster = useToaster();
+    function getNextScheduledDate({ frequency_value, days_of_week, start_date }: { frequency_value: number; days_of_week: number[]; start_date: string }): Date {
+        const today = new Date();
+        const start = new Date(start_date);
+        // If today is before start_date, use start_date as the base
+        const base = today < start ? start : today;
+        // Get the week difference from start_date to base
+        const msInWeek = 7 * 24 * 60 * 60 * 1000;
+        const weeksSinceStart = Math.floor((base.getTime() - start.getTime()) / msInWeek);
+        const nextCycleStart = new Date(start.getTime() + weeksSinceStart * frequency_value * msInWeek);
+
+        // Find the next day in days_of_week after (or equal to) today
+        for (let i = 0; i < 14; i++) {
+            // check up to 2 weeks ahead
+            const candidate = new Date(nextCycleStart);
+            candidate.setDate(candidate.getDate() + i);
+            const weekday = candidate.getDay();
+            if (days_of_week.includes(weekday) && candidate >= base) {
+                return candidate;
+            }
+        }
+        throw new Error("No scheduled day found");
+    }
+
+    const nextScheduledDate = getNextScheduledDate({
+        frequency_value: task.frequency_value,
+        days_of_week: task.days_of_week,
+        start_date: task.start_date,
+    });
+
     return (
         <>
             <div
                 key={task.id}
                 onDoubleClick={(e) => {
                     e.stopPropagation();
-                    openModal();
+                    openModal("TASK_CONFIG", {
+                        taskModalData: task,
+                        setTaskModalData,
+                        refetch,
+                        setFilteredData,
+                    });
                 }}
-                className='grid relative items-center max-sm:rounded-xl max-sm:p-4 active:bg-brand-blue/10 sm:grid-cols-[1.5fr_1fr_1.5fr_0.7fr_4rem_4rem] p-1.5 transition-all rounded-full hover:bg-brand-light-blue'>
+                className='grid relative items-center max-md:rounded-xl max-md:p-4 active:bg-brand-blue/10 md:grid-cols-[10rem_1fr_1fr_1fr_12rem_5rem_4rem] xl:grid-cols-[1fr_1fr_1fr_1fr_12rem_5rem_4rem] p-1.5 transition-all rounded-full hover:bg-brand-light-blue'>
                 <div className='flex items-center gap-3'>
                     <div
                         className={cn(
@@ -113,14 +145,14 @@ export const TaskItem = ({
                         </Whisper>
                     </div>
                 </div>
-                <div className='truncate max-sm:grid grid-cols-[100px_auto]'>
-                    <span className='font-medium sm:hidden'>Etiqueta: </span>
+                <div className='truncate max-md:mt-4 max-md:grid grid-cols-[100px_auto]'>
+                    <span className='font-medium md:hidden'>Etiqueta: </span>
                     <Whisper speaker={tooltip(task.label ?? "-")} onMouseOver={() => tooltip} trigger='hover' placement='topStart'>
                         {task.label ?? "-"}
                     </Whisper>
                 </div>
-                <div className='truncate max-sm:mt-4 max-sm:grid grid-cols-[100px_auto]'>
-                    <span className='font-medium sm:hidden'>Frecuencia: </span>
+                <div className='truncate max-md:grid grid-cols-[100px_auto]'>
+                    <span className='font-medium md:hidden'>Frecuencia: </span>
                     <Whisper
                         speaker={tooltip(
                             task.frequency === "every_x_weeks"
@@ -135,33 +167,53 @@ export const TaskItem = ({
                             : `Cada ${task.frequency_value} mes${task.frequency_value > 1 ? "es" : ""}`}
                     </Whisper>
                 </div>
-                <div className='truncate max-sm:grid grid-cols-[100px_auto]'>
-                    <span className='font-medium sm:hidden'>Días: </span>
-                    {task.days_of_week.map((day) => days_of_week[day - 1]).join(", ")}
-                    {/* {task.checkpoints} {task.checkpoints == 1 ? "punto" : "puntos"} */}
+                <div className='truncate items-center max-md:grid grid-cols-[100px_auto]'>
+                    <span className='font-medium md:hidden'>Días: </span>
+                    {task.frequency === "every_x_weeks" ? (
+                        <>{task.days_of_week.length === 7 ? "Diaria" : task.days_of_week.map((day) => days_of_week[day - 1]).join(", ")}</>
+                    ) : (
+                        <>
+                            {task.days_of_week.length === 7 ? "Todos los días" : task.days_of_week.map((day) => days_of_week[day - 1]).join(", ")}
+                            <br />
+                            {`${task.weekday_ordinal}${["ra", "da", "ra", "ta"][task.weekday_ordinal - 1]} semana`}
+                        </>
+                    )}
                 </div>
-                <div className='flex items-center gap-2 max-sm:mt-4'>
-                    <Switch
-                        disabled={isLoading}
-                        checked={active}
-                        onChange={(checked: boolean) => {
-                            setActive(checked);
-                            updateActiveState(checked);
-                        }}
-                        className={cn(
-                            "disabled:bg-gray-200 ring-offset-2 focus-visible:ring-2 ring-offset-transparent outline-none border-none transition relative inline-flex h-6 w-11 min-w-11 items-center rounded-full",
-                            active
-                                ? "bg-green-400 hover:bg-green-500 focus-visible:bg-green-500 ring-green-300"
-                                : "bg-red-500 hover:bg-red-600 focus-visible:bg-red-600 focus-visible:ring ring-red-300",
-                        )}>
-                        <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition", active ? "translate-x-6" : "translate-x-1")} />
-                    </Switch>
-                    <span className={cn("font-medium", active ? "text-green-400" : "text-red-400")}>
-                        {!isLoading ? <>{active ? "Sí" : "No"}</> : <VscLoading className='animate-spin text-brand-blue' />}
-                    </span>
+                <div className='flex flex-col'>
+                    <div className='truncate max-md:grid grid-cols-[100px_auto]'>
+                        <span className='font-medium md:hdden'>Inició: </span>
+                        {format(new Date(task.start_date), "dd/MM/yyyy")}
+                    </div>
+                    <div className='truncate max-md:grid grid-cols-[100px_auto]'>
+                        <span className='font-medium md:hdden'>Próxima: </span>
+                        {format(nextScheduledDate, "dd/MM/yyyy")}
+                    </div>
                 </div>
-                <Menu as='div' className='relative w-12 h-12 outline-none max-sm:absolute group max-sm:end-2 max-sm:top-2 ms-auto'>
-                    <Menu.Button className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-sm:rounded-xl group-hover:bg-black/5 active:bg-black/10 focus-visible:bg-black/5 '>
+                <div className='truncate items-center max-md:mt-2 max-md:grid grid-cols-[100px_auto]'>
+                    <span className='font-medium md:hidden'>Activa: </span>
+                    <div className='flex items-center gap-2'>
+                        <Switch
+                            disabled={isLoading}
+                            checked={active}
+                            onChange={(checked: boolean) => {
+                                setActive(checked);
+                                updateActiveState(checked);
+                            }}
+                            className={cn(
+                                "disabled:bg-gray-200 ring-offset-2 focus-visible:ring-2 ring-offset-transparent outline-none border-none transition relative inline-flex h-6 w-11 min-w-11 items-center rounded-full",
+                                active
+                                    ? "bg-green-400 hover:bg-green-500 focus-visible:bg-green-500 ring-green-300"
+                                    : "bg-red-500 hover:bg-red-600 focus-visible:bg-red-600 focus-visible:ring ring-red-300",
+                            )}>
+                            <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition", active ? "translate-x-6" : "translate-x-1")} />
+                        </Switch>
+                        <span className={cn("font-medium", active ? "text-green-400" : "text-red-400")}>
+                            {!isLoading ? <>{active ? "Sí" : "No"}</> : <VscLoading className='animate-spin text-brand-blue' />}
+                        </span>
+                    </div>
+                </div>
+                <Menu as='div' className='relative w-12 h-12 outline-none max-md:absolute group max-md:end-2 max-md:top-2 ms-auto'>
+                    <Menu.Button className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-md:rounded-xl group-hover:bg-black/5 active:bg-black/10 focus-visible:bg-black/5 '>
                         <HiEllipsisVertical className='m-auto' />
                     </Menu.Button>
                     <Transition
@@ -182,23 +234,14 @@ export const TaskItem = ({
                                             taskModalData: task,
                                             setTaskModalData,
                                             refetch,
+                                            setFilteredData,
                                         });
                                     }}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 text-sm transition-all rounded-md cursor-pointer select-none focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
+                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
                                     <HiOutlinePencil />
                                     Editar
                                 </span>
                             </Menu.Item>
-                            <Menu.Item>
-                                <a
-                                    target='_blank'
-                                    href={`https://app.progps.com.do/#/entity/view/schedule/-/custom/edit/${task.task_id}`}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 text-sm transition-all rounded-md cursor-pointer select-none focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
-                                    <HiOutlineEye />
-                                    Ver detalles
-                                </a>
-                            </Menu.Item>
-                            <hr />
                             <Menu.Item>
                                 <button
                                     onClick={() => {
@@ -231,10 +274,20 @@ export const TaskItem = ({
                                                 });
                                             });
                                     }}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 text-sm transition-all rounded-md cursor-pointer select-none focus-visible:text-red-500 hover:text-red-500 focus-visible:bg-red-200 hover:bg-red-200'>
+                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-red-500 hover:text-red-500 focus-visible:bg-red-200 hover:bg-red-200'>
                                     <HiOutlineTrash />
                                     Eliminar
                                 </button>
+                            </Menu.Item>
+                            <hr />
+                            <Menu.Item>
+                                <a
+                                    target='_blank'
+                                    href={`https://app.progps.com.do/#/entity/view/schedule/-/custom/edit/${task.task_id}`}
+                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
+                                    <HiOutlineMapPin />
+                                    Editar tarea
+                                </a>
                             </Menu.Item>
                         </Menu.Items>
                     </Transition>
@@ -253,27 +306,25 @@ export const TasksList = ({
     taskData: { isLoading, error, refetch },
 }: {
     taskModalData: Task | undefined;
-    selectedOption: Option;
     tooltip: (message: string) => JSX.Element;
     setTaskModalData: React.Dispatch<React.SetStateAction<Task | undefined>>;
     taskData: UseQueryResult<TaskData, Error>;
     filteredData?: TaskData;
     setFilteredData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
 }) => {
-    
-
     return (
         <>
             <div>
-                <div className='max-sm:hidden grid grid-cols-[1.5fr_1fr_1.5fr_0.7fr_4rem_4rem] px-2 py-2 font-medium'>
+                <div className='max-md:hidden grid md:grid-cols-[10rem_1fr_1fr_1fr_12rem_5rem_4rem] xl:grid-cols-[1fr_1fr_1fr_1fr_12rem_5rem_4rem] px-2 py-2 font-medium'>
                     <div>Empleado</div>
                     <div>Etiqueta</div>
                     <div>Frecuencia</div>
                     <div>Días</div>
+                    <div>Fechas</div>
                     <div>Activa</div>
                     <div></div>
                 </div>
-                <div className='max-h-[calc(100vh-300px)]'>
+                <div className='md:max-h-[calc(100vh-300px)] overflow-y-auto'>
                     {isLoading && !filteredData ? (
                         <div className='relative h-52'>
                             <LoadSpinner />
@@ -292,6 +343,7 @@ export const TasksList = ({
                                     key={task.id}
                                     task={task}
                                     tooltip={tooltip}
+                                    setFilteredData={setFilteredData}
                                     setTaskModalData={setTaskModalData}
                                     refetch={refetch}
                                 />
