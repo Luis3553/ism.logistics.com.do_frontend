@@ -227,6 +227,7 @@ export type TaskData = {
 
 export type Task = {
     days_of_week: number[];
+    employee_image_url: string | null;
     employee: string;
     frequency: "every_x_weeks" | "every_x_months";
     frequency_value: number;
@@ -239,4 +240,5 @@ export type Task = {
     tracker_id: number;
     is_active: boolean;
     is_valid: boolean;
+    checkpoints: Array<String>;
 };

@@ -25,7 +25,7 @@ export default function ListOfAlerts({
         if (!e || e.length === 0) {
             const newSelection = [allOption];
             setSelectedOptions(newSelection);
-            setNotificationsQuery(newSelection.map((option) => option.value));
+            setNotificationsQuery(newSelection.map((option) => Number(option.value)));
         } else {
             const isAllSelected = e.some((opt) => opt.value === allOption.value);
             const isNewSelectedAll = e[e.length - 1].value == allOption.value;
@@ -44,12 +44,12 @@ export default function ListOfAlerts({
                 newSelection = e;
             }
             setSelectedOptions(newSelection);
-            setNotificationsQuery(newSelection.map((option) => option.value));
+            setNotificationsQuery(newSelection.map((option) => Number(option.value)));
         }
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = alerts.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = alerts.filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (

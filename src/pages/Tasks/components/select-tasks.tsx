@@ -42,7 +42,7 @@ export default function ListOfTasks({
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = data.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = data.filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (

@@ -12,7 +12,9 @@
     z-index: 9999 !important;
 }
 
+
 :root {
+    --rs-tooltip-bg: #000000a0;
     --blue: #049cdb;
     --light-blue: #cdebf8;
     --dark-blue: #005174;

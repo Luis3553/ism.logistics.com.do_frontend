@@ -18,6 +18,7 @@ import cn from "classnames";
 import { AlertsByGroupTable, AlertsByObjectTable, AlertsByTypeTable } from "./components/alert-tables-tabs";
 import { Transition } from "@headlessui/react";
 import { appearAnimationProps } from "@utils/animations";
+import { ErrorBoundary } from "react-error-boundary";
 
 const options: Option[] = [
     {
@@ -353,17 +354,19 @@ export const Alerts = () => {
                     <div className='p-0 mt-4 overflow-hidden rounded-lg shadow border border-[#CECECE]'>
                         <table className='w-full table-fixed'>
                             <tbody className='*:border-b last:*:border-b-0'>
-                                {option.component(
-                                    query,
-                                    from,
-                                    to,
-                                    groupsQuery,
-                                    notificationsQuery,
-                                    trackersQuery,
-                                    alertsData.flatMap((alert) => alert.value),
-                                    groupsData.flatMap((group) => group.value),
-                                    trackersData.flatMap((tracker) => tracker.value),
-                                )}
+                                <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar la tabla. Por favor, inténtelo de nuevo.</div>}>
+                                    {option.component(
+                                        query,
+                                        from,
+                                        to,
+                                        groupsQuery,
+                                        notificationsQuery,
+                                        trackersQuery,
+                                        alertsData.flatMap((alert) => alert.value),
+                                        groupsData.flatMap((group) => group.value),
+                                        trackersData.flatMap((tracker) => tracker.value),
+                                    )}
+                                </ErrorBoundary>
                             </tbody>
                         </table>
                     </div>

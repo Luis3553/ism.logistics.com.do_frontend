@@ -42,12 +42,12 @@ export default function ListOfTrackers({
                 newSelection = e;
             }
             setSelectedOptions(newSelection);
-            setGroupsQuery(newSelection.map((option) => option.value));
+            setGroupsQuery(newSelection.map((option) => Number(option.value)));
         }
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = groups.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = groups.filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (

@@ -1,6 +1,7 @@
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import AsyncSelect from "react-select/async";
 import { GroupBase, MultiValue, StylesConfig } from "react-select";
+import { ErrorBoundary } from "react-error-boundary";
 
 const styles: StylesConfig<Option, true, GroupBase<Option>> = {
     container: (base) => ({
@@ -59,69 +60,71 @@ const styles: StylesConfig<Option, true, GroupBase<Option>> = {
     },
 };
 
-export default function AsyncSelectComponent(
-    { 
-        isLoading,
-        data,
-        placeholder,
-        defaultOptions,
-        value,
-        loadOptions,
-        onChange,
-        isMulti = true,
-     }: { 
-        data: Array<Option>; 
-        isLoading: boolean; 
-        placeholder?: string; 
-        value: MultiValue<Option>;
-        defaultOptions: Array<Option>;
-        loadOptions: (inputValue: string, callback: (options: Option[]) => void) => void;
-        onChange: (e: MultiValue<Option>) => void;
-        isMulti?: boolean;
-    }
-) {
+export default function AsyncSelectComponent({
+    isLoading,
+    data,
+    placeholder,
+    defaultOptions,
+    value,
+    loadOptions,
+    onChange,
+    isMulti = true,
+}: {
+    data: Array<Option>;
+    isLoading: boolean;
+    placeholder?: string;
+    value: MultiValue<Option>;
+    defaultOptions: Array<Option>;
+    loadOptions: (inputValue: string, callback: (options: Option[]) => void) => void;
+    onChange: (e: MultiValue<Option>) => void;
+    isMulti?: boolean;
+}) {
     if (isMulti) {
         return (
-            <AsyncSelect
-                isMulti
-                isSearchable
-                cacheOptions
-                className='w-full min-w-60 caret-brand-blue'
-                placeholder={placeholder}
-                isLoading={isLoading}
-                isClearable={false}
-                defaultValue={data[0]}
-                defaultOptions={defaultOptions}
-                options={data}
-                loadingMessage={() => "Cargando..."}
-                noOptionsMessage={() => "No hay resultados"}
-                value={value}
-                loadOptions={loadOptions}
-                onChange={onChange}
-                styles={styles}
-                escapeClearsValue
-            />
+            <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar las opciones. Por favor, inténtelo de nuevo.</div>}>
+                <AsyncSelect
+                    isMulti
+                    isSearchable
+                    cacheOptions
+                    className='w-full min-w-30 caret-brand-blue'
+                    placeholder={placeholder}
+                    isLoading={isLoading}
+                    isClearable={false}
+                    defaultValue={data[0]}
+                    defaultOptions={defaultOptions}
+                    options={data}
+                    loadingMessage={() => "Cargando..."}
+                    noOptionsMessage={() => "No hay resultados"}
+                    value={value}
+                    loadOptions={loadOptions}
+                    onChange={onChange}
+                    styles={styles}
+                    escapeClearsValue
+                />
+            </ErrorBoundary>
         );
     } else {
         return (
-            <AsyncSelect
-                isSearchable
-                cacheOptions
-                className='w-full min-w-60 caret-brand-blue'
-                placeholder={placeholder}
-                isLoading={isLoading}
-                isClearable={false}
-                defaultValue={data[0]}
-                defaultOptions={defaultOptions}
-                options={data}
-                loadingMessage={() => "Cargando..."}
-                noOptionsMessage={() => "No hay resultados"}
-                value={value}
-                loadOptions={loadOptions}
-                onChange={onChange}
-                styles={styles}
-                escapeClearsValue
-            />
+            <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar las opciones. Por favor, inténtelo de nuevo.</div>}>
+                <AsyncSelect
+                    isSearchable
+                    cacheOptions
+                    className='w-full min-w-60 caret-brand-blue'
+                    placeholder={placeholder}
+                    isLoading={isLoading}
+                    isClearable={false}
+                    defaultValue={data[0]}
+                    defaultOptions={defaultOptions}
+                    options={data}
+                    loadingMessage={() => "Cargando..."}
+                    noOptionsMessage={() => "No hay resultados"}
+                    value={value}
+                    loadOptions={loadOptions}
+                    onChange={onChange}
+                    styles={styles}
+                    escapeClearsValue
+                />
+            </ErrorBoundary>
         );
     }
 }

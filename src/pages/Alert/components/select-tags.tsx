@@ -36,12 +36,12 @@ export default function ListOfTags({ setTagsQuery }: { setTagsQuery: React.Dispa
                 newSelection = e;
             }
             setSelectedOptions(newSelection);
-            setTagsQuery(newSelection.map((option) => option.value));
+            setTagsQuery(newSelection.map((option) => Number(option.value)));
         }
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = tags.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = tags.filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (

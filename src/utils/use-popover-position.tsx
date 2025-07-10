@@ -18,30 +18,43 @@ export default function usePopoverPosition(
   });
 
   useEffect(() => {
-    if (isOpen && triggerRef.current) {
-      const rect = triggerRef.current.getBoundingClientRect();
-      const scrollY = window.scrollY || document.documentElement.scrollTop;
-      const scrollX = window.scrollX || document.documentElement.scrollLeft;
+    function updatePosition() {
+      if (isOpen && triggerRef.current) {
+        const rect = triggerRef.current.getBoundingClientRect();
+        const scrollY = window.scrollY || document.documentElement.scrollTop;
+        const scrollX = window.scrollX || document.documentElement.scrollLeft;
 
-      const viewportHeight = window.innerHeight;
+        const viewportHeight = window.innerHeight;
 
-      const spaceBelow = viewportHeight - rect.bottom;
-      const spaceAbove = rect.top;
+        const spaceBelow = viewportHeight - rect.bottom;
+        const spaceAbove = rect.top;
 
-      const shouldOpenUp = spaceBelow < panelHeight && spaceAbove > spaceBelow;
+        const shouldOpenUp = spaceBelow < panelHeight && spaceAbove > spaceBelow;
 
-      const top = shouldOpenUp
-        ? rect.top + scrollY - panelHeight + 25
-        : rect.bottom + scrollY;
+        const top = shouldOpenUp
+          ? rect.top + scrollY - panelHeight + 25
+          : rect.bottom + scrollY;
 
-      const left = rect.left + scrollX;
+        const left = rect.left + scrollX;
 
-      setPosition({
-        top,
-        left,
-        direction: shouldOpenUp ? 'up' : 'down',
-      });
+        setPosition({
+          top,
+          left,
+          direction: shouldOpenUp ? 'up' : 'down',
+        });
+      }
     }
+
+    if (isOpen) {
+      updatePosition();
+      window.addEventListener('scroll', updatePosition, true);
+      window.addEventListener('resize', updatePosition);
+    }
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
   }, [isOpen, triggerRef, panelHeight]);
 
   return position;

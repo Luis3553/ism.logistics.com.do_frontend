@@ -1,6 +1,6 @@
-import { Fragment, useState } from "react";
-import { HiEllipsisVertical, HiOutlineMapPin, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
-import { Menu, Switch, Transition } from "@headlessui/react";
+import { Fragment, useRef, useState } from "react";
+import { HiChevronDown, HiEllipsisVertical, HiOutlineMapPin, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
+import { Popover, Portal, Switch, Transition } from "@headlessui/react";
 import { useToaster, Whisper } from "rsuite";
 import { Task, TaskData } from "@utils/types";
 import { LoadSpinner } from "@components/LoadSpinner";
@@ -11,6 +11,8 @@ import { UseQueryResult } from "@tanstack/react-query";
 import { VscLoading } from "react-icons/vsc";
 import { useModalAction } from "@contexts/modal-context";
 import { format } from "date-fns";
+import usePopoverPosition from "@utils/use-popover-position";
+import { appearAnimationProps } from "@utils/animations";
 
 const days_of_week = ["Lu", "Ma", "Mi", "Ju", "Vi", "Sa", "Do"];
 const avatar_colors = [
@@ -45,6 +47,8 @@ export const TaskItem = ({
     refetch: () => void;
 }) => {
     const [active, setActive] = useState<boolean>(task.is_active);
+    const [menuOpen, setMenuOpen] = useState<boolean>(false);
+    const [checkpointsOpen, setCheckpointsOpen] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const toaster = useToaster();
     const { openModal } = useModalAction();
@@ -58,6 +62,7 @@ export const TaskItem = ({
                 frequency_value: task.frequency_value,
                 start_date: task.start_date,
                 task_id: task.task_id,
+                weekday_ordinal: task.weekday_ordinal,
                 tracker_id: task.tracker_id,
                 is_active: checked,
             })
@@ -114,6 +119,11 @@ export const TaskItem = ({
         start_date: task.start_date,
     });
 
+    const menuButtonRef = useRef<HTMLButtonElement>(null);
+    const checkpointsButtonRef = useRef<HTMLButtonElement>(null);
+    const { top: menuTop, left: menuLeft } = usePopoverPosition(menuOpen, menuButtonRef, 70);
+    const { top: checkpointsTop, left: checkpointsLeft } = usePopoverPosition(checkpointsOpen, checkpointsButtonRef, task.checkpoints.length < 6 ? task.checkpoints.length * 55 : 200);
+
     return (
         <>
             <div
@@ -127,29 +137,89 @@ export const TaskItem = ({
                         setFilteredData,
                     });
                 }}
-                className='grid relative items-center max-md:rounded-xl max-md:p-4 active:bg-brand-blue/10 md:grid-cols-[10rem_1fr_1fr_1fr_12rem_5rem_4rem] xl:grid-cols-[1fr_1fr_1fr_1fr_12rem_5rem_4rem] p-1.5 transition-all rounded-full hover:bg-brand-light-blue'>
-                <div className='flex items-center gap-3'>
+                className='group grid relative items-center max-md:rounded-xl max-md:p-4 active:bg-brand-blue/10 md:grid-cols-[10rem_1fr_1fr_1fr_12rem_5rem_4rem] xl:grid-cols-[1fr_1fr_1fr_1fr_12rem_5rem_4rem] p-1.5 transition-all rounded-full group-hover:bg-brand-light-blue hover:bg-brand-light-blue'>
+                <div className='flex items-center gap-3 truncate'>
                     <div
                         className={cn(
                             "flex items-center justify-center size-10 min-w-10 min-h-10 overflow-hidden rounded-full",
                             avatar_colors[task.tracker.charCodeAt(0) % avatar_colors.length],
                         )}>
-                        <h1 className='text-2xl font-medium leading-none text-white select-none '>{task.tracker[0]}</h1>
+                        {task.employee_image_url ? (
+                            <img className='h-full' src={task.employee_image_url} />
+                        ) : (
+                            <h1 className='text-2xl font-medium leading-none text-white select-none '>{task.tracker[0]}</h1>
+                        )}
                     </div>
                     <div className='flex flex-col text-sm uppercase truncate pe-2'>
                         <Whisper speaker={tooltip(task.employee)} onMouseOver={() => tooltip} trigger='hover' placement='topStart'>
-                            <span className='font-bold truncate'>{task.employee}</span>
+                            <span className='font-bold truncate pe-0.5'>{task.employee ?? "N/A"}</span>
                         </Whisper>
                         <Whisper speaker={tooltip(task.tracker)} onMouseOver={() => tooltip} trigger='hover' placement='topStart'>
-                            <span className='truncate opacity-70'>{task.tracker}</span>
+                            <span className='truncate opacity-70 pe-0.5'>{task.tracker}</span>
                         </Whisper>
                     </div>
                 </div>
-                <div className='truncate max-md:mt-4 max-md:grid grid-cols-[100px_auto]'>
+                <div className='truncate pe-1 max-md:mt-4 max-md:grid grid-cols-[100px_auto]'>
                     <span className='font-medium md:hidden'>Etiqueta: </span>
-                    <Whisper speaker={tooltip(task.label ?? "-")} onMouseOver={() => tooltip} trigger='hover' placement='topStart'>
-                        {task.label ?? "-"}
-                    </Whisper>
+                    <div className='flex flex-col text-sm uppercase truncate pe-2'>
+                        <div className='flex flex-row items-center justify-start gap-2'>
+                            {task.checkpoints.length > 1 && (
+                                <Popover as='div' className='relative outline-none group'>
+                                    {({ open }) => {
+                                        setCheckpointsOpen(open);
+                                        return (
+                                            <>
+                                                <Popover.Button
+                                                title={open ? "Ocultar puntos de la ruta" : "Mostrar puntos de la ruta"}
+                                                    ref={checkpointsButtonRef}
+                                                    onClick={(e) => e.stopPropagation()}
+                                                    className='flex items-center p-1 transition rounded-full outline-none hover:bg-black/10 aspect-square'>
+                                                    <HiChevronDown className={cn("size-4 transition-all rotate-0", open && "rotate-180")} />
+                                                </Popover.Button>
+                                                <Portal>
+                                                    <div
+                                                        className='absolute bg-white border rounded shadow-lg group-hover:'
+                                                        style={{
+                                                            position: "absolute",
+                                                            top: `${checkpointsTop + 10}px`,
+                                                            left: `${checkpointsLeft}px`,
+                                                        }}>
+                                                        <Transition show={open} as={Fragment} {...appearAnimationProps}>
+                                                            <Popover.Panel className='absolute z-50 flex flex-col gap-1 p-1 bg-white rounded-lg shadow-lg outline-none min-w-40 max-w-80 w-max'>
+                                                                <h1 className="text-sm font-medium text-center">{task.label}</h1>
+                                                                <hr />
+                                                                <div className="max-h-[200px] overflow-y-auto">
+                                                            
+                                                                    {task.checkpoints.map((checkpoint, index) => (
+                                                                        <span
+                                                                            key={index}
+                                                                            className='flex items-center gap-2 px-4 py-1 text-gray-600 transition-all rounded-md select-none text-md focus-visible:bg-gray-200 hover:bg-gray-200'>
+                                                                            <div className='p-1 text-sm font-bold leading-none text-center border rounded-full me-1 border-brand-blue/50 text-brand-blue/50 size-6'>
+                                                                                {index + 1}
+                                                                            </div>
+                                                                            {checkpoint}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            </Popover.Panel>
+                                                        </Transition>
+                                                    </div>
+                                                </Portal>
+                                            </>
+                                        );
+                                    }}
+                                </Popover>
+                            )}
+                            <div className='flex flex-col'>
+                                <Whisper speaker={tooltip(task.label ?? "-")} onMouseOver={() => tooltip} trigger='hover' placement='topStart'>
+                                    <span className='truncate'>{task.label ?? "-"}</span>
+                                </Whisper>
+                                <span className='truncate opacity-70 pe-0.5 capitalize'>
+                                    {task.checkpoints.length} {`punto${task.checkpoints.length > 1 ? "s" : ""}`}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div className='truncate max-md:grid grid-cols-[100px_auto]'>
                     <span className='font-medium md:hidden'>Frecuencia: </span>
@@ -173,9 +243,14 @@ export const TaskItem = ({
                         <>{task.days_of_week.length === 7 ? "Diaria" : task.days_of_week.map((day) => days_of_week[day - 1]).join(", ")}</>
                     ) : (
                         <>
-                            {task.days_of_week.length === 7 ? "Todos los días" : task.days_of_week.map((day) => days_of_week[day - 1]).join(", ")}
+                            {task.days_of_week.length === 7
+                                ? "Todos los días"
+                                : task.days_of_week
+                                      .map((day) => days_of_week[day - 1])
+                                      .sort((a, b) => Number(a) - Number(b))
+                                      .join(", ")}
                             <br />
-                            {`${task.weekday_ordinal}${["ra", "da", "ra", "ta"][task.weekday_ordinal - 1]} semana`}
+                            {`${task.weekday_ordinal ?? "-"}${["ra", "da", "ra", "ta"][task.weekday_ordinal - 1] ?? ""} semana`}
                         </>
                     )}
                 </div>
@@ -212,86 +287,102 @@ export const TaskItem = ({
                         </span>
                     </div>
                 </div>
-                <Menu as='div' className='relative w-12 h-12 outline-none max-md:absolute group max-md:end-2 max-md:top-2 ms-auto'>
-                    <Menu.Button className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-md:rounded-xl group-hover:bg-black/5 active:bg-black/10 focus-visible:bg-black/5 '>
-                        <HiEllipsisVertical className='m-auto' />
-                    </Menu.Button>
-                    <Transition
-                        as={Fragment}
-                        enter='transition ease-out duration-100'
-                        enterFrom='transform opacity-0 scale-95'
-                        enterTo='transform opacity-100 scale-100'
-                        leave='transition ease-in duration-75'
-                        leaveFrom='transform opacity-100 scale-100'
-                        leaveTo='transform opacity-0 scale-95'>
-                        <Menu.Items className='absolute z-50 flex flex-col w-40 gap-1 p-1 bg-white rounded-lg shadow-lg outline-none end-0'>
-                            <Menu.Item>
-                                <span
+                <Popover as='div' className='relative w-12 h-12 outline-none max-md:absolute group max-md:end-2 max-md:top-2 ms-auto'>
+                    {({ open }) => {
+                        setMenuOpen(open);
+                        return (
+                            <>
+                                <Popover.Button
+                                    ref={menuButtonRef}
                                     onClick={(e) => {
                                         e.stopPropagation();
-                                        setTaskModalData(task);
-                                        openModal("TASK_CONFIG", {
-                                            taskModalData: task,
-                                            setTaskModalData,
-                                            refetch,
-                                            setFilteredData,
-                                        });
                                     }}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
-                                    <HiOutlinePencil />
-                                    Editar
-                                </span>
-                            </Menu.Item>
-                            <Menu.Item>
-                                <button
-                                    onClick={() => {
-                                        api.delete(`/tasks/config/${task.id}/delete`)
-                                            .then((res) => {
-                                                if (res.status === 200) {
-                                                    setData((prev) => {
-                                                        if (!prev) return prev;
-                                                        return {
-                                                            ...prev,
-                                                            list: prev.list.filter((t) => t.id !== task.id),
-                                                        };
-                                                    });
-                                                    toaster.push(messageToaster(`Configuración eliminada correctamente`, "success"), {
-                                                        duration: 1000 * 5,
-                                                        placement: "topStart",
-                                                    });
-                                                    refetch();
-                                                } else {
-                                                    toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
-                                                        duration: 1000 * 5,
-                                                        placement: "topStart",
-                                                    });
-                                                }
-                                            })
-                                            .catch(() => {
-                                                toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
-                                                    duration: 1000 * 5,
-                                                    placement: "topStart",
-                                                });
-                                            });
-                                    }}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-red-500 hover:text-red-500 focus-visible:bg-red-200 hover:bg-red-200'>
-                                    <HiOutlineTrash />
-                                    Eliminar
-                                </button>
-                            </Menu.Item>
-                            <hr />
-                            <Menu.Item>
-                                <a
-                                    target='_blank'
-                                    href={`https://app.progps.com.do/#/entity/view/schedule/-/custom/edit/${task.task_id}`}
-                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
-                                    <HiOutlineMapPin />
-                                    Editar tarea
-                                </a>
-                            </Menu.Item>
-                        </Menu.Items>
-                    </Transition>
-                </Menu>
+                                    className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-md:rounded-xl group-hover:bg-black/5 active:bg-black/10 focus-visible:bg-black/5 '>
+                                    <HiEllipsisVertical className='m-auto' />
+                                </Popover.Button>
+                                <Portal>
+                                    <div
+                                        className='absolute bg-white rounded shadow-lg group-hover:'
+                                        style={{
+                                            position: "absolute",
+                                            top: `${menuTop + 10}px`,
+                                            left: `${menuLeft + 60}px`,
+                                        }}>
+                                        <Transition
+                                            as={Fragment}
+                                            enter='transition ease-out duration-100'
+                                            enterFrom='transform opacity-0 scale-95'
+                                            enterTo='transform opacity-100 scale-100'
+                                            leave='transition ease-in duration-75'
+                                            leaveFrom='transform opacity-100 scale-100'
+                                            leaveTo='transform opacity-0 scale-95'>
+                                            <Popover.Panel className='absolute z-50 flex flex-col w-40 gap-1 p-1 bg-white rounded-lg shadow-lg outline-none end-0'>
+                                                <span
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        setTaskModalData(task);
+                                                        openModal("TASK_CONFIG", {
+                                                            taskModalData: task,
+                                                            setTaskModalData,
+                                                            refetch,
+                                                            setFilteredData,
+                                                        });
+                                                    }}
+                                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
+                                                    <HiOutlinePencil />
+                                                    Editar
+                                                </span>
+                                                <button
+                                                    onClick={() => {
+                                                        api.delete(`/tasks/config/${task.id}/delete`)
+                                                            .then((res) => {
+                                                                if (res.status === 200) {
+                                                                    setData((prev) => {
+                                                                        if (!prev) return prev;
+                                                                        return {
+                                                                            ...prev,
+                                                                            list: prev.list.filter((t) => t.id !== task.id),
+                                                                        };
+                                                                    });
+                                                                    toaster.push(messageToaster(`Configuración eliminada correctamente`, "success"), {
+                                                                        duration: 1000 * 5,
+                                                                        placement: "topStart",
+                                                                    });
+                                                                    refetch();
+                                                                } else {
+                                                                    toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
+                                                                        duration: 1000 * 5,
+                                                                        placement: "topStart",
+                                                                    });
+                                                                }
+                                                            })
+                                                            .catch(() => {
+                                                                toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
+                                                                    duration: 1000 * 5,
+                                                                    placement: "topStart",
+                                                                });
+                                                            });
+                                                    }}
+                                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-red-500 hover:text-red-500 focus-visible:bg-red-200 hover:bg-red-200'>
+                                                    <HiOutlineTrash />
+                                                    Eliminar
+                                                </button>
+                                                <hr />
+                                                <a
+                                                    target='_blank'
+                                                    href={`https://app.progps.com.do/#/entity/view/schedule/-/custom/edit/${task.task_id}`}
+                                                    className='flex flex-row items-center gap-4 px-4 py-1 transition-all rounded-md cursor-pointer select-none text-md focus-visible:text-brand-blue hover:text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
+                                                    <HiOutlineMapPin />
+                                                    Editar tarea
+                                                </a>
+                                            </Popover.Panel>
+                                        </Transition>
+                                    </div>
+                                </Portal>
+                            </>
+                        );
+                    }}
+                </Popover>
             </div>
         </>
     );
@@ -324,6 +415,7 @@ export const TasksList = ({
                     <div>Activa</div>
                     <div></div>
                 </div>
+                <hr className='mb-2' />
                 <div className='md:max-h-[calc(100vh-300px)] overflow-y-auto'>
                     {isLoading && !filteredData ? (
                         <div className='relative h-52'>

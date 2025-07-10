@@ -45,12 +45,12 @@ export default function ListOfTrackers({
                 newSelection = e;
             }
             setSelectedOptions(newSelection);
-            setTrackersQuery(newSelection.map((option) => option.value));
+            setTrackersQuery(newSelection.map((option) => String(option.value)));
         }
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void) => {
-        const filtered = trackers.filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = trackers.filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
     return (

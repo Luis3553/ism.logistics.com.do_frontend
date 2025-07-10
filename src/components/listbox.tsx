@@ -2,6 +2,7 @@ import { Fragment, useEffect, useState } from "react";
 import { Listbox, Transition } from "@headlessui/react";
 import { HiCheck, HiChevronUpDown } from "react-icons/hi2";
 import cn from "classnames";
+import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 
 export default function ListboxComponent({
     options,
@@ -10,8 +11,8 @@ export default function ListboxComponent({
     shadow,
     classNames = "",
 }: {
-    options: { label: string; value: any }[];
-    selectedOption: { label: string; value: any };
+    options: Option[];
+    selectedOption: Option;
     onChange?: (value: any) => void;
     shadow?: boolean;
     classNames?: string;

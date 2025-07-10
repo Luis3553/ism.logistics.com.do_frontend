@@ -13,6 +13,7 @@ import ReportCreateForm from "./components/report-create-form";
 import ReportCreateList from "./components/report-create-list";
 import { Message, useToaster } from "rsuite";
 import { HiChevronLeft, HiChevronUp } from "react-icons/hi2";
+import { ErrorBoundary } from "react-error-boundary";
 
 type Response = {
     message: string;
@@ -54,7 +55,7 @@ export const Reports = () => {
     const allDriversIds = driverGroups?.flatMap((g) => g.employees.map((t) => t.id)) ?? [];
     const allGroupIds = trackerGroups?.flatMap((g) => g.id) ?? [];
 
-    let isAllSelected = false; 
+    let isAllSelected = false;
     if (activeReportType?.list === "trackers") {
         isAllSelected = allTrackerIds.length > 0 && allTrackerIds.every((id) => selectedTrackers.has(id));
     } else if (activeReportType?.list === "drivers") {
@@ -146,15 +147,16 @@ export const Reports = () => {
         const keys = Object.keys(payload.report_payload);
         for (let i = 0; i < keys.length; i++) {
             // if (keys[i] !== "from" && keys[i] !== "to") {
-                if (
-                    (payload.report_payload[keys[i]] === undefined ||
+            if (
+                (payload.report_payload[keys[i]] === undefined ||
                     payload.report_payload[keys[i]] === null ||
                     (typeof payload.report_payload[keys[i]] === "string" && payload.report_payload[keys[i]].length === 0) ||
                     (payload.report_payload[keys[i]] && typeof payload.report_payload[keys[i]].size === "number" && payload.report_payload[keys[i]].size === 0) ||
-                    payload.report_payload[keys[i]] === "") && activeReportType.fields[i]?.required
-                ) {
-                    return false;
-                }
+                    payload.report_payload[keys[i]] === "") &&
+                activeReportType.fields[i]?.required
+            ) {
+                return false;
+            }
             // }
         }
 
@@ -331,7 +333,9 @@ export const Reports = () => {
                             <div className='box-border w-full mt-12 overflow-hidden border md:mt-0 rounded-xl'>
                                 <>
                                     {activeReport && !activeReportType ? (
-                                        <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />
+                                        <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar el reporte. Por favor, inténtelo de nuevo.</div>}>
+                                            <ReportPreview activeReport={activeReport} setActiveReport={setActiveReport} refetch={refetchReports} />
+                                        </ErrorBoundary>
                                     ) : activeReportType && !activeReport ? (
                                         <div className='grid h-full max-md:grid-rows-[0.75fr_1fr] md:grid-cols-[1fr_1fr] xl:grid-cols-[0.5fr_1fr] divide-x overflow-hidden'>
                                             <ReportCreateList

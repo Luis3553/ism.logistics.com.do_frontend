@@ -35,4 +35,9 @@ export const menuItems: MenuItem[] = [
         icon: "mgc_notification_fill",
         to: "/notifications",
     },
+    {
+        name: "Tareas",
+        icon: "mgc_route_fill",
+        to: "/tasks",
+    },
 ];

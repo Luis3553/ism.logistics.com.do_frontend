@@ -17,6 +17,7 @@ import { useUIContext } from "@contexts/ui-context";
 import { useModalAction } from "@contexts/modal-context";
 import { useApiQuery } from "@hooks/useQuery";
 import { tooltip } from "@utils/ui";
+import { ErrorBoundary } from "react-error-boundary";
 
 const options = [
     { value: "every_x_weeks", label: "Semanal", calendar: "week" },
@@ -182,7 +183,7 @@ export default function TaskCreateModal({
             setFrequencyValue(taskModalData.frequency_value);
             setSelectedDays(taskModalData.days_of_week);
         }
-    }, [payload]);
+    }, [taskModalData]);
 
     useEffect(() => {
         setPayload({
@@ -283,7 +284,7 @@ export default function TaskCreateModal({
     }
 
     const loadOptions = (inputValue: string, callback: (options: Option[]) => void, arr: Option[] | undefined) => {
-        const filtered = (arr || []).filter((opt) => opt.label.toLowerCase().includes(inputValue.toLowerCase()));
+        const filtered = (arr || []).filter((opt) => String(opt.label).toLowerCase().includes(inputValue.toLowerCase()));
         callback(filtered);
     };
 
@@ -300,202 +301,208 @@ export default function TaskCreateModal({
                 <h1 className='text-lg font-semibold'>{taskModalData ? "Editar configuración" : "Nueva configuración"}</h1>
                 <button
                     className='flex items-center justify-center p-1 transition rounded-full outline-none focus-visible:bg-black/10 hover:bg-black/10 active:bg-black/20'
-                    onClick={closeModal}>
+                    onClick={() => {
+                        closeModal();
+                        resetFields();
+                        setTaskModalData(undefined);
+                    }}>
                     <HiXMark className='size-5' />
                 </button>
             </div>
-            <div className='h-full p-2 overflow-y-auto'>
-                <div className='flex flex-col gap-6 md:grid'>
-                    <div className='flex flex-col gap-4'>
-                        <div className='flex flex-col'>
-                            <div className='flex items-center justify-between mb-1'>
-                                <span className='font-medium'>Tarea recurrente</span>
-                                <Whisper
-                                    speaker={tooltip(`En este menú podrá gestionar las tareas recurrentes creadas desde "Servicio de campo → Tareas recurrentes", siempre que no tengan un empleado asignado ni
-                configuraciones previas. Además, el valor del campo "Repetir" será omitido en esta vista.`)}
-                                    onMouseOver={() => tooltip}
-                                    trigger='hover'
-                                    placement='topEnd'>
-                                    <span>
-                                        <HiOutlineInformationCircle className='text-brand-blue size-6' />
-                                    </span>
-                                </Whisper>
-                            </div>
-                            <AsyncSelectComponent
-                                data={tasks || []}
-                                isMulti={false}
-                                defaultOptions={(tasks || []).slice(0, 10) ?? []}
-                                isLoading={isLoadingTasks || isRefetchingTasks}
-                                onChange={(e) => setSelectedTask(Array.isArray(e) ? e[0] ?? null : e ?? null)}
-                                value={selectedTask ? [selectedTask] : []}
-                                loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, tasks)}
-                                placeholder='Seleccione una tarea'
-                            />
-                            <Transition show={errors.selectedTask ? true : false} {...appearAnimationProps}>
-                                {errors.selectedTask && <small className='text-red-500'>{errors.selectedTask}</small>}
-                            </Transition>
-                        </div>
-                        <div className='flex flex-col'>
-                            <span className='mb-1 font-medium'>Objeto</span>
-                            <AsyncSelectComponent
-                                data={trackers || []}
-                                isMulti={false}
-                                defaultOptions={(trackers || []).slice(0, 10) ?? []}
-                                isLoading={isLoadingTrackers || isRefetchingTrackers}
-                                onChange={(e) => setSelectedTracker(Array.isArray(e) ? e[0] ?? null : e ?? null)}
-                                value={selectedTracker ? [selectedTracker] : []}
-                                loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, trackers)}
-                                placeholder='Seleccione un objeto'
-                            />
-                            <Transition show={errors.selectedTracker ? true : false} {...appearAnimationProps}>
-                                {errors.selectedTracker && <small className='text-red-500'>{errors.selectedTracker}</small>}
-                            </Transition>
-                        </div>
-                    </div>
-                    <hr className='border-brand-blue' />
-                    <div className='flex flex-col gap-4 grow'>
-                        <div className='flex flex-row items-center gap-x-2'>
-                            {/* <label htmlFor='frequency_value' className='font-medium'>
-                                Frecuencia:
-                            </label> */}
-                            <RadioGroup
-                                className='flex flex-row items-center gap-x-2'
-                                value={selectedOption.value}
-                                onChange={(e) => setSelectedOption(options.find((o) => o.value === e) || options[0])}>
-                                <RadioGroup.Label className='font-medium'>Frecuencia: </RadioGroup.Label>
-                                {options.map((option, i) => (
-                                    <RadioGroup.Option
-                                        key={i}
-                                        value={option.value}
-                                        className='transition border rounded-lg outline-none cursor-pointer hover:bg-brand-light-blue/50 focus-visible:bg-brand-light-blue/50 focus:border-brand-blue'>
-                                        {({ checked }) => (
-                                            <>
-                                                <span className='flex items-center gap-x-2 px-4 py-1.5 select-none outline-none ring-0'>
-                                                    {checked ? (
-                                                        <Transition show={checked} {...appearAnimationProps}>
-                                                            <HiCheckCircle className='text-brand-blue' />
-                                                        </Transition>
-                                                    ) : (
-                                                        <HiOutlineCheckCircle className='text-brand-blue' />
-                                                    )}
-                                                    {option.label}
-                                                </span>
-                                            </>
-                                        )}
-                                    </RadioGroup.Option>
-                                ))}
-                            </RadioGroup>
-                            {/* <ListboxComponent shadow={false} classNames='h-full!' options={options} selectedOption={selectedOption} onChange={(e) => setSelectedOption(e)} /> */}
-                        </div>
-                        <div className='flex flex-row items-center gap-x-2'>
-                            <label htmlFor='frequency_value' className='font-medium'>
-                                Cada:
-                            </label>
-                            <div className='flex flex-row items-center grid-cols-2 gap-2'>
-                                <input
-                                    id='frequency_value'
-                                    name='frequency_value'
-                                    type='number'
-                                    min={1}
-                                    className='w-20 select-all px-4 py-1.5 transition border rounded-lg outline-none ring-0 focus:border-brand-blue'
-                                    value={frequencyValue}
-                                    onChange={(e) => setFrequencyValue(Number(e.target.value) >= 1 ? Number(e.target.value) : 1)}
+            <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar el formulario. Por favor, inténtelo de nuevo.</div>}>
+                <div className='h-full p-2 overflow-y-auto'>
+                    <div className='flex flex-col gap-6 md:grid'>
+                        <div className='flex flex-col gap-4'>
+                            <div className='flex flex-col'>
+                                <div className='flex items-center justify-between mb-1'>
+                                    <span className='font-medium'>Tarea recurrente</span>
+                                    <Whisper
+                                        speaker={tooltip(`En este menú podrá gestionar las tareas recurrentes creadas desde "Servicio de campo → Tareas recurrentes", siempre que no tengan un empleado asignado ni
+                                        configuraciones previas. Además, el valor del campo "Repetir" será omitido en esta vista.`)}
+                                        onMouseOver={() => tooltip}
+                                        trigger='hover'
+                                        placement='topEnd'>
+                                        <span>
+                                            <HiOutlineInformationCircle className='text-brand-blue size-6' />
+                                        </span>
+                                    </Whisper>
+                                </div>
+                                <AsyncSelectComponent
+                                    data={tasks || []}
+                                    isMulti={false}
+                                    defaultOptions={(tasks || []).slice(0, 10) ?? []}
+                                    isLoading={isLoadingTasks || isRefetchingTasks}
+                                    onChange={(e) => setSelectedTask(Array.isArray(e) ? e[0] ?? null : e ?? null)}
+                                    value={selectedTask ? [selectedTask] : []}
+                                    loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, tasks)}
+                                    placeholder='Seleccione una tarea'
                                 />
-                                <span className='w-24'>
-                                    {selectedOption.value == "every_x_months" ? `Mes${frequencyValue > 1 ? "es" : ""}` : `Semana${frequencyValue > 1 ? "s" : ""}`}
-                                </span>
-                                <Transition show={selectedOption.value === "every_x_months"} {...appearAnimationProps}>
-                                    <ListboxComponent
-                                        shadow={false}
-                                        classNames='h-full! w-48'
-                                        options={weeks}
-                                        selectedOption={selectedWeekDay}
-                                        onChange={(e) => setSelectedWeekDay(e)}
-                                    />
+                                <Transition show={errors.selectedTask ? true : false} {...appearAnimationProps}>
+                                    {errors.selectedTask && <small className='text-red-500'>{errors.selectedTask}</small>}
                                 </Transition>
                             </div>
-                            <Transition show={errors.frequencyValue ? true : false} {...appearAnimationProps}>
-                                {errors.frequencyValue && <small className='text-red-500'>{errors.frequencyValue}</small>}
-                            </Transition>
-                        </div>
-                        <div className='flex flex-col'>
-                            <div className='flex flex-row items-center w-full gap-x-2'>
-                                <span className='font-medium'>Los días:</span>
-                                <div className='grid grid-cols-[repeat(7,3rem)] gap-2 p-2 overflow-x-auto'>
-                                    {[
-                                        { label: "Lu", value: 1 },
-                                        { label: "Ma", value: 2 },
-                                        { label: "Mi", value: 3 },
-                                        { label: "Ju", value: 4 },
-                                        { label: "Vi", value: 5 },
-                                        { label: "Sa", value: 6 },
-                                        { label: "Do", value: 7 },
-                                    ].map((day, i) => (
-                                        <button
-                                            onClick={() => {
-                                                if (selectedDays.includes(day.value)) {
-                                                    setSelectedDays((prev) => prev.filter((d) => d !== day.value));
-                                                } else {
-                                                    setSelectedDays((prev) => [...prev, day.value]);
-                                                }
-                                            }}
-                                            className={cn(
-                                                "flex items-center justify-center font-bold select-none rounded-full size-10 aspect-square transition-all outline-none",
-                                                selectedDays.includes(day.value)
-                                                    ? "text-white bg-brand-blue"
-                                                    : "border border-brand-blue text-brand-blue hover:bg-brand-light-blue focus-visible:bg-brand-light-blue",
-                                            )}
-                                            key={i}>
-                                            {day.label}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <Transition show={errors.selectedDays ? true : false} {...appearAnimationProps}>
-                                <small className='text-red-500'>{errors.selectedDays}</small>
-                            </Transition>
-                        </div>
-                        <div className='flex flex-row items-center gap-x-2'>
-                            <label htmlFor='start_date' className='font-medium'>
-                                Fecha de inicio:
-                            </label>
-                            <CustomProvider locale={esES}>
-                                <DatePicker
-                                    name='start_date'
-                                    id='start_date'
-                                    onChange={(e) => setStartDate(e)}
-                                    value={startDate}
-                                    defaultValue={new Date()}
-                                    cleanable={false}
-                                    placement='autoVertical'
-                                    format={selectedOption.calendar != "month" ? "dd/MM/yyyy" : "MM/yyyy"}
-                                    // shouldDisableDate={allowedRangeDates}
+                            <div className='flex flex-col'>
+                                <span className='mb-1 font-medium'>Objeto</span>
+                                <AsyncSelectComponent
+                                    data={trackers || []}
+                                    isMulti={false}
+                                    defaultOptions={(trackers || []).slice(0, 10) ?? []}
+                                    isLoading={isLoadingTrackers || isRefetchingTrackers}
+                                    onChange={(e) => setSelectedTracker(Array.isArray(e) ? e[0] ?? null : e ?? null)}
+                                    value={selectedTracker ? [selectedTracker] : []}
+                                    loadOptions={(inputValue: string, callback: (options: Option[]) => void) => loadOptions(inputValue, callback, trackers)}
+                                    placeholder='Seleccione un objeto'
                                 />
-                            </CustomProvider>
-                            <Transition show={errors.startDate ? true : false} {...appearAnimationProps}>
-                                {errors.startDate && <small className='text-red-500'>{errors.startDate}</small>}
-                            </Transition>
+                                <Transition show={errors.selectedTracker ? true : false} {...appearAnimationProps}>
+                                    {errors.selectedTracker && <small className='text-red-500'>{errors.selectedTracker}</small>}
+                                </Transition>
+                            </div>
+                        </div>
+                        <hr className='border-brand-blue' />
+                        <div className='flex flex-col gap-4 grow'>
+                            <div className='flex flex-row items-center gap-x-2'>
+                                {/* <label htmlFor='frequency_value' className='font-medium'>
+                                Frecuencia:
+                            </label> */}
+                                <RadioGroup
+                                    className='flex flex-row items-center gap-x-2'
+                                    value={selectedOption.value}
+                                    onChange={(e) => setSelectedOption(options.find((o) => o.value === e) || options[0])}>
+                                    <RadioGroup.Label className='font-medium'>Frecuencia: </RadioGroup.Label>
+                                    {options.map((option, i) => (
+                                        <RadioGroup.Option
+                                            key={i}
+                                            value={option.value}
+                                            className='transition border rounded-lg outline-none cursor-pointer hover:bg-brand-light-blue/50 focus-visible:bg-brand-light-blue/50 focus:border-brand-blue'>
+                                            {({ checked }) => (
+                                                <>
+                                                    <span className='flex items-center gap-x-2 px-4 py-1.5 select-none outline-none ring-0'>
+                                                        {checked ? (
+                                                            <Transition show={checked} {...appearAnimationProps}>
+                                                                <HiCheckCircle className='text-brand-blue' />
+                                                            </Transition>
+                                                        ) : (
+                                                            <HiOutlineCheckCircle className='text-brand-blue' />
+                                                        )}
+                                                        {option.label}
+                                                    </span>
+                                                </>
+                                            )}
+                                        </RadioGroup.Option>
+                                    ))}
+                                </RadioGroup>
+                                {/* <ListboxComponent shadow={false} classNames='h-full!' options={options} selectedOption={selectedOption} onChange={(e) => setSelectedOption(e)} /> */}
+                            </div>
+                            <div className='flex flex-row items-center gap-x-2'>
+                                <label htmlFor='frequency_value' className='font-medium'>
+                                    Cada:
+                                </label>
+                                <div className='flex flex-row items-center grid-cols-2 gap-2'>
+                                    <input
+                                        id='frequency_value'
+                                        name='frequency_value'
+                                        type='number'
+                                        min={1}
+                                        className='w-20 select-all px-4 py-1.5 transition border rounded-lg outline-none ring-0 focus:border-brand-blue'
+                                        value={frequencyValue}
+                                        onChange={(e) => setFrequencyValue(Number(e.target.value) >= 1 ? Number(e.target.value) : 1)}
+                                    />
+                                    <span className='w-24'>
+                                        {selectedOption.value == "every_x_months" ? `Mes${frequencyValue > 1 ? "es" : ""}` : `Semana${frequencyValue > 1 ? "s" : ""}`}
+                                    </span>
+                                    <Transition show={selectedOption.value === "every_x_months"} {...appearAnimationProps}>
+                                        <ListboxComponent
+                                            shadow={false}
+                                            classNames='h-full! w-48'
+                                            options={weeks}
+                                            selectedOption={selectedWeekDay}
+                                            onChange={(e) => setSelectedWeekDay(e)}
+                                        />
+                                    </Transition>
+                                </div>
+                                <Transition show={errors.frequencyValue ? true : false} {...appearAnimationProps}>
+                                    {errors.frequencyValue && <small className='text-red-500'>{errors.frequencyValue}</small>}
+                                </Transition>
+                            </div>
+                            <div className='flex flex-col'>
+                                <div className='flex flex-row items-center w-full gap-x-2'>
+                                    <span className='font-medium'>Los días:</span>
+                                    <div className='grid grid-cols-[repeat(7,3rem)] gap-2 p-2 overflow-x-auto'>
+                                        {[
+                                            { label: "Lu", value: 1 },
+                                            { label: "Ma", value: 2 },
+                                            { label: "Mi", value: 3 },
+                                            { label: "Ju", value: 4 },
+                                            { label: "Vi", value: 5 },
+                                            { label: "Sa", value: 6 },
+                                            { label: "Do", value: 7 },
+                                        ].map((day, i) => (
+                                            <button
+                                                onClick={() => {
+                                                    if (selectedDays.includes(day.value)) {
+                                                        setSelectedDays((prev) => prev.filter((d) => d !== day.value));
+                                                    } else {
+                                                        setSelectedDays((prev) => [...prev, day.value]);
+                                                    }
+                                                }}
+                                                className={cn(
+                                                    "flex items-center justify-center font-bold select-none rounded-full size-10 aspect-square transition-all outline-none",
+                                                    selectedDays.includes(day.value)
+                                                        ? "text-white bg-brand-blue"
+                                                        : "border border-brand-blue text-brand-blue hover:bg-brand-light-blue focus-visible:bg-brand-light-blue",
+                                                )}
+                                                key={i}>
+                                                {day.label}
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+                                <Transition show={errors.selectedDays ? true : false} {...appearAnimationProps}>
+                                    <small className='text-red-500'>{errors.selectedDays}</small>
+                                </Transition>
+                            </div>
+                            <div className='flex flex-row items-center gap-x-2'>
+                                <label htmlFor='start_date' className='font-medium'>
+                                    Fecha de inicio:
+                                </label>
+                                <CustomProvider locale={esES}>
+                                    <DatePicker
+                                        name='start_date'
+                                        id='start_date'
+                                        onChange={(e) => setStartDate(e)}
+                                        value={startDate}
+                                        defaultValue={new Date()}
+                                        cleanable={false}
+                                        placement='autoVertical'
+                                        format={selectedOption.calendar != "month" ? "dd/MM/yyyy" : "MM/yyyy"}
+                                        // shouldDisableDate={allowedRangeDates}
+                                    />
+                                </CustomProvider>
+                                <Transition show={errors.startDate ? true : false} {...appearAnimationProps}>
+                                    {errors.startDate && <small className='text-red-500'>{errors.startDate}</small>}
+                                </Transition>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div className='flex flex-row justify-end w-full gap-2 mt-2 bg-white'>
-                <button
-                    onClick={() => {
-                        closeModal();
-                        setTaskModalData(undefined);
-                        resetFields();
-                    }}
-                    className='flex items-center justify-center gap-2 p-2 font-medium transition bg-white rounded-lg shadow outline-none w-28 text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
-                    Cancelar
-                </button>
-                <button
-                    onClick={onSubmit}
-                    // disabled={Object.keys(errors).length > 0}
-                    className='flex items-center justify-center gap-2 p-2 font-medium text-white transition-all rounded-lg outline-none w-28 bg-brand-blue focus-visible:bg-brand-dark-blue hover:bg-brand-dark-blue disabled:bg-gray-300 disabled:cursor-not-allowed'>
-                    Guardar
-                </button>
-            </div>
+                <div className='flex flex-row justify-end w-full gap-2 mt-2 bg-white'>
+                    <button
+                        onClick={() => {
+                            closeModal();
+                            setTaskModalData(undefined);
+                            resetFields();
+                        }}
+                        className='flex items-center justify-center gap-2 p-2 font-medium transition bg-white rounded-lg shadow outline-none w-28 text-brand-blue focus-visible:bg-brand-light-blue hover:bg-brand-light-blue'>
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={onSubmit}
+                        // disabled={Object.keys(errors).length > 0}
+                        className='flex items-center justify-center gap-2 p-2 font-medium text-white transition-all rounded-lg outline-none w-28 bg-brand-blue focus-visible:bg-brand-dark-blue hover:bg-brand-dark-blue disabled:bg-gray-300 disabled:cursor-not-allowed'>
+                        Guardar
+                    </button>
+                </div>
+            </ErrorBoundary>
         </Modal>
     );
 }

@@ -12,6 +12,7 @@ import { LuDownload } from "react-icons/lu";
 import { Modal } from "@components/Modal";
 import api from "@api/index";
 import usePopoverPosition from "@utils/use-popover-position";
+import { ErrorBoundary } from "react-error-boundary";
 
 export const reportTypes: { id: number; name: string }[] = [{ id: 0, name: "Todos" }];
 
@@ -291,17 +292,19 @@ export function ReportList({
     return (
         <div className='flex flex-col w-full divide-y'>
             {results.map((type) => (
-                <ReportRow
-                    key={type.id} // avoid key collision
-                    data={type}
-                    onClick={() => {
-                        setActiveReport(type);
-                        setIsMenuOpen(false);
-                    }}
-                    refetch={refetch}
-                    setActiveReport={setActiveReport}
-                    selected={type.id === activeReport?.id}
-                />
+                <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar el reporte. Por favor, inténtelo de nuevo.</div>} key={type.id}>
+                    <ReportRow
+                        key={type.id}
+                        data={type}
+                        onClick={() => {
+                            setActiveReport(type);
+                            setIsMenuOpen(false);
+                        }}
+                        refetch={refetch}
+                        setActiveReport={setActiveReport}
+                        selected={type.id === activeReport?.id}
+                    />
+                </ErrorBoundary>
             ))}
         </div>
     );

@@ -8,8 +8,8 @@ import api from "../../../api";
 
 // types
 export type Option = {
-    value: number | string;
-    label: string;
+    value: number | string | boolean;
+    label: string | number;
     [key: string]: any;
 };
 
