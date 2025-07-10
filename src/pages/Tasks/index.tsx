@@ -228,6 +228,19 @@ export const Tasks = () => {
                                                 className='absolute z-50 flex flex-col w-full gap-1 p-1 mt-2 bg-white border rounded-lg shadow-lg'
                                                 onClick={(e) => e.stopPropagation()} // Prevent closing on option click
                                             >
+                                                <div className='flex items-center justify-between'>
+                                                    <button
+                                                        className='w-1/2 p-1 transition-all rounded-md hover:bg-blue-200 hover:text-blue-500'
+                                                        onClick={() => setSelectedWeekDays(weekDays)}>
+                                                        Todos
+                                                    </button>
+                                                    |
+                                                    <button
+                                                        className='w-1/2 p-1 transition-all rounded-md hover:bg-red-200 hover:text-red-500'
+                                                        onClick={() => setSelectedWeekDays([])}>
+                                                        Ninguno
+                                                    </button>
+                                                </div>
                                                 {weekDays.map((day) => (
                                                     <button
                                                         type='button'
@@ -255,19 +268,6 @@ export const Tasks = () => {
                                                         <span>{day.label}</span>
                                                     </button>
                                                 ))}
-                                                <div className='flex items-center justify-between'>
-                                                    <button
-                                                        className='w-1/2 p-1 transition-all rounded-md hover:bg-red-200 hover:text-red-500'
-                                                        onClick={() => setSelectedWeekDays([])}>
-                                                        Ninguno
-                                                    </button>
-                                                    |
-                                                    <button
-                                                        className='w-1/2 p-1 transition-all rounded-md hover:bg-blue-200 hover:text-blue-500'
-                                                        onClick={() => setSelectedWeekDays(weekDays)}>
-                                                        Todos
-                                                    </button>
-                                                </div>
                                             </Listbox.Options>
                                         </Transition>
                                     </div>
