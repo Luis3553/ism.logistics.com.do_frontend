@@ -242,8 +242,30 @@ export const reports: ReportCategory[] = [
                 name: "Mantenimiento de vehículos",
                 description: "Mantenimiento de vehículos programados",
                 list: "vehicles",
-                disabled: true,
-                fields: [],
+                disabled: false,
+                fields: [
+                    {
+                        required: true,
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de mantenimienr ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
+                    },
+                    {
+                        required: true,
+                        key: "date",
+                        type: "date",
+                        defaultValue: new Date(),
+                        component: DateField,
+                        props: {
+                            label: "Fecha",
+                            oldestAllowed: 120,
+                        }, // you will inject `value` and `onChange` dynamically
+                        onChangeType: "value",
+                    },
+                ],
             },
         ],
     },

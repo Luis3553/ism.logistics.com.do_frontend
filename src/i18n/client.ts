@@ -19,7 +19,7 @@ if (!i18next.isInitialized) {
       ...getOptions(),
       lng: undefined, // let detect the language on client side
       detection: {
-        order: ['localStorage', 'path', 'htmlTag', 'cookie', 'navigator'],
+        order: ['localStorage', 'cookie', 'path', 'htmlTag', 'navigator'],
         lookupLocalStorage: 'locale', // custom key for language in localStorage
       },
     });

@@ -354,7 +354,7 @@ export const Alerts = () => {
                     <div className='p-0 mt-4 overflow-hidden rounded-lg shadow border border-[#CECECE]'>
                         <table className='w-full table-fixed'>
                             <tbody className='*:border-b last:*:border-b-0'>
-                                <ErrorBoundary fallback={<div className='text-red-500'>Hubo un error al cargar la tabla. Por favor, inténtelo de nuevo.</div>}>
+                                <ErrorBoundary fallback={<div className='p-4 font-medium text-center text-red-500 bg-red-100'>Hubo un error al cargar la tabla. Por favor, inténtelo de nuevo.</div>}>
                                     {option.component(
                                         query,
                                         from,

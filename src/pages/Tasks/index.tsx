@@ -13,7 +13,7 @@ import { IoFilter } from "react-icons/io5";
 import { Listbox, Transition } from "@headlessui/react";
 import { appearAnimationProps } from "@utils/animations";
 import { ErrorBoundary } from "react-error-boundary";
-// import { useTranslation } from "@i18n/client";
+import { useTranslation } from "@i18n/client";
 
 const options = [
     { value: "all", label: "Todas", calendar: "week" },
@@ -38,8 +38,9 @@ const weekDays: Option[] = [
 ];
 
 export const Tasks = () => {
-    // const { t, i18n } = useTranslation('common');
-    // console.log(t('test'), i18n);
+    const { t: tc } = useTranslation('common');
+    const { t: tp } = useTranslation('tasks_page');
+
     const [tasks, setTasks] = useState<Option[]>();
 
     const [openWeekDaysFilter, setOpenWeekDaysFilter] = useState<boolean>(false);
@@ -148,7 +149,7 @@ export const Tasks = () => {
                         <div className='flex flex-col flex-wrap w-full gap-4 md:flex-row'>
                             <div className='flex flex-col lg:max-w-[210px] md:w-52 max-sm:w-full gap-1'>
                                 <label htmlFor='searchFilter' className='text-sm font-medium opacity-80'>
-                                    Buscar
+                                    {tc("search")}
                                 </label>
                                 <input
                                     type='text'
@@ -156,7 +157,7 @@ export const Tasks = () => {
                                     name='searchFilter'
                                     value={searchFilter}
                                     onChange={(e) => setSearchFilter(e.target.value)}
-                                    placeholder='Buscar...'
+                                    placeholder={tc("search") + "..."}
                                     className='px-4 py-2 transition-all bg-white border rounded-lg shadow outline-none caret-brand-blue focus-visible:border-brand-blue'
                                 />
                             </div>
@@ -179,7 +180,7 @@ export const Tasks = () => {
                                 />
                             </div> */}
                             <div className='flex flex-col lg:max-w-[170px] md:w-52 max-sm:w-full gap-1'>
-                                <small className='text-sm font-medium opacity-80'>Frecuencia</small>
+                                <small className='text-sm font-medium opacity-80'>{tp("frequency")}</small>
                                 <ListboxComponent
                                     classNames='!py-[0.65rem]'
                                     shadow={true}
