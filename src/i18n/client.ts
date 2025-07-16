@@ -13,11 +13,12 @@ if (!i18next.isInitialized) {
       resourcesToBackend(
         (language: string, namespace: string) =>
           import(`./locales/${language}/${namespace}.json`)
-      )
+      ),
     )
     .init({
       ...getOptions(),
-      lng: undefined, // let detect the language on client side
+      fallbackLng: 'es', // default fallback language
+      lng: 'es', // let detect the language on client side
       detection: {
         order: ['localStorage', 'cookie', 'path', 'htmlTag', 'navigator'],
         lookupLocalStorage: 'locale', // custom key for language in localStorage
