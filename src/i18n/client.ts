@@ -18,10 +18,10 @@ if (!i18next.isInitialized) {
     .init({
       ...getOptions(),
       fallbackLng: 'es', // default fallback language
-      lng: 'es', // let detect the language on client side
+      lng: undefined, // let detect the language on client side
       detection: {
-        order: ['localStorage', 'cookie', 'path', 'htmlTag', 'navigator'],
-        lookupLocalStorage: 'locale', // custom key for language in localStorage
+        order: ['querystring' ,'localStorage', 'cookie', 'path', 'htmlTag', 'navigator'],
+        lookupQuerystring: 'locale', // custom key for language in localStorage
       },
     });
 }
