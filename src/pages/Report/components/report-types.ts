@@ -241,29 +241,40 @@ export const reports: ReportCategory[] = [
                 id: 6,
                 name: "Mantenimiento de vehículos",
                 description: "Mantenimiento de vehículos programados",
-                list: "vehicles",
+                list: "trackers",
                 disabled: false,
                 fields: [
                     {
                         required: true,
                         key: "title",
                         type: "string",
-                        defaultValue: `Reporte de mantenimienr ${today}`,
+                        defaultValue: `Reporte de mantenimiento ${today}`,
                         component: TitleField,
                         props: {},
                         onChangeType: "event",
                     },
+                ],
+            },
+        ],
+    },
+    {
+        category: "Dispositivos",
+        types: [
+            {
+                id: 7,
+                name: "Trackers fuera de línea",
+                description: "Dispositiivos fuera de línea en un rango de tiempo",
+                list: "trackers",
+                disabled: false,
+                fields: [
                     {
                         required: true,
-                        key: "date",
-                        type: "date",
-                        defaultValue: new Date(),
-                        component: DateField,
-                        props: {
-                            label: "Fecha",
-                            oldestAllowed: 120,
-                        }, // you will inject `value` and `onChange` dynamically
-                        onChangeType: "value",
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Dispositivos fuera de línea ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
                     },
                 ],
             },

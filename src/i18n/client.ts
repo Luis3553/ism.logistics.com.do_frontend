@@ -20,7 +20,7 @@ if (!i18next.isInitialized) {
       fallbackLng: 'es', // default fallback language
       lng: undefined, // let detect the language on client side
       detection: {
-        order: ['querystring' ,'localStorage', 'cookie', 'path', 'htmlTag', 'navigator'],
+        order: ['querystring'],
         lookupQuerystring: 'locale', // custom key for language in localStorage
       },
     });

@@ -291,7 +291,7 @@ export default function TaskCreateModal({
     const [isLoading, setIsLoading] = useState(false);
 
     return (
-        <Modal isOpen={open} onClose={closeModal} className=' md:max-w-[40rem] h-min relative overflow-hidden'>
+        <Modal isOpen={open} onClose={closeModal} className=' md:max-w-[44rem] h-min relative overflow-hidden'>
             <Transition show={isLoading} {...appearAnimationProps}>
                 <div className='absolute left-0 z-50 w-full h-[calc(100%-4rem)] top-16 backdrop-blur-sm bg-white/70'>
                     <LoadSpinner />
@@ -426,8 +426,11 @@ export default function TaskCreateModal({
                             </div>
                             <div className='flex flex-col'>
                                 <div className='flex flex-row items-center w-full gap-x-2'>
-                                    <span className='font-medium'>Los días:</span>
-                                    <div className='grid grid-cols-[repeat(7,3rem)] gap-2 p-2 overflow-x-auto'>
+                                    <span className='font-medium'>
+                                        Los días:
+                                    </span>
+                                    <button className='px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 font-medium hover:bg-slate-300 transition-all outline-none active:bg-slate-100 focus-visible:bg-slate-300' onClick={() => setSelectedDays([1, 2, 3, 4, 5, 6, 7])}>Todos</button>
+                                    <div className='grid grid-cols-[repeat(8,3rem)] gap-2 p-2 overflow-x-auto'>
                                         {[
                                             { label: "Lu", value: 1 },
                                             { label: "Ma", value: 2 },

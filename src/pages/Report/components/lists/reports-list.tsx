@@ -242,7 +242,6 @@ export function ReportList({
     refetch,
     activeReport,
     setActiveReport,
-    setIsMenuOpen,
 }: {
     reports: GeneratedReportRow[];
     isError: boolean;
@@ -298,7 +297,6 @@ export function ReportList({
                         data={type}
                         onClick={() => {
                             setActiveReport(type);
-                            setIsMenuOpen(false);
                         }}
                         refetch={refetch}
                         setActiveReport={setActiveReport}

@@ -37,7 +37,6 @@ export function ReportTypesList({
     filter = "",
     activeReportType,
     setActiveReportType,
-    setIsMenuOpen,
 }: {
     filter: string;
     activeReportType: ReportType | null;
@@ -95,7 +94,6 @@ export function ReportTypesList({
                                         data={type}
                                         onClick={() => {
                                             setActiveReportType(type);
-                                            setIsMenuOpen(false);
                                         }}
                                         selected={type.id === activeReportType?.id}
                                     />
