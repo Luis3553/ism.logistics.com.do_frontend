@@ -258,6 +258,53 @@ export const reports: ReportCategory[] = [
         ],
     },
     {
+        category: "Servicios de campo",
+        types: [
+            {
+                id: 8,
+                name: "Visitas",
+                description: "Eficiencia de visitas en tareas",
+                list: "trackers",
+                disabled: false,
+                fields: [
+                    {
+                        required: false,
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de eficiencia ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
+                    },
+                    {
+                        required: false,
+                        key: "from",
+                        type: "date",
+                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 00:00:00")),
+                        component: DateField,
+                        props: {
+                            label: "Desde",
+                            nullable: true,
+                        },
+                        onChangeType: "value",
+                    },
+                    {
+                        required: false,
+                        key: "to",
+                        type: "date",
+                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 23:59:59")),
+                        component: DateField,
+                        props: {
+                            label: "Hasta",
+                            nullable: true,
+                        },
+                        onChangeType: "value",
+                    },
+                ],
+            },
+        ],
+    },
+    {
         category: "Dispositivos",
         types: [
             {
