@@ -146,7 +146,7 @@ export type RetrievedReportContentCols = {
 };
 
 export type RetrievedReportContentRows = {
-    [key: string]: any;
+    [key: string]: { value: any; style?: Object };
 };
 
 export type RetrievedReportData = {
@@ -241,4 +241,94 @@ export type Task = {
     is_active: boolean;
     is_valid: boolean;
     checkpoints: Array<String>;
+};
+
+export type ReportFieldBase = {
+    id: string;
+    label: string;
+    description: string | null;
+    required: boolean;
+    type: "text" | "date" | "dropdown" | "checkbox_group" | "radio_group" | "rating" | "file" | "photo" | "signature" | "separator";
+};
+
+export type TextField = ReportFieldBase & {
+    type: "text";
+    min_length: number;
+    max_length: number;
+};
+
+export type CheckboxGroupField = ReportFieldBase & {
+    type: "checkbox_group";
+    min_checked: number;
+    max_checked: number;
+    group: { label: string }[];
+};
+
+export type DropdownField = ReportFieldBase & {
+    type: "dropdown";
+    value_index: number;
+    options: { label: string }[];
+};
+
+export type RadioGroupField = ReportFieldBase & {
+    type: "radio_group";
+    value_index: number;
+    options: { label: string }[];
+};
+
+export type DateField = ReportFieldBase & {
+    type: "date";
+    value: Date;
+    disable_future: boolean;
+    disable_past: boolean;
+};
+
+export type RatingField = ReportFieldBase & {
+    type: "rating";
+    value: number;
+    max_stars: number;
+};
+
+export type FileField = ReportFieldBase & {
+    type: "file";
+    file_ids: number[];
+    max_files: number;
+    max_file_size: number;
+    min_file_size: number;
+    allowed_extensions: Array<any> | null;
+};
+
+export type PhotoField = ReportFieldBase & {
+    type: "photo";
+    file_ids: number[];
+    max_files: number;
+};
+
+export type SignatureField = ReportFieldBase & {
+    type: "signature";
+    file_id: number;
+};
+
+export type SeparatorField = {
+    id: string;
+    label: string;
+    description: string | null;
+    type: "separator";
+};
+
+export type ReportField = TextField | DateField | DropdownField | CheckboxGroupField | RadioGroupField | RatingField | FileField | PhotoField | SignatureField | SeparatorField;
+
+export type Report = {
+    id: number;
+    label: string;
+    description: string | null;
+    fields: ReportField[];
+    created: string;
+    updated: string;
+    default: boolean;
+    submit_in_zone: boolean;
+};
+
+export type ReportValues = {
+    [key: string]: string | number | boolean | Date | null | Array<string | number>;
 };

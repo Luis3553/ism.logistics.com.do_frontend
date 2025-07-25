@@ -4,7 +4,7 @@ import { HiChevronDown, HiChevronUp, HiTrash, HiXMark } from "react-icons/hi2";
 import { LuDownload } from "react-icons/lu";
 import { Fragment } from "react/jsx-runtime";
 import api from "@api/index";
-import { PiFileXlsFill } from "react-icons/pi";
+import { PiFilePdfFill, PiFileXlsFill } from "react-icons/pi";
 import { useApiQuery } from "@hooks/useQuery";
 import { useState } from "react";
 import cn from "classnames";
@@ -44,7 +44,7 @@ export function ReportGroup({ data, column_dimensions, nested = false }: { data:
                                     <HeaderCell className='font-bold'>{col.name}</HeaderCell>
                                     <Cell dataKey={col.key}>
                                         {(rowData) => {
-                                            const cellValue = rowData[col.key];
+                                            const cellValue = rowData[col.key].value;
                                             return (
                                                 <span className={cn("text-sm", col.key === "name" && "font-semibold")}>
                                                     {cellValue !== null && cellValue !== undefined ? cellValue.toString() : "-"}
@@ -140,13 +140,30 @@ export function ReportPreview({
     const tooltip = (message: string) => <Tooltip>{message}</Tooltip>;
 
     const options = [
-        // {
-        //     label: "PDF",
-        //     onClick: () => {
-        //         api.post("/reports/generate");
-        //     },
-        //     icon: <PiFilePdfFill />,
-        // },
+        {
+            label: "PDF",
+            onClick: async () => {
+                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                try {
+                    const response = await api.get(`/reports/${activeReport.id}/download?format=pdf`, {
+                        responseType: "blob",
+                    });
+                    const blob = response.data as Blob;
+                    const url = window.URL.createObjectURL(blob);
+
+                    const link = document.createElement("a");
+                    link.href = url;
+                    link.setAttribute("download", `${activeReport.title.split(" ").join("_")}.pdf`); // or .xls
+                    document.body.appendChild(link);
+                    link.click();
+                    link.remove();
+                } catch (error) {
+                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+                    console.error("Failed to download report:", error);
+                }
+            },
+            icon: <PiFilePdfFill />,
+        },
         {
             label: "XLS",
             onClick: async () => {

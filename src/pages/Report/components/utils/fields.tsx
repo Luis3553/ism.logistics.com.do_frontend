@@ -154,28 +154,30 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
     );
 }
 
-export function DateField({ onChange, value, oldestAllowed, label, nullable = false }: { value: any; onChange: (value: Date | null) => void; oldestAllowed: number; label: string; nullable?: boolean }) {
+export function DateField({ onChange, value, oldestAllowed, label, nullable = false, allowFuture = false, limitDays = true }: { value: any; onChange: (value: Date | null) => void; oldestAllowed: number; label: string; nullable?: boolean; allowFuture?: boolean; limitDays?: boolean }) {
     // Only create a Date object if value is not null/undefined/empty
     const valueDate = value ? new Date(value) : null;
 
     const [tooOld, setOldness] = useState(false);
 
     useEffect(() => {
-        const today = new Date();
-        today.setHours(23, 59, 59, 999);
-
-        // Calculate the earliest allowed date
-        const minDate = new Date();
-        minDate.setDate(today.getDate() - oldestAllowed);
-        minDate.setHours(0, 0, 0, 0);
-
-        let isOld = false;
-
-        if (valueDate && (valueDate < minDate || valueDate > today)) {
-            isOld = true;
+        if (limitDays) {
+            const today = new Date();
+            today.setHours(23, 59, 59, 999);
+    
+            // Calculate the earliest allowed date
+            const minDate = new Date();
+            minDate.setDate(today.getDate() - oldestAllowed);
+            minDate.setHours(0, 0, 0, 0);
+    
+            let isOld = false;
+    
+            if (valueDate && (valueDate < minDate || valueDate > today)) {
+                isOld = true;
+            }
+    
+            setOldness(isOld);
         }
-
-        setOldness(isOld);
     }, [value, oldestAllowed]);
 
     // Disable dates outside the allowed range
@@ -210,7 +212,7 @@ export function DateField({ onChange, value, oldestAllowed, label, nullable = fa
                     defaultValue={null}
                     cleanable={nullable}
                     placement='bottomEnd'
-                    shouldDisableDate={allowedRangeDates}
+                    shouldDisableDate={!allowFuture ? allowedRangeDates : undefined}
                 />
             </CustomProvider>
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}

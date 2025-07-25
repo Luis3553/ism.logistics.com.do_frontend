@@ -1,6 +1,7 @@
 import { ReportCategory } from "@utils/types";
 import { DateField, DateRangeField, GroupByField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "./utils/fields";
 import { format } from "date-fns";
+import { a } from "@react-spring/web";
 
 const today = format(new Date(), "dd-MM-yyyy hh:mm");
 
@@ -178,6 +179,8 @@ export const reports: ReportCategory[] = [
                         props: {
                             label: "Desde",
                             nullable: true,
+                            allowFuture: true,
+                            limitDays: false,
                         },
                         onChangeType: "value",
                     },
@@ -190,6 +193,8 @@ export const reports: ReportCategory[] = [
                         props: {
                             label: "Hasta",
                             nullable: true,
+                            allowFuture: true,
+                            limitDays: false,
                         },
                         onChangeType: "value",
                     },
@@ -220,6 +225,8 @@ export const reports: ReportCategory[] = [
                         props: {
                             label: "Desde",
                             nullable: true,
+                            allowFuture: true,
+                            limitDays: false,
                         },
                         onChangeType: "value",
                     },
@@ -232,6 +239,8 @@ export const reports: ReportCategory[] = [
                         props: {
                             label: "Hasta",
                             nullable: true,
+                            allowFuture: true,
+                            limitDays: false,
                         },
                         onChangeType: "value",
                     },
@@ -277,26 +286,14 @@ export const reports: ReportCategory[] = [
                         onChangeType: "event",
                     },
                     {
-                        required: false,
-                        key: "from",
-                        type: "date",
-                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 00:00:00")),
-                        component: DateField,
+                        required: true,
+                        key: "range",
+                        type: "date[]",
+                        defaultValue: [new Date(format(new Date(), "MM/dd/yyyy 00:00:00")), new Date(format(new Date(), "MM/dd/yyyy 23:59:59"))],
+                        component: DateRangeField,
                         props: {
-                            label: "Desde",
-                            nullable: true,
-                        },
-                        onChangeType: "value",
-                    },
-                    {
-                        required: false,
-                        key: "to",
-                        type: "date",
-                        defaultValue: new Date(format(new Date(), "MM/dd/yyyy 23:59:59")),
-                        component: DateField,
-                        props: {
-                            label: "Hasta",
-                            nullable: true,
+                            limit: 31,
+                            oldestAllowed: 120,
                         },
                         onChangeType: "value",
                     },
@@ -319,6 +316,24 @@ export const reports: ReportCategory[] = [
                         key: "title",
                         type: "string",
                         defaultValue: `Dispositivos fuera de línea ${today}`,
+                        component: TitleField,
+                        props: {},
+                        onChangeType: "event",
+                    },
+                ],
+            },
+            {
+                id: 9,
+                name: "Nivel de batería",
+                description: "Nivel de batería de los dispositivos",
+                list: "trackers",
+                disabled: false,
+                fields: [
+                    {
+                        required: true,
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de nivel de batería ${today}`,
                         component: TitleField,
                         props: {},
                         onChangeType: "event",
