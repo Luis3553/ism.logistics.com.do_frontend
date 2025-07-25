@@ -1,7 +1,6 @@
 import { ReportCategory } from "@utils/types";
 import { DateField, DateRangeField, GroupByField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "./utils/fields";
 import { format } from "date-fns";
-import { a } from "@react-spring/web";
 
 const today = format(new Date(), "dd-MM-yyyy hh:mm");
 
