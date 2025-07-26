@@ -149,14 +149,14 @@ export const Reports = () => {
     }
 
     async function sendReportRequest() {
-        // toaster.push(messageToaster(`Validando reporte...`, "info"), { duration: 5000, placement: "topEnd" });
+        // toaster.push(messageToaster(`Validando reporte...`, "info"), { duration: 2000, placement: "topEnd" });
         setGeneratingReport(true);
         if (validatePayload()) {
             try {
                 api.post<Response>("reports/generate", payload)
                     .then(({ data: r, status }) => {
                         if (status === 201) {
-                            toaster.push(messageToaster("Generando reporte...", "success"), { duration: 5000, placement: "topEnd" });
+                            toaster.push(messageToaster("Generando reporte...", "success"), { duration: 2000, placement: "topEnd" });
                             setActiveReportType(null);
                             setSelectedDrivers(new Set());
                             setSelectedTrackers(new Set());
@@ -168,21 +168,21 @@ export const Reports = () => {
                             setFieldValues({});
                             refetchReports();
                         } else {
-                            toaster.push(messageToaster(r.message), { duration: 5000, placement: "topEnd" });
+                            toaster.push(messageToaster(r.message), { duration: 2000, placement: "topEnd" });
                             setErrorMessage(r.message);
                         }
                     })
                     .catch(() => {
-                        toaster.push(messageToaster("Hubo un error al generar el reporte."), { duration: 5000, placement: "topEnd" });
+                        toaster.push(messageToaster("Hubo un error al generar el reporte."), { duration: 2000, placement: "topEnd" });
                         setErrorMessage("Hubo un error al generar el reporte");
                     });
             } catch (error) {
                 console.error("Error al enviar la solicitud de reporte:", error);
-                toaster.push(messageToaster("Hubo un error al generar el reporte."), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster("Hubo un error al generar el reporte."), { duration: 2000, placement: "topEnd" });
                 setErrorMessage("Hubo un error al generar el reporte");
             }
         } else {
-            toaster.push(messageToaster(`Uno o más campos están vacíos`), { duration: 5000, placement: "topEnd" });
+            toaster.push(messageToaster(`Uno o más campos están vacíos`), { duration: 2000, placement: "topEnd" });
         }
         setGeneratingReport(false);
     }

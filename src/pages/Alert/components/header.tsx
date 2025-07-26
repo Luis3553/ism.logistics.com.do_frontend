@@ -55,13 +55,13 @@ export default function AlertHeader({
         if (!e) return;
         if (action === "from") {
             if (to && e > to) {
-                toaster.push(message('La fecha "Desde" no puede ser mayor que la fecha "Hasta".'), { duration: 5000, placement: "topEnd" });
+                toaster.push(message('La fecha "Desde" no puede ser mayor que la fecha "Hasta".'), { duration: 2000, placement: "topEnd" });
                 return;
             }
             setFrom(e);
         } else if (action === "to") {
             if (from && e < from) {
-                toaster.push(message('La fecha "Hasta" no puede ser menor que la fecha "Desde".'), { duration: 5000, placement: "topEnd" });
+                toaster.push(message('La fecha "Hasta" no puede ser menor que la fecha "Desde".'), { duration: 2000, placement: "topEnd" });
                 return;
             }
             setTo(e);

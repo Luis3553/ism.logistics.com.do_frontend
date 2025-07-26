@@ -206,13 +206,13 @@ export default function TaskCreateModal({
                         if (res.status !== 200) {
                             console.log("error updating task", res);
                             toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
-                                duration: 1000 * 5,
+                                duration: 2000 * 5,
                                 placement: "topStart",
                             });
                             return;
                         }
                         toaster.push(messageToaster(`Configuración actualizada correctamente`, "success"), {
-                            duration: 1000 * 5,
+                            duration: 2000 * 5,
                             placement: "topStart",
                         });
                         setFilteredData((prev) => {
@@ -228,7 +228,7 @@ export default function TaskCreateModal({
                     .catch((err) => {
                         console.log("API PUT error:", err);
                         toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
-                            duration: 1000 * 5,
+                            duration: 2000 * 5,
                             placement: "topStart",
                         });
                     })
@@ -246,7 +246,7 @@ export default function TaskCreateModal({
                     .then((res) => {
                         if (res.status !== 201) {
                             toaster.push(messageToaster(`Hubo un problema al crear la configuración`, "error"), {
-                                duration: 1000 * 5,
+                                duration: 2000 * 5,
                                 placement: "topStart",
                             });
                         }
@@ -260,13 +260,13 @@ export default function TaskCreateModal({
                         setTasks((prev) => prev?.filter((task) => task.value !== payload.task_id));
 
                         toaster.push(messageToaster(`Configuración creada correctamente`, "success"), {
-                            duration: 1000 * 5,
+                            duration: 2000 * 5,
                             placement: "topStart",
                         });
                     })
                     .catch(() => {
                         toaster.push(messageToaster(`Hubo un problema al crear la configuración`, "error"), {
-                            duration: 1000 * 5,
+                            duration: 2000 * 5,
                             placement: "topStart",
                         });
                     })

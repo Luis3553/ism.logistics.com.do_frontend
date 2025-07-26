@@ -123,16 +123,16 @@ export function ReportPreview({
     const [isOpen, setIsOpen] = useState(false);
 
     async function deleteReport() {
-        toaster.push(messageToaster(`Eliminando reporte ${activeReport.title}...`, "info"), { duration: 5000, placement: "topEnd" });
+        toaster.push(messageToaster(`Eliminando reporte ${activeReport.title}...`, "info"), { duration: 2000, placement: "topEnd" });
         setIsOpen(false);
         try {
             await api.delete(`/reports/${activeReport.id}/delete`).then(() => {
-                toaster.push(messageToaster(`Reporte "${activeReport.title}" eliminado correctamente`, "success"), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster(`Reporte "${activeReport.title}" eliminado correctamente`, "success"), { duration: 2000, placement: "topEnd" });
                 setActiveReport(null);
                 refetch();
             });
         } catch (error) {
-            toaster.push(messageToaster(`No se ha podido eliminar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+            toaster.push(messageToaster(`No se ha podido eliminar el reporte "${activeReport.title}"`, "error"), { duration: 2000, placement: "topEnd" });
             console.error("Failed to delete report:", error);
         }
     }
@@ -143,7 +143,7 @@ export function ReportPreview({
         {
             label: "PDF",
             onClick: async () => {
-                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 2000, placement: "topEnd" });
                 try {
                     const response = await api.get(`/reports/${activeReport.id}/download?format=pdf`, {
                         responseType: "blob",
@@ -158,7 +158,7 @@ export function ReportPreview({
                     link.click();
                     link.remove();
                 } catch (error) {
-                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 2000, placement: "topEnd" });
                     console.error("Failed to download report:", error);
                 }
             },
@@ -167,7 +167,7 @@ export function ReportPreview({
         {
             label: "XLS",
             onClick: async () => {
-                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster(`Descargando reporte "${activeReport.title}"`, "info"), { duration: 2000, placement: "topEnd" });
                 try {
                     const response = await api.get(`/reports/${activeReport.id}/download?format=xlsx`, {
                         responseType: "blob",
@@ -182,7 +182,7 @@ export function ReportPreview({
                     link.click();
                     link.remove();
                 } catch (error) {
-                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+                    toaster.push(messageToaster(`No se ha podido descargar el reporte "${activeReport.title}"`, "error"), { duration: 2000, placement: "topEnd" });
                     console.error("Failed to download report:", error);
                 }
             },

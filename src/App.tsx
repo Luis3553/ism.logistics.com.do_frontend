@@ -13,6 +13,7 @@ import { Tasks } from "./pages/Tasks/index.tsx";
 import { UIProvider } from "./contexts/ui-context.tsx";
 import { ModalProvider } from "@contexts/modal-context.tsx";
 import ManagedModal from "@contexts/managed-modal.tsx";
+import Forms from "@pages/Forms/index.tsx";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ function App() {
                                 <Route path='reports' element={<Reports />} />
                                 <Route path='notifications' element={<Alerts />} />
                                 <Route path='tasks' element={<Tasks />} />
+                                <Route path='forms' element={<Forms />} />
                                 <Route path='*' element={<NotFound />} />
                                 <Route path='/' element={<Navigate to='/home' replace />} />
                             </Route>

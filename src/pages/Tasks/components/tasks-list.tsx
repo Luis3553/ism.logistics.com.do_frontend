@@ -71,7 +71,7 @@ export const TaskItem = ({
                     setActive(await res.data.data.is_active);
                     refetch();
                     toaster.push(messageToaster(`Configuración actualizada correctamente`, "success"), {
-                        duration: 1000 * 5,
+                        duration: 2000 * 5,
                         placement: "topStart",
                     });
                 } else {
@@ -81,7 +81,7 @@ export const TaskItem = ({
             .catch(() => {
                 setActive(task.is_active); // Revert the change if the API call fails
                 toaster.push(messageToaster(`Hubo un problema al actualizar la configuración`, "error"), {
-                    duration: 1000 * 5,
+                    duration: 2000 * 5,
                     placement: "topStart",
                 });
             })
@@ -345,20 +345,20 @@ export const TaskItem = ({
                                                                         };
                                                                     });
                                                                     toaster.push(messageToaster(`Configuración eliminada correctamente`, "success"), {
-                                                                        duration: 1000 * 5,
+                                                                        duration: 2000 * 5,
                                                                         placement: "topStart",
                                                                     });
                                                                     refetch();
                                                                 } else {
                                                                     toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
-                                                                        duration: 1000 * 5,
+                                                                        duration: 2000 * 5,
                                                                         placement: "topStart",
                                                                     });
                                                                 }
                                                             })
                                                             .catch(() => {
                                                                 toaster.push(messageToaster(`Hubo un problema al eliminar la configuración`, "error"), {
-                                                                    duration: 1000 * 5,
+                                                                    duration: 2000 * 5,
                                                                     placement: "topStart",
                                                                 });
                                                             });

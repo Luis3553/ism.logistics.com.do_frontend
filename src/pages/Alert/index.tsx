@@ -236,13 +236,13 @@ export const Alerts = () => {
                     window.URL.revokeObjectURL(url);
                 } catch (error) {
                     toaster.push(messageToaster(`No se ha podido descargar el reporte "${reportTitle}"`, "error"), {
-                        duration: 5000,
+                        duration: 2000,
                         placement: "topEnd",
                     });
                     console.error("Failed to download report:", error);
                 }
                 toaster.push(messageToaster(`El reporte se ha generado correctamente`, "success"), {
-                    duration: 1000 * 5,
+                    duration: 2000,
                     placement: "topStart",
                 });
                 setPollingEnabled(false);
@@ -289,14 +289,14 @@ export const Alerts = () => {
                                 label: "XLS",
                                 disabled: false,
                                 onClick: async () => {
-                                    toaster.push(messageToaster("Generando reporte...", "info"), { duration: 1000 * 5, placement: "topStart" });
+                                    toaster.push(messageToaster("Generando reporte...", "info"), { duration: 2000 * 5, placement: "topStart" });
                                     try {
                                         await api
                                             .post<Response>("/reports/generate", { ...payload, format: "xls" })
                                             .then(async (res) => {
                                                 if (res.status === 201) {
                                                     toaster.clear();
-                                                    toaster.push(messageToaster("Descargando reporte...", "success"), { duration: 1000 * 5, placement: "topStart" });
+                                                    toaster.push(messageToaster("Descargando reporte...", "success"), { duration: 2000 * 5, placement: "topStart" });
 
                                                     setHasDownloaded(false);
                                                     setReportId(res.data.report.id);
@@ -306,20 +306,20 @@ export const Alerts = () => {
                                                 if (res.data.report.percent < 0) {
                                                     setReportId(null);
                                                     setPollingEnabled(false);
-                                                    toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 1000 * 5, placement: "topStart" });
+                                                    toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 2000 * 5, placement: "topStart" });
                                                     throw new Error("Error al generar el reporte");
                                                 }
                                             })
                                             .catch(() => {
                                                 setReportId(null);
                                                 setPollingEnabled(false);
-                                                toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 1000 * 5, placement: "topStart" });
+                                                toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 2000 * 5, placement: "topStart" });
                                                 throw new Error("Error al generar el reporte");
                                             });
                                     } catch (error) {
                                         setReportId(null);
                                         setPollingEnabled(false);
-                                        toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 1000 * 5, placement: "topStart" });
+                                        toaster.push(messageToaster("Hubo un error generando el reporte", "error"), { duration: 2000 * 5, placement: "topStart" });
                                     }
                                 },
                                 icon: <PiFileXlsFill />,

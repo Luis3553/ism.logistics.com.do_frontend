@@ -50,16 +50,16 @@ export function ReportRow({
     const [isPopoverOpen, setIsPopoverOpen] = useState(false);
 
     async function deleteReport() {
-        toaster.push(messageToaster(`Eliminando reporte "${data.title}"...`, "info"), { duration: 5000, placement: "topEnd" });
+        toaster.push(messageToaster(`Eliminando reporte "${data.title}"...`, "info"), { duration: 2000, placement: "topEnd" });
         setIsOpen(false);
         try {
             await api.delete(`/reports/${data.id}/delete`).then(() => {
-                toaster.push(messageToaster(`Reporte "${data.title}" eliminado correctamente`, "success"), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster(`Reporte "${data.title}" eliminado correctamente`, "success"), { duration: 2000, placement: "topEnd" });
                 setActiveReport(null);
                 refetch();
             });
         } catch (error) {
-            toaster.push(messageToaster(`No se ha podido eliminar el reporte "${data.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+            toaster.push(messageToaster(`No se ha podido eliminar el reporte "${data.title}"`, "error"), { duration: 2000, placement: "topEnd" });
             console.error("Failed to delete report:", error);
         }
     }
@@ -90,14 +90,14 @@ export function ReportRow({
     useEffect(() => {
         if (updated) {
             if (updated.percent >= 100) {
-                toaster.push(messageToaster(`Reporte generado correctamente`, "success"), { duration: 5000, placement: "topEnd" });
+                toaster.push(messageToaster(`Reporte generado correctamente`, "success"), { duration: 2000, placement: "topEnd" });
                 setPercent(100);
                 setHasError(false);
                 setPollingEnabled(false); // Stop polling
             } else if (updated.percent < 0) {
                 if (data.percent >= 0)
                     // Only show error if it was previously loading
-                    toaster.push(messageToaster(`Error generando reporte "${data.title}"`, "error"), { duration: 5000, placement: "topEnd" });
+                    toaster.push(messageToaster(`Error generando reporte "${data.title}"`, "error"), { duration: 2000, placement: "topEnd" });
                 setPercent(0);
                 setHasError(true);
                 setPollingEnabled(false); // Stop polling
@@ -162,7 +162,7 @@ export function ReportRow({
                                                     <div
                                                         onClick={async (e) => {
                                                             e.stopPropagation();
-                                                            toaster.push(messageToaster(`Descargando reporte "${data.title}"`, "info"), { duration: 5000, placement: "topEnd" });
+                                                            toaster.push(messageToaster(`Descargando reporte "${data.title}"`, "info"), { duration: 2000, placement: "topEnd" });
                                                             try {
                                                                 const response = await api.get(`/reports/${data.id}/download?format=xlsx`, {
                                                                     responseType: "blob",
@@ -178,7 +178,7 @@ export function ReportRow({
                                                                 link.remove();
                                                             } catch (error) {
                                                                 toaster.push(messageToaster(`No se ha podido descargar el reporte "${data.title}"`, "error"), {
-                                                                    duration: 5000,
+                                                                    duration: 2000,
                                                                     placement: "topEnd",
                                                                 });
                                                                 console.error("Failed to download report:", error);
