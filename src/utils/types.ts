@@ -241,6 +241,7 @@ export type Task = {
     is_active: boolean;
     is_valid: boolean;
     checkpoints: Array<String>;
+    ocurrence_limit: number | null;
 };
 
 export type ReportFieldBase = {
@@ -331,4 +332,12 @@ export type Report = {
 
 export type ReportValues = {
     [key: string]: string | number | boolean | Date | null | Array<string | number>;
+};
+
+export type FileData = {
+    id: number;
+    url: string;
+    name: string;
+    size: number;
+    type: "photo" | "other";
 };

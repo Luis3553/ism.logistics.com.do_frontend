@@ -11,9 +11,10 @@ import ReportCreateScreen from "./components/report-create-screen";
 import ReportListScreen from "./components/report-list-screen";
 import ReportCreateForm from "./components/report-create-form";
 import ReportCreateList from "./components/report-create-list";
-import { Message, useToaster } from "rsuite";
+import { useToaster } from "rsuite";
 import { HiChevronLeft, HiChevronUp } from "react-icons/hi2";
 import { ErrorBoundary } from "react-error-boundary";
+import messageToaster from "@utils/toaster";
 
 type Response = {
     message: string;
@@ -75,22 +76,6 @@ export const Reports = () => {
     const [generatingReport, setGeneratingReport] = useState<boolean>(false);
 
     const toaster = useToaster();
-
-    const messageToaster = (message: string, type: "warning" | "success" | "info" | "error" = "error") => (
-        <Message
-            className={cn(
-                "*:flex *:flex-row *:items-center my-2 *:gap-x-4 p-4 text-white rounded-lg transition-all duration-500 backdrop-blur-sm hover:backdrop-blur-md",
-                type === "success" && "bg-green-500/75",
-                type === "warning" && "bg-amber-400/75",
-                type === "info" && "bg-blue-500/75",
-                type === "error" && "bg-red-500/75",
-            )}
-            showIcon
-            type={type ?? "error"}
-            closable>
-            {message}
-        </Message>
-    );
 
     useEffect(() => {
         if (!isLoadingReports && data) {

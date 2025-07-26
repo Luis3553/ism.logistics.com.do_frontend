@@ -297,7 +297,7 @@ export const TaskItem = ({
                                     onClick={(e) => {
                                         e.stopPropagation();
                                     }}
-                                    className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-md:rounded-xl group-hover:bg-black/5 active:bg-black/10 focus-visible:bg-black/5 '>
+                                    className='z-0 w-12 h-12 text-sm font-medium transition-all rounded-full outline-none max-md:rounded-xl active:bg-black/10 focus-visible:bg-black/5 '>
                                     <HiEllipsisVertical className='m-auto' />
                                 </Popover.Button>
                                 <Portal>
@@ -316,7 +316,7 @@ export const TaskItem = ({
                                             leave='transition ease-in duration-75'
                                             leaveFrom='transform opacity-100 scale-100'
                                             leaveTo='transform opacity-0 scale-95'>
-                                            <Popover.Panel className='absolute z-50 flex flex-col w-40 gap-1 p-1 bg-white rounded-lg shadow-lg outline-none end-0'>
+                                            <Popover.Panel className='absolute z-50 flex flex-col w-40 gap-1 p-1 bg-white border rounded-lg shadow-lg outline-none end-0'>
                                                 <span
                                                     onClick={(e) => {
                                                         e.stopPropagation();

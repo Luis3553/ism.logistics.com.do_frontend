@@ -85,21 +85,15 @@ export default function TaskCreateModal({
     const [selectedOption, setSelectedOption] = useState<Option>(taskModalData ? options[options.findIndex((o) => o.value == taskModalData?.frequency)] : options[0]);
     const [selectedWeekDay, setSelectedWeekDay] = useState<Option>(taskModalData ? weeks[weeks.findIndex((o) => o.value == taskModalData?.weekday_ordinal)] : weeks[0]);
 
+    const [hasOccurrences, setHasOccurrences] = useState<boolean>(taskModalData ? taskModalData.ocurrence_limit === null : false);
+    const [occurrences, setOccurrences] = useState<number | null>(taskModalData ? taskModalData.ocurrence_limit : null);
+
     const [frequencyValue, setFrequencyValue] = useState<number>(1);
 
     const [selectedDays, setSelectedDays] = useState<number[]>(
         [],
-        // [new Date().getDay() === 0 ? 7 : new Date().getDay()]
     );
     const [startDate, setStartDate] = useState<Date | null>(null);
-    // const allowedRangeDates = (date: Date) => {
-    //     const today = new Date();
-    //     today.setHours(0, 0, 0, 0);
-
-    //     if (date < today) return true;
-
-    //     return false;
-    // };
 
     const [payload, setPayload] = useState({
         id: taskModalData ? taskModalData.id : undefined,
@@ -110,6 +104,7 @@ export default function TaskCreateModal({
         weekday_ordinal: selectedOption.value === "every_x_months" ? selectedWeekDay.value : null,
         frequency_value: frequencyValue,
         days_of_week: selectedDays,
+        ocurrence_limit: hasOccurrences ? occurrences : null,
     });
 
     const [errors, setErrors] = useState<{
@@ -136,6 +131,7 @@ export default function TaskCreateModal({
             frequency_value: 1,
             weekday_ordinal: null,
             days_of_week: [],
+            ocurrence_limit: null,
         });
         setErrors({});
     }
@@ -182,6 +178,8 @@ export default function TaskCreateModal({
             setSelectedOption(options.find((o) => o.value === taskModalData.frequency) || options[0]);
             setFrequencyValue(taskModalData.frequency_value);
             setSelectedDays(taskModalData.days_of_week);
+            setHasOccurrences(taskModalData.ocurrence_limit == null);
+            setOccurrences(taskModalData.ocurrence_limit);
         }
     }, [taskModalData]);
 
@@ -195,8 +193,9 @@ export default function TaskCreateModal({
             frequency_value: frequencyValue,
             weekday_ordinal: selectedOption.value === "every_x_months" ? selectedWeekDay.value : null,
             days_of_week: selectedDays,
+            ocurrence_limit: hasOccurrences ? occurrences : null,
         });
-    }, [startDate, selectedOption, frequencyValue, selectedDays, selectedTask, selectedTracker, selectedWeekDay]);
+    }, [startDate, selectedOption, frequencyValue, selectedDays, selectedTask, selectedTracker, selectedWeekDay, occurrences, hasOccurrences]);
 
     function onSubmit() {
         if (validatePayload()) {
@@ -426,10 +425,21 @@ export default function TaskCreateModal({
                             </div>
                             <div className='flex flex-col'>
                                 <div className='flex flex-row items-center w-full gap-x-2'>
-                                    <span className='font-medium'>
-                                        Los días:
-                                    </span>
-                                    <button className='px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 font-medium hover:bg-slate-300 transition-all outline-none active:bg-slate-100 focus-visible:bg-slate-300' onClick={() => setSelectedDays([1, 2, 3, 4, 5, 6, 7])}>Todos</button>
+                                    <span className='font-medium'>Los días:</span>
+                                    <button
+                                        className={cn(
+                                            "px-2.5 py-1 rounded-full bg-slate-200 text-slate-600 font-medium hover:bg-slate-300 transition-all outline-none active:bg-slate-100 focus-visible:bg-slate-300",
+                                            selectedDays.length === 7 && "!bg-brand-blue text-white",
+                                        )}
+                                        onClick={() => {
+                                            if (selectedDays.length === 7) {
+                                                setSelectedDays([]);
+                                            } else {
+                                                setSelectedDays([1, 2, 3, 4, 5, 6, 7]);
+                                            }
+                                        }}>
+                                        Todos
+                                    </button>
                                     <div className='grid grid-cols-[repeat(8,3rem)] gap-2 p-2 overflow-x-auto'>
                                         {[
                                             { label: "Lu", value: 1 },
@@ -465,6 +475,60 @@ export default function TaskCreateModal({
                                 </Transition>
                             </div>
                             <div className='flex flex-row items-center gap-x-2'>
+                                <span className='font-medium'>Termina en:</span>
+                                <RadioGroup
+                                    className='flex flex-row items-center gap-x-2'
+                                    value={hasOccurrences}
+                                    onChange={(e) => setHasOccurrences(e)}>
+                                    <RadioGroup.Option
+                                        value={false}
+                                        onClick={() => setOccurrences(null)}
+                                        className='transition rounded-lg outline-none cursor-pointer focus:border-brand-blue'>
+                                        {({ checked }) => (
+                                            <>
+                                                <span className='flex items-center outline-none select-none gap-x-2 ring-0'>
+                                                    {checked ? (
+                                                        <Transition show={checked} {...appearAnimationProps}>
+                                                            <HiCheckCircle className='text-brand-blue' />
+                                                        </Transition>
+                                                    ) : (
+                                                        <HiOutlineCheckCircle className='text-brand-blue' />
+                                                    )}
+                                                    Nunca termina
+                                                </span>
+                                            </>
+                                        )}
+                                    </RadioGroup.Option>
+                                    <RadioGroup.Option
+                                        value={true}
+                                        onClick={() => setOccurrences(1)}
+                                        className='transition rounded-lg outline-none cursor-pointer ms-4 focus:border-brand-blue'>
+                                        {({ checked }) => (
+                                            <>
+                                                <span className='flex items-center outline-none select-none gap-x-2 ring-0'>
+                                                    {checked ? (
+                                                        <Transition show={checked} {...appearAnimationProps}>
+                                                            <HiCheckCircle className='text-brand-blue' />
+                                                        </Transition>
+                                                    ) : (
+                                                        <HiOutlineCheckCircle className='text-brand-blue' />
+                                                    )}
+                                                    Termina en
+                                                    <input
+                                                        type='number'
+                                                        min={1}
+                                                        className='w-20 select-all px-2 py-1.5 transition border rounded-lg outline-none ring-0 focus:border-brand-blue'
+                                                        value={occurrences ?? 1}
+                                                        onChange={(e) => setOccurrences(Number(e.target.value) >= 1 ? Number(e.target.value) : 1)}
+                                                    />
+                                                    ocurrencia{occurrences && occurrences > 1 ? "s" : ""}
+                                                </span>
+                                            </>
+                                        )}
+                                    </RadioGroup.Option>
+                                </RadioGroup>
+                            </div>
+                            <div className='flex flex-row items-center gap-x-2'>
                                 <label htmlFor='start_date' className='font-medium'>
                                     Fecha de inicio:
                                 </label>
@@ -476,6 +540,7 @@ export default function TaskCreateModal({
                                         value={startDate}
                                         defaultValue={new Date()}
                                         cleanable={false}
+                                        placeholder='dd/mm/aaaa'
                                         placement='autoVertical'
                                         format={selectedOption.calendar != "month" ? "dd/MM/yyyy" : "MM/yyyy"}
                                         // shouldDisableDate={allowedRangeDates}
