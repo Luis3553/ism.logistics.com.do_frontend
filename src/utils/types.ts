@@ -241,6 +241,7 @@ export type Task = {
     is_active: boolean;
     is_valid: boolean;
     checkpoints: Array<String>;
+    ocurrence_count: number;
     ocurrence_limit: number | null;
 };
 

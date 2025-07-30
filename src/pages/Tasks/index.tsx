@@ -143,7 +143,7 @@ export const Tasks = () => {
                 En este menú podrá gestionar las tareas recurrentes creadas desde "Servicio de campo → Tareas recurrentes", siempre que no tengan un empleado asignado ni
                 configuraciones previas. Además, el valor del campo "Repetir" será omitido en esta vista.
             </small> */}
-            <main className='mt-2 p-4 bg-white rounded-lg shadow text-[#393939]'>
+            <main className='mt-2 p-4 bg-white rounded-lg shadow h-full text-[#393939]'>
                 <div className='flex flex-col items-start justify-between gap-4 md:flex-row'>
                     <Transition as={Fragment} show={showFilters} {...appearAnimationProps}>
                         <div className='flex flex-col flex-wrap w-full gap-4 md:flex-row'>

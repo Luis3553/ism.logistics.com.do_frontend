@@ -7,7 +7,7 @@ import { CustomProvider, DatePicker, Whisper } from "rsuite";
 import { esES } from "rsuite/esm/locales";
 import { Option } from "src/pages/Configuration/components/ListOfConfigurations";
 import api from "@api/index";
-import { RadioGroup, Transition } from "@headlessui/react";
+import { RadioGroup, Switch, Transition } from "@headlessui/react";
 import { appearAnimationProps } from "@utils/animations";
 import AsyncSelectComponent from "@components/async-select";
 import messageToaster from "@utils/toaster";
@@ -37,12 +37,14 @@ export default function TaskCreateModal({
     setTaskModalData,
     refetch,
     setFilteredData,
+    reactivate = false,
 }: {
     open: boolean;
     taskModalData: Task | undefined;
     setTaskModalData: React.Dispatch<React.SetStateAction<Task | undefined>>;
     refetch: () => void;
     setFilteredData: React.Dispatch<React.SetStateAction<TaskData | undefined>>;
+    reactivate?: boolean;
 }) {
     const [trackers, setTrackers] = useState<Option[]>();
     const [tasks, setTasks] = useState<Option[]>();
@@ -83,28 +85,31 @@ export default function TaskCreateModal({
     const [selectedTracker, setSelectedTracker] = useState<Option | null>(taskModalData ? { label: taskModalData.tracker, value: taskModalData.tracker_id } : null);
 
     const [selectedOption, setSelectedOption] = useState<Option>(taskModalData ? options[options.findIndex((o) => o.value == taskModalData?.frequency)] : options[0]);
-    const [selectedWeekDay, setSelectedWeekDay] = useState<Option>(taskModalData ? weeks[weeks.findIndex((o) => o.value == taskModalData?.weekday_ordinal)] : weeks[0]);
+    const [selectedWeekDay, setSelectedWeekDay] = useState<Option>(
+        taskModalData != null && taskModalData.weekday_ordinal != null ? weeks[weeks.findIndex((o) => o.value == taskModalData.weekday_ordinal)] : weeks[0],
+    );
 
-    const [hasOccurrences, setHasOccurrences] = useState<boolean>(taskModalData ? taskModalData.ocurrence_limit === null : false);
+    const [hasOccurrences, setHasOccurrences] = useState<boolean>(taskModalData ? (taskModalData.ocurrence_limit != null) : false);
     const [occurrences, setOccurrences] = useState<number | null>(taskModalData ? taskModalData.ocurrence_limit : null);
 
     const [frequencyValue, setFrequencyValue] = useState<number>(1);
 
-    const [selectedDays, setSelectedDays] = useState<number[]>(
-        [],
-    );
+    const [selectedDays, setSelectedDays] = useState<number[]>([]);
     const [startDate, setStartDate] = useState<Date | null>(null);
+
+    const [active, setActive] = useState<boolean>(taskModalData ? taskModalData.is_active : true);
 
     const [payload, setPayload] = useState({
         id: taskModalData ? taskModalData.id : undefined,
         task_id: selectedTask ? selectedTask.value : null,
         tracker_id: selectedTracker ? selectedTracker.value : null,
-        start_date: selectedOption.calendar != "month" ? startDate : startDate?.setDate(1),
+        start_date: taskModalData && reactivate ? null : selectedOption.calendar != "month" ? startDate : startDate?.setDate(1),
         frequency: selectedOption.value,
         weekday_ordinal: selectedOption.value === "every_x_months" ? selectedWeekDay.value : null,
         frequency_value: frequencyValue,
         days_of_week: selectedDays,
         ocurrence_limit: hasOccurrences ? occurrences : null,
+        is_active: active,
     });
 
     const [errors, setErrors] = useState<{
@@ -132,6 +137,7 @@ export default function TaskCreateModal({
             weekday_ordinal: null,
             days_of_week: [],
             ocurrence_limit: null,
+            is_active: true,
         });
         setErrors({});
     }
@@ -170,15 +176,23 @@ export default function TaskCreateModal({
         return valid;
     }
 
+    const allowedRangeDates = (date: Date) => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        // Only allow today and future dates
+        return date < today;
+    };
+
     useEffect(() => {
         if (taskModalData) {
             setSelectedTracker({ label: taskModalData.tracker, value: taskModalData.tracker_id });
             setSelectedTask({ label: taskModalData.label, value: taskModalData.task_id });
-            setStartDate(new Date(taskModalData.start_date));
+            setStartDate(null);
             setSelectedOption(options.find((o) => o.value === taskModalData.frequency) || options[0]);
             setFrequencyValue(taskModalData.frequency_value);
             setSelectedDays(taskModalData.days_of_week);
-            setHasOccurrences(taskModalData.ocurrence_limit == null);
+            setHasOccurrences(taskModalData.ocurrence_limit != null);
             setOccurrences(taskModalData.ocurrence_limit);
         }
     }, [taskModalData]);
@@ -194,8 +208,9 @@ export default function TaskCreateModal({
             weekday_ordinal: selectedOption.value === "every_x_months" ? selectedWeekDay.value : null,
             days_of_week: selectedDays,
             ocurrence_limit: hasOccurrences ? occurrences : null,
+            is_active: active,
         });
-    }, [startDate, selectedOption, frequencyValue, selectedDays, selectedTask, selectedTracker, selectedWeekDay, occurrences, hasOccurrences]);
+    }, [startDate, selectedOption, frequencyValue, selectedDays, selectedTask, selectedTracker, selectedWeekDay, occurrences, hasOccurrences, active]);
 
     function onSubmit() {
         if (validatePayload()) {
@@ -216,11 +231,9 @@ export default function TaskCreateModal({
                             placement: "topStart",
                         });
                         setFilteredData((prev) => {
-                            console.log("not found task to update");
                             if (!prev) {
                                 return { list: [res.data.data as Task] };
                             }
-                            console.log("found task to update");
                             const updatedList = prev.list.map((task) => (task.id === res.data.data.id ? (res.data.data as Task) : task));
                             return { ...prev, list: updatedList };
                         });
@@ -297,7 +310,7 @@ export default function TaskCreateModal({
                 </div>
             </Transition>
             <div className='flex items-center justify-between mb-4'>
-                <h1 className='text-lg font-semibold'>{taskModalData ? "Editar configuración" : "Nueva configuración"}</h1>
+                <h1 className='text-lg font-semibold'>{taskModalData && !reactivate ? "Editar configuración" : reactivate ? "Reactivar configuración" : "Nueva configuración"}</h1>
                 <button
                     className='flex items-center justify-center p-1 transition rounded-full outline-none focus-visible:bg-black/10 hover:bg-black/10 active:bg-black/20'
                     onClick={() => {
@@ -373,20 +386,22 @@ export default function TaskCreateModal({
                                             key={i}
                                             value={option.value}
                                             className='transition border rounded-lg outline-none cursor-pointer hover:bg-brand-light-blue/50 focus-visible:bg-brand-light-blue/50 focus:border-brand-blue'>
-                                            {({ checked }) => (
-                                                <>
-                                                    <span className='flex items-center gap-x-2 px-4 py-1.5 select-none outline-none ring-0'>
-                                                        {checked ? (
-                                                            <Transition show={checked} {...appearAnimationProps}>
-                                                                <HiCheckCircle className='text-brand-blue' />
-                                                            </Transition>
-                                                        ) : (
-                                                            <HiOutlineCheckCircle className='text-brand-blue' />
-                                                        )}
-                                                        {option.label}
-                                                    </span>
-                                                </>
-                                            )}
+                                            {({ checked }) => {
+                                                return (
+                                                    <>
+                                                        <span className='flex items-center gap-x-2 px-4 py-1.5 select-none outline-none ring-0'>
+                                                            {checked ? (
+                                                                <Transition show={checked} {...appearAnimationProps}>
+                                                                    <HiCheckCircle className='text-brand-blue' />
+                                                                </Transition>
+                                                            ) : (
+                                                                <HiOutlineCheckCircle className='text-brand-blue' />
+                                                            )}
+                                                            {option.label}
+                                                        </span>
+                                                    </>
+                                                );
+                                            }}
                                         </RadioGroup.Option>
                                     ))}
                                 </RadioGroup>
@@ -476,10 +491,7 @@ export default function TaskCreateModal({
                             </div>
                             <div className='flex flex-row items-center gap-x-2'>
                                 <span className='font-medium'>Termina en:</span>
-                                <RadioGroup
-                                    className='flex flex-row items-center gap-x-2'
-                                    value={hasOccurrences}
-                                    onChange={(e) => setHasOccurrences(e)}>
+                                <RadioGroup className='flex flex-row items-center gap-x-2' value={hasOccurrences} onChange={(e) => setHasOccurrences(e)}>
                                     <RadioGroup.Option
                                         value={false}
                                         onClick={() => setOccurrences(null)}
@@ -501,7 +513,9 @@ export default function TaskCreateModal({
                                     </RadioGroup.Option>
                                     <RadioGroup.Option
                                         value={true}
-                                        onClick={() => setOccurrences(1)}
+                                        onClick={() => {
+                                            if (!occurrences) setOccurrences(1);
+                                        }}
                                         className='transition rounded-lg outline-none cursor-pointer ms-4 focus:border-brand-blue'>
                                         {({ checked }) => (
                                             <>
@@ -517,9 +531,14 @@ export default function TaskCreateModal({
                                                     <input
                                                         type='number'
                                                         min={1}
-                                                        className='w-20 select-all px-2 py-1.5 transition border rounded-lg outline-none ring-0 focus:border-brand-blue'
+                                                        disabled={!hasOccurrences}
+                                                        className='w-20 select-all px-2 py-1.5 disabled:bg-slate-100 transition border rounded-lg outline-none ring-0 focus:border-brand-blue'
                                                         value={occurrences ?? 1}
                                                         onChange={(e) => setOccurrences(Number(e.target.value) >= 1 ? Number(e.target.value) : 1)}
+                                                        onKeyDown={(e) => {
+                                                            // Allow arrow keys inside input
+                                                            e.stopPropagation();
+                                                        }}
                                                     />
                                                     ocurrencia{occurrences && occurrences > 1 ? "s" : ""}
                                                 </span>
@@ -538,17 +557,42 @@ export default function TaskCreateModal({
                                         id='start_date'
                                         onChange={(e) => setStartDate(e)}
                                         value={startDate}
-                                        defaultValue={new Date()}
+                                        defaultValue={taskModalData && reactivate ? null : new Date()}
                                         cleanable={false}
                                         placeholder='dd/mm/aaaa'
                                         placement='autoVertical'
                                         format={selectedOption.calendar != "month" ? "dd/MM/yyyy" : "MM/yyyy"}
-                                        // shouldDisableDate={allowedRangeDates}
+                                        shouldDisableDate={allowedRangeDates}
                                     />
                                 </CustomProvider>
                                 <Transition show={errors.startDate ? true : false} {...appearAnimationProps}>
                                     {errors.startDate && <small className='text-red-500'>{errors.startDate}</small>}
                                 </Transition>
+                            </div>
+                            {taskModalData && (
+                                <small className='block p-1 px-4 font-medium text-center rounded-lg text-amber-500 bg-amber-100'>
+                                    Actualiza la fecha de inicio para {reactivate ? "reactivar" : "actualizar"} la tarea
+                                </small>
+                            )}
+                            <div className='flex flex-row items-center gap-x-2'>
+                                <label htmlFor='start_date' className='font-medium'>
+                                    Activa:
+                                </label>
+                                <Switch
+                                    disabled={isLoading}
+                                    checked={active}
+                                    onChange={(checked: boolean) => {
+                                        setActive(checked);
+                                    }}
+                                    className={cn(
+                                        "disabled:bg-gray-200 ring-offset-2 focus-visible:ring-2 ring-offset-transparent outline-none border-none transition relative inline-flex h-6 w-11 min-w-11 items-center rounded-full",
+                                        active
+                                            ? "bg-green-400 hover:bg-green-500 focus-visible:bg-green-500 ring-green-300"
+                                            : "bg-red-500 hover:bg-red-600 focus-visible:bg-red-600 focus-visible:ring ring-red-300",
+                                    )}>
+                                    <span className={cn("inline-block h-4 w-4 transform rounded-full bg-white transition", active ? "translate-x-6" : "translate-x-1")} />
+                                </Switch>
+                                <span className={cn("font-medium", active ? "text-green-400" : "text-red-400")}>{active ? "Sí" : "No"}</span>
                             </div>
                         </div>
                     </div>

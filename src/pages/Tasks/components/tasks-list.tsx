@@ -1,4 +1,4 @@
-import { Fragment, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { HiChevronDown, HiEllipsisVertical, HiOutlineMapPin, HiOutlinePencil, HiOutlineTrash } from "react-icons/hi2";
 import { Popover, Portal, Switch, Transition } from "@headlessui/react";
 import { useToaster, Whisper } from "rsuite";
@@ -52,6 +52,10 @@ export const TaskItem = ({
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const toaster = useToaster();
     const { openModal } = useModalAction();
+
+    useEffect(() => {
+        setActive(task.is_active);
+    }, [task]);
 
     async function updateActiveState(checked: boolean) {
         setIsLoading(true);
@@ -122,7 +126,11 @@ export const TaskItem = ({
     const menuButtonRef = useRef<HTMLButtonElement>(null);
     const checkpointsButtonRef = useRef<HTMLButtonElement>(null);
     const { top: menuTop, left: menuLeft } = usePopoverPosition(menuOpen, menuButtonRef, 70);
-    const { top: checkpointsTop, left: checkpointsLeft } = usePopoverPosition(checkpointsOpen, checkpointsButtonRef, task.checkpoints.length < 6 ? task.checkpoints.length * 55 : 200);
+    const { top: checkpointsTop, left: checkpointsLeft } = usePopoverPosition(
+        checkpointsOpen,
+        checkpointsButtonRef,
+        task.checkpoints.length < 6 ? task.checkpoints.length * 55 : 200,
+    );
 
     return (
         <>
@@ -170,7 +178,7 @@ export const TaskItem = ({
                                         return (
                                             <>
                                                 <Popover.Button
-                                                title={open ? "Ocultar puntos de la ruta" : "Mostrar puntos de la ruta"}
+                                                    title={open ? "Ocultar puntos de la ruta" : "Mostrar puntos de la ruta"}
                                                     ref={checkpointsButtonRef}
                                                     onClick={(e) => e.stopPropagation()}
                                                     className='flex items-center p-1 transition rounded-full outline-none hover:bg-black/10 aspect-square'>
@@ -186,10 +194,9 @@ export const TaskItem = ({
                                                         }}>
                                                         <Transition show={open} as={Fragment} {...appearAnimationProps}>
                                                             <Popover.Panel className='absolute z-50 flex flex-col gap-1 p-1 bg-white rounded-lg shadow-lg outline-none min-w-40 max-w-80 w-max'>
-                                                                <h1 className="text-sm font-medium text-center">{task.label}</h1>
+                                                                <h1 className='text-sm font-medium text-center'>{task.label}</h1>
                                                                 <hr />
-                                                                <div className="max-h-[200px] overflow-y-auto">
-                                                            
+                                                                <div className='max-h-[200px] overflow-y-auto'>
                                                                     {task.checkpoints.map((checkpoint, index) => (
                                                                         <span
                                                                             key={index}
@@ -235,6 +242,8 @@ export const TaskItem = ({
                         {task.frequency === "every_x_weeks"
                             ? `Cada ${task.frequency_value} semana${task.frequency_value > 1 ? "s" : ""}`
                             : `Cada ${task.frequency_value} mes${task.frequency_value > 1 ? "es" : ""}`}
+                        <br />
+                        <strong>{task.ocurrence_count ?? "-"}</strong>/{task.ocurrence_limit ?? "∞"} ocurrencia{task.ocurrence_limit !== 1 ? "s" : ""}
                     </Whisper>
                 </div>
                 <div className='truncate items-center max-md:grid grid-cols-[100px_auto]'>
@@ -257,7 +266,7 @@ export const TaskItem = ({
                 <div className='flex flex-col'>
                     <div className='truncate max-md:grid grid-cols-[100px_auto]'>
                         <span className='font-medium md:hdden'>Inició: </span>
-                        {format(new Date(task.start_date), "dd/MM/yyyy")}
+                        {format(new Date(task.start_date + "T04:00:00.000Z"), "dd/MM/yyyy")}
                     </div>
                     <div className='truncate max-md:grid grid-cols-[100px_auto]'>
                         <span className='font-medium md:hdden'>Próxima: </span>
@@ -271,8 +280,19 @@ export const TaskItem = ({
                             disabled={isLoading}
                             checked={active}
                             onChange={(checked: boolean) => {
-                                setActive(checked);
-                                updateActiveState(checked);
+                                if (checked) {
+                                    setTaskModalData(task);
+                                    openModal("TASK_CONFIG", {
+                                        taskModalData: task,
+                                        setTaskModalData,
+                                        refetch,
+                                        setFilteredData,
+                                        reactivate: true,
+                                    });
+                                } else {
+                                    setActive(checked);
+                                    updateActiveState(checked);
+                                }
                             }}
                             className={cn(
                                 "disabled:bg-gray-200 ring-offset-2 focus-visible:ring-2 ring-offset-transparent outline-none border-none transition relative inline-flex h-6 w-11 min-w-11 items-center rounded-full",
