@@ -332,3 +332,9 @@ export function RulesList({ onChange, value }: { value: number[]; onChange: (val
         );
     return null;
 }
+
+export function DetailedCheck({ onChange, value }: { value: boolean; onChange: () => void }) {
+    return (
+        <CheckBox  label="Detallado" checked={value} onChange={onChange}></CheckBox>
+    )
+}

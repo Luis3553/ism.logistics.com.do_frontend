@@ -113,11 +113,11 @@ export type Vehicle = {
 
 export type FieldConfig = {
     key: string;
-    type: "string" | "number" | "date" | "date[]" | "number[]" | "string[]" | "options[]";
+    type: "string" | "number" | "date" | "date[]" | "number[]" | "string[]" | "options[]" | "boolean";
     defaultValue?: any;
     component: React.FC<any>;
     props: Record<string, any>;
-    onChangeType: "event" | "value" | "array" | "option";
+    onChangeType: "event" | "value" | "array" | "option" | "boolean";
     required: boolean;
 };
 

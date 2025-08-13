@@ -41,7 +41,7 @@ export const reports: ReportCategory[] = [
             {
                 id: 2,
                 name: "Exceso de velocidad",
-                description: "Valor actual del odómetro",
+                description: "Excesos de velocidad de los vehículos",
                 list: "trackers",
                 disabled: false,
                 fields: [
@@ -86,6 +86,45 @@ export const reports: ReportCategory[] = [
                     },
                 ],
             },
+            {
+                id: 10, 
+                name: "Viajes",
+                description: "Viajes realizados por los vehículos",
+                list: "trackers",
+                disabled: false,
+                fields: [
+                    {
+                        required: true,
+                        key: "title",
+                        type: "string",
+                        defaultValue: `Reporte de viajes ${today}`,
+                        component: TitleField,
+                        props: {}, 
+                        onChangeType: "event",
+                    },
+                    {
+                        required: true,
+                        key: "range",
+                        type: "date[]",
+                        defaultValue: [new Date(format(new Date(), "MM/dd/yyyy 00:00:00")), new Date(format(new Date(), "MM/dd/yyyy 23:59:59"))],
+                        component: DateRangeField,
+                        props: {
+                            limit: 31,
+                            oldestAllowed: 120,
+                        },
+                        onChangeType: "value",
+                    },
+                    // {
+                    //     required: true,
+                    //     key: "detailed",
+                    //     type: "boolean",
+                    //     defaultValue: false,
+                    //     component: DetailedCheck,
+                    //     props: {},
+                    //     onChangeType: "boolean",
+                    // }
+                ],
+            }
         ],
     },
     {
