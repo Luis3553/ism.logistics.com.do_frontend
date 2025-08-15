@@ -22,7 +22,7 @@ import XLSX from "xlsx-js-style";
 import { ImageModal } from "./components/ImageModal";
 import { ByteToKB } from "@utils/bytesToKb";
 import { compressImageFromUrl } from "./components/utils";
-import { CheckinsList} from "@utils/types"; 
+import { CheckinsList } from "@utils/types";
 
 export default function Checkins() {
     const [response, setResponse] = useState<{ count: number; list: CheckinsList[] }>();
@@ -367,6 +367,8 @@ export default function Checkins() {
 
     return (
         <>
+            <h1 className='mb-4 text-lg font-medium text-brand-dark-gray'>Check-ins a POI</h1>
+
             <form onSubmit={onSubmit} className='flex flex-row items-center gap-4 px-4 py-2 mb-4 bg-white rounded-lg shadow-lg'>
                 <div className='flex flex-col'>
                     <label htmlFor='from' className='text-sm font-medium text-slate-600'>
@@ -418,7 +420,9 @@ export default function Checkins() {
                                     }}>
                                     Crear puntos seleccionados{checkins.length > 0 ? ` (${checkins.length ?? 0})` : ""}
                                 </Button>
-                                <Button variant="subtle" className="ms-2" onClick={exportSelectedCheckinsToExcel}>Exportar a Excel{checkins.length > 0 ? ` (${checkins.length})` : ""}</Button>
+                                <Button variant='subtle' className='ms-2' onClick={exportSelectedCheckinsToExcel}>
+                                    Exportar a Excel{checkins.length > 0 ? ` (${checkins.length})` : ""}
+                                </Button>
                                 <div className='flex-grow text-right text-gray-500'>
                                     <strong>Total</strong>: {response.count}
                                 </div>
