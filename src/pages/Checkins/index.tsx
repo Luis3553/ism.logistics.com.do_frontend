@@ -1,432 +1,460 @@
 import axios from "axios";
-import { createContext, useRef, useState, useContext, useEffect } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { HiXMark } from "react-icons/hi2";
-import { DatePicker, Input, InputNumber } from "rsuite";
-import { Table, Column, Cell, HeaderCell } from "rsuite-table";
+import { useState, useEffect, useMemo, useRef } from "react";
+import { CustomProvider, DateRangePicker, toaster, Whisper } from "rsuite";
 import { format } from "date-fns";
-import { FaMagnifyingGlass, FaRegSquareCheck, FaSquareCheck } from "react-icons/fa6";
-import { Modal } from "@components/Modal";
+import { FaMagnifyingGlass } from "react-icons/fa6";
+import { ColDef, RowSelectionOptions, themeBalham } from "ag-grid-community";
+import { AgGridReact } from "ag-grid-react";
+import classNames from "classnames";
+import { LoadSpinner } from "@components/LoadSpinner";
+import { esES } from "rsuite/esm/locales";
+import { useEmployeesQuery } from "@framework/useGetEmployees";
+import { tooltip } from "@utils/ui";
+import ListOfTrackers from "@pages/Alert/components/select-trackers";
+import { Option } from "@pages/Configuration/components/ListOfConfigurations";
+import { Button } from "@components/Button";
+import { useTrackersQuery } from "@framework/getTrackers";
+import api from "@framework/index";
+import messageToaster from "@utils/toaster";
 import { Transition } from "@headlessui/react";
-
-export type POI = {
-    place: {
-        description: string;
-        fields: {
-            [key: string]: {
-                value: [];
-                type: "image";
-            };
-        };
-        files: [];
-        id: number | null;
-        label: string;
-        location: {
-            address: string;
-            lat: number;
-            lng: number;
-            radius: number;
-        };
-        tags: number[];
-    };
-};
-
-const example = [
-    {
-        id: 1,
-        date: "2023-10-01",
-        address: "123 Main St",
-        lat: 12.345678,
-        lng: 98.765432,
-        employee: "John Doe",
-        geofences: ["Geofence 1", "Geofence 2"],
-        place: "Example Place",
-        photo: "https://example.com/photo.jpg",
-        form: "some link",
-    },
-];
-
-type EditableContextType = {
-    editingId: number | null;
-    editingKey: string | null;
-    onEdit?: (id: number, dataKey: string) => void;
-    onEditFinished?: () => void;
-};
-
-type CheckinsList = {
-    id: number;
-    marker_time: string;
-    location: {
-        address: string;
-        lat: number;
-        lng: number;
-    };
-    files?: {
-        download_url: string;
-        id: number;
-        mime_type: string;
-        nane: string;
-        size: number;
-        storage_data: {
-            download_url_key: string;
-            relativepath: string;
-        };
-        storage_id: number;
-        type: "image";
-        view_url: string;
-    }[];
-    form_label: string;
-    form_id: number;
-    employee_id: number;
-    comment?: string;
-};
-
-const EditableContext = createContext<EditableContextType>({ editingId: null, editingKey: null });
-
-const ImageModal = ({ isOpen, onClose, imageUrl }: { isOpen: boolean; onClose: () => void; imageUrl: string }) => {
-    return (
-        <Modal className='h-min w-min max-w-[500px]' onClose={onClose} isOpen={isOpen}>
-            <div className='flex items-center justify-between mb-4'>
-                <h1 className='text-lg font-semibold'></h1>
-                <button
-                    className='flex items-center justify-center p-1 transition rounded-full outline-none focus-visible:bg-black/10 hover:bg-black/10 active:bg-black/20'
-                    onClick={onClose}>
-                    <HiXMark className='size-5' />
-                </button>
-            </div>
-            <div className='flex items-center justify-center w-full h-full min-h-[300px] min-w-[300px]'>
-                <img
-                    src={imageUrl}
-                    className='w-auto h-auto max-w-[90vw] max-h-[80vh] rounded-xl'
-                    style={{ objectFit: "contain", display: "block", margin: "auto" }}
-                    alt='Preview'
-                />
-            </div>
-        </Modal>
-    );
-};
+import { appearAnimationProps } from "@utils/animations";
+import XLSX from "xlsx-js-style";
+import { ImageModal } from "./components/ImageModal";
+import { ByteToKB } from "@utils/bytesToKb";
+import { compressImageFromUrl } from "./components/utils";
+import { CheckinsList} from "@utils/types"; 
 
 export default function Checkins() {
-    // const excludeEmpty = true;
-    // const excludeNameless = true;
-    // const excludeSimilar = true;
-    // const [selectedCheckins, setSelectedCheckins] = useState<any[]>([]);
-    /* 
-        1. make checking report 
-        2. retrieve checkins
-        3. Filter and count empty and whole checkins by  
-        4. Apply extra filters like excludeEmpty, excludeNameless
-        5. Display checkins in a list or map view (rsuite's editable content table)
-        6. check the checkins to be converted to POI taking into account the edited data
-        7. Convert checkins to POI
-        8. Download the excel file with POIs
-    */
-
-    /* would be nice to
-     * Compress the images
-     * Automatically upload them
-     */
-
-    /* may use a "clean names" button to make this:
-     * Remove double spaces
-     * Remove leading and trailing spaces
-     * Remove "- " and " -"
-     * Remove "( " and " )"
-     * Remove trailing commas, dots or spaces
-     * Remove doubled special characted
-     */
     const [response, setResponse] = useState<{ count: number; list: CheckinsList[] }>();
-    const [data, setData] = useState<any[]>(example);
-    const [editingId, setEditingId] = useState<number | null>(null);
-    const [editingKey, setEditingKey] = useState<string | null>(null);
     // @ts-ignore
     const [isFetching, setIsFetching] = useState(false);
-    const [openPreview, setOpenPreview] = useState(false);
-    const [selectedCheckins, setSelectedCheckins] = useState<CheckinsList[]>([]);
     const [imageUrl, setImageUrl] = useState<string>("");
+    const [isOpen, setIsOpen] = useState(false);
+
+    const { data: employeesData } = useEmployeesQuery();
+    const { data: trackersData, isLoading: isLoadingTrackers } = useTrackersQuery();
+    const [trackersQuery, setTrackersQuery] = useState<number[]>([]);
+
+    const [trackers, setTrackers] = useState<Option[]>([]);
+
+    const agGridRef = useRef<AgGridReact>(null);
+
+    const rowSelection: RowSelectionOptions = useMemo(() => {
+        return {
+            mode: "multiRow",
+        };
+    }, []);
+
+    const [dateRange, setDateRange] = useState<[Date, Date]>([new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(23, 59, 59, 999))]);
+
+    const [checkins, setCheckins] = useState<CheckinsList[]>([]);
+
     useEffect(() => {
-        if (response) {
-            const formattedData = response.list.map((checkin) => ({
-                id: checkin.id,
-                date: new Date(checkin.marker_time).toLocaleString(),
-                address: checkin.location.address,
-                employee: checkin.employee_id, // Assuming employee_id is a string or number
-                geofences: ["-"], // Placeholder for geofences, if needed
-                place: checkin.comment ?? "-", // Assuming form_label is the place name
-                photo: checkin.files?.[0]?.view_url, // Placeholder for photo URL
-                form: checkin.form_id, // Assuming form_id is a string or number
+        if (trackersData) {
+            const formattedTrackers = trackersData.list.map((tracker) => ({
+                value: tracker.id,
+                label: tracker.label,
             }));
-            setData(formattedData);
+            setTrackers(formattedTrackers);
+            setTrackersQuery(trackersData.list.map((i) => Number(i.id)));
         }
-    }, [response]);
+    }, [trackersData]);
 
-    const handleChange = (id: number, key: string, value: any) => {
-        const nextData = [...data];
-        const item = nextData.find((item) => item.id === id);
-        if (item) {
-            item[key] = value;
-        }
-        setData(nextData);
-    };
+    const [loadingImage, setLoadingImage] = useState(false);
 
-    const onEdit = (id: number, dataKey: string) => {
-        setEditingId(id);
-        setEditingKey(dataKey);
-    };
-
-    const onEditFinished = () => {
-        setEditingId(null);
-        setEditingKey(null);
-    };
-
-    const methods = useForm();
-    const { handleSubmit, getValues } = methods;
-    return (
-        <div className='overflow-hidden bg-white shadow rounded-xl'>
-            <FormProvider {...methods}>
-                <form
-                    onSubmit={handleSubmit(() => {
-                        setIsFetching(true);
-                        const { from, to } = getValues();
-                        console.log("From:", from, typeof from, "To:", to, typeof to);
-                        const payload = {
-                            from: format(from, "yyyy-MM-dd HH:mm:ss"),
-                            to: format(to, "yyyy-MM-dd HH:mm:ss"),
-                            trackers: [10231045],
-                            hash: "3d152bad53ff3e5ae928af1475fa2d4c",
-                        };
-                        axios
-                            .post("https://app.progps.com.do/api-v2/checkin/list", payload)
-                            .then((res) => {
-                                // console.log(res.data as { checkins: CheckinsList[]; count: number });
-                                setResponse(res.data);
-                            })
-                            .finally(() => {
-                                setIsFetching(false);
-                            });
-                        console.log("Submitted payload:", payload);
-                    })}
-                    className='flex flex-row items-center gap-4 px-4 py-2 border-b bg-slate-50'>
-                    <div className='flex flex-col'>
-                        <label htmlFor='from' className='text-sm font-medium text-slate-600'>
-                            Desde
-                        </label>
-                        <DatePicker
-                            id='from'
-                            defaultValue={new Date()}
-                            placeholder='dd/mm/aaaa'
-                            format='dd/MM/yyyy hh:mm:ss aa'
-                            value={methods.watch("from")}
-                            onChange={(val) => methods.setValue("from", val)}
-                        />
-                    </div>
-                    <div className='flex flex-col'>
-                        <label htmlFor='to' className='text-sm font-medium text-slate-600'>
-                            Hasta
-                        </label>
-                        <DatePicker
-                            defaultValue={new Date()}
-                            id='to'
-                            placeholder='dd/mm/aaaa'
-                            format='dd/MM/yyyy hh:mm:ss aa'
-                            value={methods.watch("to")}
-                            onChange={(val) => methods.setValue("to", val)}
-                        />
-                    </div>
+    const columnDefs: ColDef[] = [
+        { field: "marker_time", headerName: "Fecha", flex: 1 },
+        {
+            headerName: "Dirección",
+            cellRenderer: (params: any) => {
+                return (
+                    <a
+                        className='underline transition-all text-brand-blue hover:text-brand-dark-blue decoration-transparent hover:decoration-brand-blue'
+                        target='_blank'
+                        href={`https://app.progps.com.do/pro/applications/map/?lat=${params.data.location.lat}&lng=${params.data.location.lng}`}>
+                        {params.data.location.address}
+                    </a>
+                );
+            },
+            flex: 1,
+        },
+        {
+            field: "employee_id",
+            headerName: "Empleado",
+            cellRenderer: (params: any) => {
+                const employee = employeesData?.find((e) => e.id == params.data.employee_id);
+                return employee ? `${employee.first_name} ${employee.last_name}` : "-";
+            },
+            flex: 1,
+        },
+        {
+            field: "comment",
+            headerName: "Comentario",
+            editable: true,
+            cellRenderer: (params: any) => {
+                return params.data.comment ?? "-";
+            },
+            flex: 1,
+        },
+        {
+            headerName: "Foto",
+            cellRenderer: (params: any) => {
+                return params.data.files?.[0]?.size ? (
                     <button
-                        type='submit'
-                        className='flex items-center p-3 transition-all rounded-full outline-none text-brand-blue hover:text-white active:text-white focus-visible:bg-brand-blue focus-visible:text-white active:bg-brand-dark-blue gap-x-4 bg-brand-light-blue hover:bg-brand-blue'>
-                        <FaMagnifyingGlass />
-                    </button>
-                </form>
-            </FormProvider>
-            {response ? (
-                <EditableContext.Provider value={{ editingId, editingKey, onEdit, onEditFinished }}>
-                    <Table
-                        height={420}
-                        data={data}
-                        rowKey='id'
-                        affixHeader
-                        cellBordered
-                        onRowClick={(rowData: any, e: React.MouseEvent) => {
-                            if (e.target instanceof HTMLInputElement) return; // Ignore clicks on checkboxes
-                            const isSelected = selectedCheckins.some((checkin) => checkin.id === rowData.id);
-                            if (isSelected) {
-                                setSelectedCheckins(selectedCheckins.filter((checkin) => checkin.id !== rowData.id));
+                        onClick={() => {
+                            if (params.data.files?.[0]?.view_url) {
+                                setIsOpen(true);
+                                if (params.data.files[0].size > 900 * 1024) {
+                                    setLoadingImage(true);
+                                    compressImageFromUrl(params.data.files[0].view_url, 900).then((blob) => {
+                                        const url = URL.createObjectURL(blob);
+                                        setImageUrl(url);
+                                        setLoadingImage(false);
+                                    });
+                                } else {
+                                    setImageUrl(params.data.files[0].view_url);
+                                }
                             } else {
-                                setSelectedCheckins([...selectedCheckins, rowData]);
+                                alert("No hay foto disponible");
                             }
                         }}
-                        virtualized>
-                        <Column flexGrow={60} align='center' fixed>
-                            {/* @ts-ignore */}
-                            <HeaderCell className='font-bold'>
-                                {/* @ts-ignore */}
-                                {(rowData: any) => (
-                                    <></>
-                                    //     <input
-                                    //         type='checkbox'
-                                    // // @ts-ignore
-                                    //         checked={selectedCheckins.some((checkin) => checkin.id === rowData.id)}
-                                    //         onChange={() => {
-                                    //             const isSelected = selectedCheckins.some((checkin) => checkin.id === rowData.id);
-                                    //             if (isSelected) {
-                                    //                 setSelectedCheckins(selectedCheckins.filter((checkin) => checkin.id !== rowData.id));
-                                    //             } else {
-                                    //                 setSelectedCheckins([...selectedCheckins, rowData]);
-                                    //             }
-                                    //         }}
-                                    //         className='cursor-pointer accent-brand-blue'
-                                    //     />
-                                )}
-                            </HeaderCell>
-                            <Cell fullText>
-                                {(rowData: any, _rowIndex?: number) => (
-                                    <div>
-                                        <Transition show={selectedCheckins.some((checkin) => checkin.id === rowData.id)}>
-                                            <FaSquareCheck className='text-brand-blue' />
-                                        </Transition>
-                                        <Transition show={!selectedCheckins.some((checkin) => checkin.id === rowData.id)}>
-                                            <FaRegSquareCheck />
-                                        </Transition>
-                                    </div>
-                                )}
-                            </Cell>
-                        </Column>
-                        <Column flexGrow={140}>
-                            <HeaderCell className='font-bold'>Fecha</HeaderCell>
-                            <Cell fullText>{(rowData: any, _rowIndex?: number) => <div>{rowData.date}</div>}</Cell>
-                        </Column>
-                        <Column flexGrow={200}>
-                            <HeaderCell className='font-bold'>Dirección</HeaderCell>
-                            <Cell fullText>{(rowData: any, _rowIndex?: number) => <div>{rowData.address}</div>}</Cell>
-                        </Column>
-                        <Column flexGrow={160}>
-                            <HeaderCell className='font-bold'>Empleado</HeaderCell>
-                            <Cell fullText>{(rowData: any, _rowIndex?: number) => <div>{rowData.employee}</div>}</Cell>
-                        </Column>
-                        <Column flexGrow={180}>
-                            <HeaderCell className='font-bold'>Lugar</HeaderCell>
-                            <Cell fullText>{(rowData: any, _rowIndex?: number) => <div>{rowData.geofences}</div>}</Cell>
-                        </Column>
-                        <Column flexGrow={160}>
-                            <HeaderCell className='font-bold'>Comentario</HeaderCell>
-                            <Cell fullText>
-                                {(rowData: any, _rowIndex?: number) => <EditableCell rowData={rowData} dataKey='place' dataType='string' onChange={handleChange} />}
-                            </Cell>
-                        </Column>
-                        <Column flexGrow={200}>
-                            <HeaderCell className='font-bold'>Foto</HeaderCell>
-                            <Cell fullText>
-                                {(rowData: any, _rowIndex?: number) =>
-                                    rowData.photo ? (
-                                        <button
-                                            className='underline transition-all text-brand-blue decoration-transparent hover:decoration-brand-blue'
-                                            onClick={() => {
-                                                setImageUrl(rowData.photo);
-                                                setOpenPreview(true);
-                                            }}>
-                                            Ver foto
-                                        </button>
-                                    ) : (
-                                        " - "
-                                    )
-                                }
-                            </Cell>
-                        </Column>
-                        <Column flexGrow={200}>
-                            <HeaderCell className='font-bold'>Formulario</HeaderCell>
-                            <Cell fullText>{(rowData: any, _rowIndex?: number) => <div>{rowData.form}</div>}</Cell>
-                        </Column>
-                    </Table>
-                    <ImageModal isOpen={openPreview} onClose={() => setOpenPreview(false)} imageUrl={imageUrl} />
-                </EditableContext.Provider>
-            ) : (
-                <div>
-                    <p className='p-4 text-center text-gray-500'>No hay check-ins disponibles. Realice una búsqueda para ver los resultados.</p>
-                </div>
-            )}
-        </div>
-    );
-}
+                        className='underline transition-all text-brand-blue hover:text-brand-dark-blue decoration-transparent hover:decoration-brand-blue'>
+                        {`Ver foto (${ByteToKB(params.data.files?.[0]?.size)})`}
+                    </button>
+                ) : (
+                    "-"
+                );
+            },
+            flex: 1,
+        },
+        {
+            headerName: "Formulario",
+            cellRenderer: (params: any) => {
+                return params.data.form_label ? (
+                    <Whisper speaker={tooltip(`Ver formulario: ${params.data.form_label}`)} placement='top'>
+                        <a
+                            target='_blank'
+                            href={`https://app.progps.com.do/#/form/view/${params.data.form_id}`}
+                            className='underline transition-all text-brand-blue hover:text-brand-dark-blue decoration-transparent hover:decoration-brand-blue'>
+                            {params.data.form_label}
+                        </a>
+                    </Whisper>
+                ) : (
+                    "-"
+                );
+            },
+            flex: 1,
+        },
+    ];
 
-const fieldMap = {
-    string: Input,
-    number: InputNumber,
-};
-
-// @ts-ignore
-function toValueString(value: any, dataType: string) {
-    if (Array.isArray(value)) return value.join(", ");
-    return value;
-}
-
-function focusRef(ref: React.RefObject<any>) {
-    setTimeout(() => {
-        if (ref.current && typeof ref.current.focus === "function") {
-            ref.current.focus();
+    function exportSelectedCheckinsToExcel() {
+        if (checkins.length === 0) {
+            toaster.push(messageToaster("No hay check-ins seleccionados", "warning"), {
+                duration: 2000,
+                placement: "topEnd",
+            });
+            return;
         }
-    }, 0);
-}
 
-type EditableCellProps = {
-    rowData: any;
-    dataType: string;
-    dataKey: string;
-    onChange: (id: number, key: string, value: any) => void;
-    [key: string]: any;
-};
+        const linkStyle = {
+            font: { color: { rgb: "0563C1" }, underline: true },
+        };
 
-// @ts-ignore
-const EditableCell = ({ rowData, dataType, dataKey, onChange, ...props }: EditableCellProps) => {
-    const { editingId, editingKey, onEdit, onEditFinished } = useContext(EditableContext);
-    const editing = rowData.id === editingId && dataKey === editingKey;
-    // @ts-ignore
-    const Field = fieldMap[dataType] || Input;
-    const value = rowData[dataKey];
-    const text = toValueString(value, dataType);
-    const inputRef = useRef<any>(null);
-    // const cellRef = useRef(null); // Not needed with rsuite-table
+        const borderStyle = {
+            top: { style: "thin", color: { rgb: "000000" } },
+            bottom: { style: "thin", color: { rgb: "000000" } },
+            left: { style: "thin", color: { rgb: "000000" } },
+            right: { style: "thin", color: { rgb: "000000" } },
+        };
 
-    const handleEdit = () => {
-        onEdit?.(rowData.id, dataKey);
-        focusRef(inputRef);
-    };
+        const excelData = checkins.map((checkin) => {
+            const employee = employeesData?.find((e) => e.id == checkin.employee_id);
+            return {
+                Fecha: checkin.marker_time,
+                Dirección: {
+                    v: checkin.location.address,
+                    l: {
+                        Target: `https://app.progps.com.do/pro/applications/map/?lat=${checkin.location.lat}&lng=${checkin.location.lng}`,
+                        Tooltip: "Ver ubicación",
+                    },
+                    s: { ...linkStyle },
+                },
+                Latitud: checkin.location.lat,
+                Longitud: checkin.location.lng,
+                Empleado: employee ? `${employee.first_name} ${employee.last_name}` : "-",
+                Comentario: checkin.comment ?? "-",
+                Foto: checkin.files?.[0]?.view_url ? { v: "Ver foto", l: { Target: checkin.files[0].view_url, Tooltip: "Abrir foto" }, s: { ...linkStyle } } : "-",
+                Formulario: checkin.form_label
+                    ? {
+                          v: checkin.form_label,
+                          l: { Target: `https://app.progps.com.do/#/form/view/${checkin.form_id}`, Tooltip: "Ver formulario" },
+                          s: { ...linkStyle },
+                      }
+                    : "-",
+            };
+        });
 
-    const handleFinished = () => {
-        onEditFinished?.();
-        // focusRef(cellRef); // Not needed
-    };
+        // Create worksheet
+        const ws = XLSX.utils.json_to_sheet(excelData);
+
+        // Style headers
+        const headerStyle = {
+            font: { bold: true, color: { rgb: "000000" } },
+            fill: { fgColor: { rgb: "ebebeb" } },
+            alignment: { horizontal: "center", vertical: "center" },
+        };
+
+        // @ts-ignore
+        const range = XLSX.utils.decode_range(ws["!ref"]);
+        for (let C = range.s.c; C <= range.e.c; ++C) {
+            const cellAddress = XLSX.utils.encode_cell({ r: 0, c: C });
+            if (!ws[cellAddress]) continue;
+            ws[cellAddress].s = { ...headerStyle };
+        }
+
+        for (let R = range.s.r; R <= range.e.r; ++R) {
+            for (let C = range.s.c; C <= range.e.c; ++C) {
+                const cellAddress = XLSX.utils.encode_cell({ r: R, c: C });
+                if (!ws[cellAddress]) continue;
+                ws[cellAddress].s = {
+                    ...(ws[cellAddress].s || {}),
+                    border: borderStyle,
+                };
+            }
+        }
+
+        // Optional: set column widths
+        ws["!cols"] = [
+            { wch: 20 }, // Fecha
+            { wch: 40 }, // Dirección
+            { wch: 12 }, // Latitud
+            { wch: 12 }, // Longitud
+            { wch: 25 }, // Empleado
+            { wch: 30 }, // Comentario
+            { wch: 20 }, // Foto
+            { wch: 35 }, // Formulario
+        ];
+
+        // Create workbook
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Hoja 1");
+
+        // Save file
+        XLSX.writeFile(wb, `POI - ${format(dateRange[0], "dd/MM/yyyy")}-${format(dateRange[1], "dd/MM/yyyy")}.xlsx`);
+    }
+
+    function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+        e.preventDefault();
+        setIsFetching(true);
+        const [from, to] = dateRange;
+
+        const payload = {
+            from: format(from, "yyyy-MM-dd HH:mm:ss"),
+            to: format(to, "yyyy-MM-dd HH:mm:ss"),
+            trackers: trackersQuery,
+            hash: "3d152bad53ff3e5ae928af1475fa2d4c",
+        };
+
+        axios
+            .post("https://app.progps.com.do/api-v2/checkin/list", payload)
+            .then((res) => {
+                setResponse(res.data);
+            })
+            .finally(() => {
+                setIsFetching(false);
+            });
+    }
+
+    async function uploadImage(place_id: number, file: File) {
+        const formData = new FormData();
+        formData.append("place_id", place_id.toString());
+        formData.append("file", file);
+
+        if (file) {
+            await api.post("/place/avatar/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+        }
+    }
+
+    async function createPOI(checkin: CheckinsList): Promise<number> {
+        const payload = {
+            place: {
+                description: "",
+                fields: {},
+                files: [],
+                id: null,
+                label: checkin.comment,
+                location: {
+                    address: checkin.location.address,
+                    lat: checkin.location.lat,
+                    lng: checkin.location.lng,
+                    radius: 50,
+                },
+                tags: [],
+            },
+        };
+
+        const res = await api.post("/place/create", payload);
+        return res.data.id;
+    }
+
+    async function createPOIs() {
+        checkins.forEach((checkin) => {
+            createPOI(checkin)
+                .then(async (poi) => {
+                    if (checkin.files && checkin.files.length > 0) {
+                        const file = checkin.files[0];
+                        if (file.size > 900 * 1024) {
+                            await compressImageFromUrl(file.view_url, 900).then((blob) => {
+                                const compressedFile = new File([blob], file.name, { type: file.mime_type });
+                                uploadImage(poi, compressedFile)
+                                    .then(() => {
+                                        toaster.push(messageToaster(`POI "${checkin.comment}" creado correctamente`, "success"), {
+                                            duration: 2000,
+                                            placement: "topEnd",
+                                        });
+                                    })
+                                    .catch(() => {
+                                        toaster.push(messageToaster(`Error subiendo la imagen del POI: "${checkin.comment}"`, "error"), {
+                                            duration: 2000,
+                                            placement: "topEnd",
+                                        });
+                                    });
+                            });
+                        } else {
+                            // Fetch the file data and create a File instance
+                            await fetch(file.download_url)
+                                .then(async (response) => {
+                                    const blob = await response.blob();
+                                    const fileObj = new File([blob], file.name, { type: file.mime_type });
+                                    await uploadImage(poi, fileObj)
+                                        .then(() => {
+                                            toaster.push(messageToaster(`POI "${checkin.comment}" creado correctamente`, "success"), {
+                                                duration: 2000,
+                                                placement: "topEnd",
+                                            });
+                                        })
+                                        .catch(() => {
+                                            toaster.push(messageToaster(`Error subiendo la imagen del POI: "${checkin.comment}"`, "error"), {
+                                                duration: 2000,
+                                                placement: "topEnd",
+                                            });
+                                        });
+                                })
+                                .catch(() => {
+                                    toaster.push(messageToaster(`Error subiendo la imagen del POI: "${checkin.comment}"`, "error"), {
+                                        duration: 2000,
+                                        placement: "topEnd",
+                                    });
+                                });
+                        }
+                    } else {
+                        toaster.push(messageToaster(`POI "${checkin.comment}" creado correctamente`, "success"), {
+                            duration: 2000,
+                            placement: "topEnd",
+                        });
+                    }
+                })
+                .catch(() => {
+                    toaster.push(messageToaster(`Error creando el POI: "${checkin.comment}"`, "error"), {
+                        duration: 2000,
+                        placement: "topEnd",
+                    });
+                });
+        });
+    }
 
     return (
-        <div
-            tabIndex={0}
-            className={editing ? "table-cell-editing" : "table-cell"}
-            onDoubleClick={handleEdit}
-            onKeyDown={(e) => {
-                if (e.key === "Enter") {
-                    handleEdit();
-                }
-            }}
-            style={{ height: "100%", display: "flex", alignItems: "center" }}>
-            {editing ? (
-                <Field
-                    ref={inputRef}
-                    defaultValue={value}
-                    onBlur={handleFinished}
-                    onKeyPress={(e: React.KeyboardEvent) => {
-                        if (e.key === "Enter") {
-                            handleFinished();
-                        }
-                    }}
-                    onChange={(val: any) => {
-                        onChange?.(rowData.id, dataKey, val);
-                    }}
-                    style={{ width: "100%" }}
-                />
+        <>
+            <form onSubmit={onSubmit} className='flex flex-row items-center gap-4 px-4 py-2 mb-4 bg-white rounded-lg shadow-lg'>
+                <div className='flex flex-col'>
+                    <label htmlFor='from' className='text-sm font-medium text-slate-600'>
+                        Fecha
+                    </label>
+                    <CustomProvider locale={esES}>
+                        <DateRangePicker
+                            id='from'
+                            placeholder='dd/mm/aaaa - dd/mm/aaaa'
+                            format='dd/MM/yyyy'
+                            value={dateRange}
+                            cleanable={false}
+                            onChange={(val) => setDateRange(val ?? [new Date(new Date().setHours(0, 0, 0, 0)), new Date(new Date().setHours(23, 59, 59, 999))])}
+                        />
+                    </CustomProvider>
+                </div>
+                <div className='w-80'>
+                    <span className='text-sm font-medium text-slate-600'>Objetos</span>
+                    <ListOfTrackers
+                        data={trackers}
+                        isLoading={isLoadingTrackers}
+                        // @ts-ignore
+                        setTrackersQuery={(e: (string | number)[]) => {
+                            if (e[0] === "all") {
+                                setTrackersQuery(trackers.map((i) => Number(i.value)));
+                            } else {
+                                setTrackersQuery((e as string[]).map((i) => parseInt(i)));
+                            }
+                        }}
+                    />
+                </div>
+                <Button type='submit' variant='subtle' rounded='full' className='flex items-center mt-5 gap-x-4' disabled={isFetching}>
+                    <FaMagnifyingGlass />
+                    Buscar
+                </Button>
+            </form>
+            {response ? (
+                <Transition show={response != undefined} {...appearAnimationProps}>
+                    <>
+                        <div className={classNames("max-h-[calc(90vh-100px)] h-full min-h-[400px] transition-all")}>
+                            <div className='flex flex-row items-center p-4 mb-4 bg-white rounded-lg shadow-lg'>
+                                <Button
+                                    onClick={() => {
+                                        createPOIs().finally(() => {
+                                            setCheckins([]); // Clear selection after creating POIs
+                                            // Optionally clear selection in grid:
+                                            agGridRef.current?.api.deselectAll();
+                                        });
+                                    }}>
+                                    Crear puntos seleccionados{checkins.length > 0 ? ` (${checkins.length ?? 0})` : ""}
+                                </Button>
+                                <Button variant="subtle" className="ms-2" onClick={exportSelectedCheckinsToExcel}>Exportar a Excel{checkins.length > 0 ? ` (${checkins.length})` : ""}</Button>
+                                <div className='flex-grow text-right text-gray-500'>
+                                    <strong>Total</strong>: {response.count}
+                                </div>
+                            </div>
+                            <AgGridReact
+                                noRowsOverlayComponentParams={{ noRowsMessageFunc: () => "No hay datos disponibles" }}
+                                overlayNoRowsTemplate='No hay check-ins disponibles'
+                                columnDefs={columnDefs}
+                                loading={isFetching}
+                                loadingOverlayComponent={() => <LoadSpinner />}
+                                onRowSelected={(params) => {
+                                    setCheckins(params.api.getSelectedRows());
+                                }}
+                                rowSelection={rowSelection}
+                                rowData={response.list}
+                                theme={themeBalham.withParams({ accentColor: "#3b82f6" })}
+                                className='shadow-lg'
+                                ref={agGridRef}
+                            />
+                        </div>
+                        <ImageModal
+                            isOpen={isOpen}
+                            imageUrl={imageUrl}
+                            onClose={() => {
+                                setIsOpen(false);
+                                setImageUrl("");
+                            }}
+                            loading={loadingImage}
+                        />
+                    </>
+                </Transition>
             ) : (
-                text
+                <div className='p-4 text-center h-[calc(90vh-100px)] min-h-[400px] bg-white rounded-lg shadow-lg flex items-center justify-center'>
+                    No hay check-ins disponibles. Realice una búsqueda para ver los resultados.
+                </div>
             )}
-        </div>
+        </>
     );
-};
+}

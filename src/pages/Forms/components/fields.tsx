@@ -19,7 +19,7 @@ import {
     HiStar,
     HiXMark,
 } from "react-icons/hi2";
-import { DatePicker, Whisper } from "rsuite";
+import { DatePicker, toaster, Whisper } from "rsuite";
 import { ReactSketchCanvas, ReactSketchCanvasRef } from "react-sketch-canvas";
 import { PiEraser } from "react-icons/pi";
 import { RadioGroup, Transition } from "@headlessui/react";
@@ -30,6 +30,8 @@ import { appearAnimationProps, expandAnimationProps } from "@utils/animations";
 import { Controller, useFormContext } from "react-hook-form";
 import { useReportStore } from "@contexts/report.context";
 import { tooltip } from "@utils/ui";
+import { ByteToKB } from "@utils/bytesToKb";
+import messageToaster from "@utils/toaster";
 
 export function TextInput({ field }: { field: TextField }) {
     const { showDescriptions } = useReportStore();
@@ -73,7 +75,7 @@ export function TextInput({ field }: { field: TextField }) {
                             minLength={field.min_length}
                             maxLength={field.max_length}
                             className={classNames(
-                                "w-full p-3 pe-12 transition-all border rounded-md outline-none",
+                                "w-full p-3 pe-12 caret-brand-blue transition-all border rounded-md outline-none",
                                 fieldState.invalid ? "border-red-500" : "border-gray-300",
                                 "focus-visible:border-brand-blue hover:border-brand-light-blue",
                             )}
@@ -106,14 +108,15 @@ export function CheckboxGroupInput({ field }: { field: CheckboxGroupField }) {
         <Controller
             control={control}
             name={field.id}
-            defaultValue={[]}
+            defaultValue={Array(options.length).fill(false)}
             rules={{
                 required: field.required ? "Este campo es obligatorio" : false,
-                validate: (value: number[]) => {
-                    if (field.min_checked && value.length < field.min_checked) {
+                validate: (value: boolean[]) => {
+                    const checkedCount = value.filter(Boolean).length;
+                    if (field.min_checked && checkedCount < field.min_checked) {
                         return `Debe seleccionar al menos ${field.min_checked} opciones`;
                     }
-                    if (field.max_checked && value.length > field.max_checked) {
+                    if (field.max_checked && checkedCount > field.max_checked) {
                         return `No puede seleccionar más de ${field.max_checked} opciones`;
                     }
                     return true;
@@ -127,26 +130,22 @@ export function CheckboxGroupInput({ field }: { field: CheckboxGroupField }) {
                     {field.description && showDescriptions && <p className='opacity-50'>{field.description}</p>}
                     <div className='flex flex-wrap gap-4'>
                         {options.map((option, idx) => {
-                            const isSelected = fieldController.value.includes(idx);
+                            const isChecked = fieldController.value[idx] === true;
                             return (
                                 <label
                                     onClick={() => {
-                                        let newValue;
-                                        if (isSelected) {
-                                            newValue = fieldController.value.filter((v: number) => v !== idx);
-                                        } else {
-                                            newValue = [...fieldController.value, idx];
-                                        }
+                                        const newValue = [...fieldController.value];
+                                        newValue[idx] = !newValue[idx];
                                         fieldController.onChange(newValue);
                                         setTimeout(() => trigger(field.id), 0);
                                     }}
                                     key={idx}
                                     className='flex items-center cursor-pointer'>
                                     <div className='relative block w-5 h-5 overflow-visible'>
-                                        <Transition show={isSelected} {...appearAnimationProps}>
+                                        <Transition show={isChecked} {...appearAnimationProps}>
                                             <FaSquareCheck className='absolute inline top-[1px] text-brand-blue' />
                                         </Transition>
-                                        <Transition show={!isSelected} {...appearAnimationProps}>
+                                        <Transition show={!isChecked} {...appearAnimationProps}>
                                             <FaRegSquare className='absolute inline top-[1px] text-gray-300' />
                                         </Transition>
                                     </div>
@@ -190,7 +189,7 @@ export function RadioGroupInput({ field }: { field: RadioGroupField }) {
                     <RadioGroup value={fieldController.value} onChange={fieldController.onChange} className='space-y-2'>
                         <div className='flex flex-wrap gap-8'>
                             {options.map((option) => (
-                                <RadioGroup.Option key={option.value} value={option.value} className='flex items-center outline-none'>
+                                <RadioGroup.Option key={option.value} value={option.value} className='flex items-center outline-none cursor-pointer'>
                                     {({ checked }) => (
                                         <>
                                             <span className='relative w-5 h-5 overflow-visible'>
@@ -605,25 +604,32 @@ export function PhotoInput({ field }: { field: PhotoField }) {
                                     onClick={(e) => {
                                         e.stopPropagation();
                                         if (filesState[0].length < field.max_files || fieldController == undefined) {
-                                            navigator.clipboard.read().then((clipboardItems) => {
-                                                clipboardItems.forEach((clipboardItem) => {
-                                                    const items = clipboardItem.types.filter((type) => type.startsWith("image/"));
-                                                    if (items.length > 0) {
-                                                        items.forEach((itemType) => {
-                                                            clipboardItem.getType(itemType).then(async (blob) => {
-                                                                const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-                                                                const file = new File([blob], `clipboard-image-${uniqueId}.${itemType.split("/")[1]}`, { type: itemType });
-                                                                readImages(
-                                                                    { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>,
-                                                                    60 * 1024 * 1024,
-                                                                    imageTrayRef,
-                                                                    filesState,
-                                                                );
+                                            if (navigator.clipboard) {
+                                                navigator.clipboard.read().then((clipboardItems) => {
+                                                    clipboardItems.forEach((clipboardItem) => {
+                                                        const items = clipboardItem.types.filter((type) => type.startsWith("image/"));
+                                                        if (items.length > 0) {
+                                                            items.forEach((itemType) => {
+                                                                clipboardItem.getType(itemType).then(async (blob) => {
+                                                                    const uniqueId = `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+                                                                    const file = new File([blob], `clipboard-image-${uniqueId}.${itemType.split("/")[1]}`, { type: itemType });
+                                                                    readImages(
+                                                                        { target: { files: [file] } } as unknown as React.ChangeEvent<HTMLInputElement>,
+                                                                        60 * 1024 * 1024,
+                                                                        imageTrayRef,
+                                                                        filesState,
+                                                                    );
+                                                                });
                                                             });
-                                                        });
-                                                    }
+                                                        }
+                                                    });
                                                 });
-                                            });
+                                            } else {
+                                                toaster.push(messageToaster("El portapapeles no está disponible en este navegador.", "warning"), {
+                                                    duration: 2000,
+                                                    placement: "topEnd",
+                                                });
+                                            }
                                         }
                                     }}
                                     className='p-1 text-gray-500 transition-all rounded outline-none me-2 ms-auto active:bg-slate-300 hover:bg-slate-300 focus-visible:bg-slate-300'>
@@ -650,7 +656,7 @@ export function PhotoInput({ field }: { field: PhotoField }) {
     );
 }
 
-export function FileInput({ field }: { field: FileField }) {
+export function FileInput({ field, showFiles = true }: { field: FileField; showFiles?: boolean }) {
     const { showDescriptions, expandFilesAutomatically } = useReportStore();
     const { control } = useFormContext();
     const inputRef = useRef<HTMLInputElement>(null);
@@ -737,7 +743,7 @@ export function FileInput({ field }: { field: FileField }) {
                             <input
                                 type='file'
                                 ref={inputRef}
-                                multiple
+                                multiple={field.max_files > 1}
                                 onChange={(e) => {
                                     if (fieldController.value.length <= field.max_files || fieldController == undefined) {
                                         // @ts-ignore
@@ -760,8 +766,12 @@ export function FileInput({ field }: { field: FileField }) {
                             const errorMsg = validateFiles();
                             return errorMsg !== true ? <small className='block text-red-500'>{errorMsg}</small> : null;
                         })()}
-                        <div className='block mt-2 mb-1 text-sm font-medium text-gray-700'>Archivos:</div>
-                        <FilesTray imageTrayRef={fileTrayRef} filesState={filesState} expandAutomatically={expandFilesAutomatically} />
+                        {showFiles && (
+                            <>
+                                <div className='block mt-2 mb-1 text-sm font-medium text-gray-700'>Archivos:</div>
+                                <FilesTray imageTrayRef={fileTrayRef} filesState={filesState} expandAutomatically={expandFilesAutomatically} />
+                            </>
+                        )}
                         <div className='flex items-start justify-between'>
                             <div className='flex flex-col'>
                                 <small className='opacity-50'>
@@ -773,21 +783,17 @@ export function FileInput({ field }: { field: FileField }) {
                                     {field.max_files}
                                 </small>
                             </div>
-                            <small className='opacity-50'>
-                                Anexos: <span className='font-bold text-brand-blue'>{filesState[0].length ?? 0}</span>/{field.max_files}
-                            </small>
+                            {showFiles && (
+                                <small className='opacity-50'>
+                                    Anexos: <span className='font-bold text-brand-blue'>{filesState[0].length ?? 0}</span>/{field.max_files}
+                                </small>
+                            )}
                         </div>
                     </>
                 );
             }}
         />
     );
-}
-
-function ByteToKB(bytes: number) {
-    if (bytes < 1024) return `${bytes} B`;
-    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
-    return `${(bytes / (1024 * 1024)).toFixed(2)} MB`;
 }
 
 export function SignatureInput({ field }: { field: SignatureField }) {
@@ -869,13 +875,27 @@ export function SignatureInput({ field }: { field: SignatureField }) {
                             onChange={setDraw}>
                             <RadioGroup.Option
                                 value={"yes"}
-                                className={({ checked }) => classNames("transition-all outline-none", checked ? "bg-brand-blue hover:bg-brand-blue/80 focus-visible:bg-brand-blue/80 text-white" : "hover:bg-slate-200 focus-visible:bg-slate-200")}>
+                                className={({ checked }) =>
+                                    classNames(
+                                        "transition-all outline-none",
+                                        checked
+                                            ? "bg-brand-blue hover:bg-brand-blue/80 focus-visible:bg-brand-blue/80 text-white"
+                                            : "hover:bg-slate-200 focus-visible:bg-slate-200",
+                                    )
+                                }>
                                 <HiOutlinePencilSquare />
                                 Dibujar firma
                             </RadioGroup.Option>
                             <RadioGroup.Option
                                 value={"no"}
-                                className={({ checked }) => classNames("transition-all outline-none", checked ? "bg-brand-blue hover:bg-brand-blue/80 focus-visible:bg-brand-blue/80 text-white" : "hover:bg-slate-200 focus-visible:bg-slate-200")}>
+                                className={({ checked }) =>
+                                    classNames(
+                                        "transition-all outline-none",
+                                        checked
+                                            ? "bg-brand-blue hover:bg-brand-blue/80 focus-visible:bg-brand-blue/80 text-white"
+                                            : "hover:bg-slate-200 focus-visible:bg-slate-200",
+                                    )
+                                }>
                                 <HiOutlinePhoto className='size-4' />
                                 Foto de firma
                             </RadioGroup.Option>
@@ -883,83 +903,83 @@ export function SignatureInput({ field }: { field: SignatureField }) {
                         {field.description && showDescriptions && <p className='opacity-50'>{field.description}</p>}
                         <div className='relative'>
                             {draw == "yes" ? (
-                                    <div className='flex items-start justify-between gap-x-2'>
-                                        <ReactSketchCanvas
-                                            ref={canvasRef}
-                                            style={{
-                                                width: "100%",
-                                                height: "200px",
-                                                borderRadius: "0.75rem",
-                                                border: "1px dashed #d1d5db",
-                                                cursor: "crosshair",
-                                            }}
-                                            exportWithBackgroundImage={false}
-                                            className='mb-4 *:rounded-xl'
-                                            strokeWidth={2}
-                                            strokeColor='#0369a1'
-                                            onStroke={() => {
-                                                canvasRef.current?.exportImage("png").then((dataUrl) => {
-                                                    fieldController.onChange({
-                                                        id: 1,
-                                                        name: `Firma.png`,
-                                                        url: dataUrl,
-                                                        size: typeof dataUrl === "string" ? new TextEncoder().encode(dataUrl).length : 0,
-                                                        type: "photo",
-                                                    });
+                                <div className='flex items-start justify-between gap-x-2'>
+                                    <ReactSketchCanvas
+                                        ref={canvasRef}
+                                        style={{
+                                            width: "100%",
+                                            height: "200px",
+                                            borderRadius: "0.75rem",
+                                            border: "1px dashed #d1d5db",
+                                            cursor: "crosshair",
+                                        }}
+                                        exportWithBackgroundImage={false}
+                                        className='mb-4 *:rounded-xl'
+                                        strokeWidth={2}
+                                        strokeColor='#0369a1'
+                                        onStroke={() => {
+                                            canvasRef.current?.exportImage("png").then((dataUrl) => {
+                                                fieldController.onChange({
+                                                    id: 1,
+                                                    name: `Firma.png`,
+                                                    url: dataUrl,
+                                                    size: typeof dataUrl === "string" ? new TextEncoder().encode(dataUrl).length : 0,
+                                                    type: "photo",
                                                 });
-                                            }}
-                                        />
-                                        <div className='flex flex-col gap-2'>
-                                            <button
-                                                className='flex items-center justify-center transition-all border rounded-full outline-none text-brand-blue border-brand-blue/50 hover:bg-brand-light-blue/50 focus-visible:bg-brand-light-blue/50 active:bg-brand-light-blue aspect-square'
-                                                onClick={() => {
-                                                    canvasRef.current?.exportImage("png").then((dataUrl) => {
-                                                        const link = document.createElement("a");
-                                                        link.setAttribute("href", dataUrl);
-                                                        link.setAttribute("download", `${field.label}.png`);
-                                                        link.click();
-                                                        canvasRef.current?.clearCanvas();
-                                                        fieldController.onChange(null);
-                                                    });
-                                                }}>
-                                                <HiArrowDownTray className='m-1.5 size-5' />
-                                            </button>
-                                            <button
-                                                type='button'
-                                                className='flex items-center justify-center text-red-500 transition-all border border-red-300 rounded-full outline-none aspect-square hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100'
-                                                onClick={() => {
-                                                    fieldController.onChange(null);
-                                                    setIsEraser(false);
-                                                    canvasRef.current?.eraseMode(false);
+                                            });
+                                        }}
+                                    />
+                                    <div className='flex flex-col gap-2'>
+                                        <button
+                                            className='flex items-center justify-center transition-all border rounded-full outline-none text-brand-blue border-brand-blue/50 hover:bg-brand-light-blue/50 focus-visible:bg-brand-light-blue/50 active:bg-brand-light-blue aspect-square'
+                                            onClick={() => {
+                                                canvasRef.current?.exportImage("png").then((dataUrl) => {
+                                                    const link = document.createElement("a");
+                                                    link.setAttribute("href", dataUrl);
+                                                    link.setAttribute("download", `${field.label}.png`);
+                                                    link.click();
                                                     canvasRef.current?.clearCanvas();
-                                                }}>
-                                                <HiOutlineTrash className='m-1.5 size-5' />
-                                            </button>
-                                            <button
-                                                type='button'
-                                                className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
-                                                onClick={() => {
-                                                    canvasRef.current?.eraseMode(!isEraser);
-                                                    setIsEraser(!isEraser);
-                                                }}>
-                                                {!isEraser ? <PiEraser className='m-1.5 size-5' /> : <HiOutlinePencil className='m-1.5 size-5' />}
-                                            </button>
-                                            <button
-                                                type='button'
-                                                className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
-                                                onClick={() => {
-                                                    canvasRef.current?.undo();
-                                                }}>
-                                                <HiArrowUturnLeft className='m-1.5 size-5' />
-                                            </button>
-                                            <button
-                                                type='button'
-                                                className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
-                                                onClick={() => canvasRef.current?.redo()}>
-                                                <HiArrowUturnRight className='m-1.5 size-5' />
-                                            </button>
-                                        </div>
+                                                    fieldController.onChange(null);
+                                                });
+                                            }}>
+                                            <HiArrowDownTray className='m-1.5 size-5' />
+                                        </button>
+                                        <button
+                                            type='button'
+                                            className='flex items-center justify-center text-red-500 transition-all border border-red-300 rounded-full outline-none aspect-square hover:bg-red-50 focus-visible:bg-red-50 active:bg-red-100'
+                                            onClick={() => {
+                                                fieldController.onChange(null);
+                                                setIsEraser(false);
+                                                canvasRef.current?.eraseMode(false);
+                                                canvasRef.current?.clearCanvas();
+                                            }}>
+                                            <HiOutlineTrash className='m-1.5 size-5' />
+                                        </button>
+                                        <button
+                                            type='button'
+                                            className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
+                                            onClick={() => {
+                                                canvasRef.current?.eraseMode(!isEraser);
+                                                setIsEraser(!isEraser);
+                                            }}>
+                                            {!isEraser ? <PiEraser className='m-1.5 size-5' /> : <HiOutlinePencil className='m-1.5 size-5' />}
+                                        </button>
+                                        <button
+                                            type='button'
+                                            className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
+                                            onClick={() => {
+                                                canvasRef.current?.undo();
+                                            }}>
+                                            <HiArrowUturnLeft className='m-1.5 size-5' />
+                                        </button>
+                                        <button
+                                            type='button'
+                                            className='flex items-center justify-center transition-all border rounded-full outline-none text-slate-500 border-slate-300 aspect-square hover:bg-gray-100 focus-visible:bg-gray-100 active:bg-gray-200'
+                                            onClick={() => canvasRef.current?.redo()}>
+                                            <HiArrowUturnRight className='m-1.5 size-5' />
+                                        </button>
                                     </div>
+                                </div>
                             ) : (
                                 <>
                                     <Tray onClick={() => inputRef.current?.click()} onDrop={handleDrop}>
@@ -993,7 +1013,7 @@ export function SignatureInput({ field }: { field: SignatureField }) {
                                             <span className='max-lg:text-sm'>Agregar imagen de firma</span>
                                         </div>
                                     </Tray>
-                                    <div className="py-2"></div>
+                                    <div className='py-2'></div>
                                     <FilesTray imageTrayRef={fileTrayRef} filesState={[imageValue, setImageValue]} expandAutomatically={expandFilesAutomatically} />
                                 </>
                             )}

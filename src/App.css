@@ -12,6 +12,14 @@
     z-index: 9999 !important;
 }
 
+.ag-horizontal-left-spacer {
+    overflow: hidden;
+}
+
+.ag-root-wrapper {
+    border-radius: 0.75rem;
+}
+
 
 :root {
     --rs-tooltip-bg: #000000a0;
@@ -54,7 +62,6 @@ body::-webkit-scrollbar-thumb {
 * {
     scrollbar-width: thin;
     box-sizing: border-box;
-    scroll-behavior: smooth !important;
     /* font-family: 'Roboto', sans-serif !important; */
 }
 

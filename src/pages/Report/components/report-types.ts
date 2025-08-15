@@ -1,5 +1,5 @@
 import { ReportCategory } from "@utils/types";
-import { DateField, DateRangeField, GroupByField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "./utils/fields";
+import { DateField, DateRangeField, DetailedCheck, GroupByField, RulesList, SpeedingAllowedSpeedField, SpeedingMinimumDurationField, TitleField } from "./utils/fields";
 import { format } from "date-fns";
 
 const today = format(new Date(), "dd-MM-yyyy hh:mm");
@@ -114,15 +114,15 @@ export const reports: ReportCategory[] = [
                         },
                         onChangeType: "value",
                     },
-                    // {
-                    //     required: true,
-                    //     key: "detailed",
-                    //     type: "boolean",
-                    //     defaultValue: false,
-                    //     component: DetailedCheck,
-                    //     props: {},
-                    //     onChangeType: "boolean",
-                    // }
+                    {
+                        required: true,
+                        key: "detailed",
+                        type: "boolean",
+                        defaultValue: false,
+                        component: DetailedCheck,
+                        props: {},
+                        onChangeType: "boolean",
+                    }
                 ],
             }
         ],

@@ -1,18 +1,83 @@
 import { CheckboxGroupInput, DateInput, DropdownInput, FileInput, PhotoInput, RadioGroupInput, RatingInput, SignatureInput, TextInput } from "./fields";
-import { HiArrowDownTray, HiArrowUpTray, HiOutlineCog6Tooth, HiXMark } from "react-icons/hi2";
-import { Menu, Transition } from "@headlessui/react";
+import { HiArrowDownTray, HiArrowUpTray, HiChevronUpDown, HiOutlineCog6Tooth, HiXMark } from "react-icons/hi2";
+import { Listbox, Menu, Transition } from "@headlessui/react";
 import { FaRegSquare } from "react-icons/fa";
 import { FaSquareCheck } from "react-icons/fa6";
 import { appearAnimationProps, scaleAnimationProps } from "@utils/animations";
 import { Fragment } from "react/jsx-runtime";
 import classNames from "classnames";
-import { useForm, FormProvider, FieldValues } from "react-hook-form";
+import { useForm, FormProvider, FieldValues, Controller, useFormContext } from "react-hook-form";
 import { useReportStore } from "@contexts/report.context";
 import { tooltip } from "@utils/ui";
 import { useToaster, Whisper } from "rsuite";
 import { useEffect, useRef, useState } from "react";
 import messageToaster from "@utils/toaster";
 import { ErrorBoundary } from "react-error-boundary";
+import { Option } from "@pages/Configuration/components/ListOfConfigurations";
+import { useTrackersQuery } from "@framework/getTrackers";
+import { VscLoading } from "react-icons/vsc";
+import api from "@framework/index";
+import { format } from "date-fns";
+import { Button } from "@components/Button";
+import Input from "@components/Input";
+import { FileData } from "@utils/types";
+import { LoadSpinner } from "@components/LoadSpinner";
+
+function TrackerSelector() {
+    const { control } = useFormContext();
+
+    const [trackers, setTrackers] = useState<Option[]>([]);
+    const { data, isLoading, error } = useTrackersQuery();
+    // const { data, isLoading, error } = useApiQuery<Option[]>("/notifications/trackers", {});
+
+    useEffect(() => {
+        if (data) {
+            setTrackers(data.list.map((tracker) => ({ label: tracker.label, value: tracker.id })));
+        }
+    }, [data]);
+
+    if (isLoading)
+        return (
+            <div className='text-gray-500'>
+                <VscLoading className='animate-spin text-brand-blue' /> Cargando objetos...
+            </div>
+        );
+    if (error) return <div className='text-red-500 '>Error al cargar los objetos</div>;
+
+    if (data)
+        return (
+            <Controller
+                name='tracker'
+                control={control}
+                defaultValue={{ label: "Seleccione un objeto", value: "" }}
+                rules={{ required: "El campo es obligatorio" }}
+                render={({ field }) => {
+                    return (
+                        <Listbox as={"div"} className={"relative w-full"}>
+                            <Listbox.Label className='block mb-1 text-sm font-medium text-gray-700'>Objeto</Listbox.Label>
+                            <Listbox.Button className='flex items-center justify-between w-full px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-200 rounded-lg shadow-sm outline-none pe-2 hover:bg-gray-50 focus:border-brand-blue'>
+                                <span className='truncate'>{field.value.label}</span>
+                                <HiChevronUpDown className='text-gray-400 size-6' />
+                            </Listbox.Button>
+                            <Listbox.Options className='absolute z-50 w-full mt-1 overflow-hidden overflow-y-auto bg-white border border-gray-200 rounded-lg shadow-lg outline-none max-h-60'>
+                                {trackers.map((tracker, idx) => (
+                                    <Listbox.Option
+                                        onClick={() => field.onChange(tracker)}
+                                        key={`${idx}-${tracker.id}`}
+                                        value={tracker.label}
+                                        className={({ active }) =>
+                                            classNames("cursor-pointer select-none relative px-4 py-2", active ? "bg-gray-100 text-gray-900" : "text-gray-700")
+                                        }>
+                                        {tracker.label}
+                                    </Listbox.Option>
+                                ))}
+                            </Listbox.Options>
+                        </Listbox>
+                    );
+                }}
+            />
+        );
+}
 
 export default function Form() {
     const formStateLoaderRef = useRef<HTMLInputElement>(null);
@@ -24,6 +89,7 @@ export default function Form() {
 
     const [storedForms, setStoredForms] = useState<{ name: String; report_type: number; data: any }[]>([]);
     const toaster = useToaster();
+    const [isLoading, setIsLoading] = useState(false);
 
     useEffect(() => {
         const formsKeys = Object.keys(localStorage).filter((key) => key.startsWith("form-"));
@@ -37,6 +103,9 @@ export default function Form() {
             })
             .filter((form): form is { name: string; report_type: number; data: any } => form !== undefined);
         setStoredForms(forms);
+        setFormName("");
+        setIsLoading(false);
+        reset();
     }, [activeReport]);
 
     function validateKeySize(key: string): boolean {
@@ -72,13 +141,240 @@ export default function Form() {
         return data;
     }
 
-    function submit(clean: boolean) {
-        handleSubmit((data) => {
+    async function createForm(): Promise<number | undefined> {
+        try {
+            const res = await api.post("/checkin/form/create", {
+                tracker_id: getValues("tracker").value,
+                template_id: activeReport?.id,
+            });
+            return res.data.id;
+        } catch (error) {
+            toaster.push(messageToaster("Error al crear el check-in", "error"), {
+                duration: 2000,
+                placement: "topEnd",
+            });
+            return undefined;
+        }
+    }
+
+    type PresignedResponse = {
+        expires: string;
+        fields: { [key: string]: string };
+        file_field_name: string;
+        file_id: number;
+        url: string;
+    };
+
+    async function createFormFile(form_id: number, field_id: string, file: FileData): Promise<PresignedResponse | undefined> {
+        const res = await api.post("/checkin/form/file/create", {
+            form_id,
+            field_id,
+            size: file.size,
+        });
+        return res.data.value;
+    }
+
+    function base64ToBlob(base64: string, mime: string): Blob {
+        const byteString = atob(base64.split(",")[1]);
+        const ab = new ArrayBuffer(byteString.length);
+        const ia = new Uint8Array(ab);
+        for (let i = 0; i < byteString.length; i++) {
+            ia[i] = byteString.charCodeAt(i);
+        }
+        return new Blob([ab], { type: mime });
+    }
+
+    async function uploadToS3(presigned: PresignedResponse, file: FileData) {
+        const formData = new FormData();
+        const fields = { ...presigned.fields };
+        fields.key = fields.key.replace("${filename}", file.name);
+
+        for (const [key, value] of Object.entries(fields)) {
+            formData.append(key, value);
+        }
+
+        formData.append(presigned.file_field_name || "file", base64ToBlob(file.url, file.url.split(";")[0].replace("data:", "")));
+
+        const res = await fetch(presigned.url, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!res.ok) {
+            const text = await res.text();
+            throw new Error("Upload failed: " + text);
+        }
+
+        return presigned.file_id;
+    }
+
+    async function handlePhotoUploads(formId: number, files: FileData[], fieldId: string) {
+        try {
+            const fileIds = [];
+
+            for (const file of files) {
+                const presigned = await createFormFile(formId, fieldId, file);
+                const fileId = await uploadToS3(presigned!, file);
+                fileIds.push(fileId);
+            }
+
+            return fileIds;
+        } catch (error) {
+            setIsLoading(false);
+            toaster.push(messageToaster("Error al subir archivos", "error"), {
+                duration: 2000,
+                placement: "topEnd",
+            });
+            return [];
+        }
+    }
+
+    async function getTrackerLocation(): Promise<{ lat: number; lng: number }> {
+        const res = await api.post("/tracker/get_last_gps_point", {
+            tracker_id: getValues("tracker").value,
+        });
+        return {
+            lat: res.data.value.lat ?? 0,
+            lng: res.data.value.lng ?? 0,
+        };
+    }
+
+    async function downloadFile(id: number, name: string) {
+        const res = await api.post(
+            `https://app.progps.com.do/api-v2/form/download`,
+            {
+                id: id,
+                format: "pdf",
+            },
+            {
+                responseType: "blob", // Ensure the response is treated as a Blob
+            },
+        );
+
+        if (!(res.status === 200)) {
+            toaster.push(messageToaster("Error al descargar el archivo", "error"), {
+                duration: 2000,
+                placement: "topEnd",
+            });
+            throw new Error("File download failed");
+        }
+
+        const blob = await res.data;
+        const url = URL.createObjectURL(blob);
+
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = name; // Name of the downloaded file
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+
+        URL.revokeObjectURL(url); // Clean up
+    }
+
+    function submit(clean: boolean, download: boolean = false) {
+        setIsLoading(true);
+        toaster.push(messageToaster("Enviando formulario...", "info"), { duration: 2000, placement: "topEnd" });
+        handleSubmit(async (data) => {
             data = cleanFormEmptyKeys(data);
-            console.log(data);
+            const form_id = await createForm();
+
+            const formSignatureField = activeReport?.fields.filter((field) => field.type === "signature")[0];
+            const formSignatureFieldValue: {
+                [key: string]: any;
+            } = {};
+            if (formSignatureField) {
+                const id = await handlePhotoUploads(form_id!, [getValues(formSignatureField.id)], formSignatureField.id);
+                formSignatureFieldValue[formSignatureField.id] = id[0];
+            }
+
+            const formPhotoFields = activeReport?.fields.filter((field) => field.type === "photo");
+            const formPhotoFieldsValues: {
+                [key: string]: any;
+            } = {};
+            if (formPhotoFields && formPhotoFields.length > 0) {
+                for (const field of formPhotoFields) {
+                    const ids = await handlePhotoUploads(form_id!, getValues(field.id), field.id);
+                    formPhotoFieldsValues[field.id] = ids;
+                }
+            }
+
+            const formFileFields = activeReport?.fields.filter((field) => field.type === "file");
+            const formFileFieldsValues: {
+                [key: string]: any;
+            } = {};
+            if (formFileFields && formFileFields.length > 0) {
+                for (const field of formFileFields) {
+                    const ids = await handlePhotoUploads(form_id!, getValues(field.id), field.id);
+                    formFileFieldsValues[field.id] = ids;
+                }
+            }
+            formFileFields?.forEach(async (field) => {
+                formFileFieldsValues[field.id] = await handlePhotoUploads(form_id!, getValues(field.id), field.id);
+            });
+
+            let values: { [key: string]: any } = {};
+
+            Object.keys(getValues()).forEach((key) => {
+                if (key === "tracker") return; // Skip tracker field
+                const type = activeReport?.fields.find((field) => field.id === key)?.type;
+                values[key] = {
+                    type,
+                    [type === "text" || type === "date" || type === "rating"
+                        ? "value"
+                        : type === "checkbox_group"
+                        ? "values"
+                        : type === "dropdown"
+                        ? "value_index"
+                        : type === "radio_group"
+                        ? "value_index"
+                        : type === "photo" || type === "file"
+                        ? "file_ids"
+                        : "file_id"]:
+                        type === "photo"
+                            ? formPhotoFieldsValues[key] ?? []
+                            : type === "file"
+                            ? formFileFieldsValues[key] ?? []
+                            : type === "signature"
+                            ? formSignatureFieldValue[key]
+                            : type === "dropdown"
+                            ? getValues(key).value
+                            : type === "date"
+                            ? format(new Date(getValues(key)), "yyyy-MM-dd")
+                            : getValues(key),
+                };
+            });
+
+            api.post("/checkin/create", {
+                tracker_id: getValues("tracker").value,
+                location: await getTrackerLocation(),
+                comment: `Formulario web: ${formName}`,
+                form_submission: {
+                    form_id,
+                    values,
+                },
+            })
+                .then(async (res) => {
+                    if (res.status === 200) {
+                        toaster.push(messageToaster("Formulario enviado correctamente", "success"), {
+                            duration: 2000,
+                            placement: "topEnd",
+                        });
+                        if (download) {
+                            await downloadFile(form_id!, `${formName || form_id}.pdf`);
+                        }
+                        if (storeInLocalStorage) {
+                            localStorage.removeItem(`form-${formName}`);
+                            setStoredForms((prev) => prev.filter((f) => f.name !== formName));
+                        }
+                    }
+                })
+                .catch(() => setIsLoading(false))
+                .finally(() => setIsLoading(false));
         })().then(() => {
             if (clean) reset();
         });
+        setFormName("");
     }
 
     if (!activeReport) {
@@ -94,7 +390,7 @@ export default function Form() {
         <div className='relative w-full h-full p-4 bg-white shadow grow rounded-xl'>
             <ErrorBoundary fallback={<div className='text-red-500'>Error al renderizar el formulario</div>}>
                 <FormProvider {...methods}>
-                    <div className='relative flex justify-center mb-4'>
+                    <div className='relative flex items-center mb-4 max-lg:ms-16 max-lg:gap-x-4 lg:justify-center'>
                         <h1 className='text-lg font-medium text-center'>{activeReport.label}</h1>
                         <div className='absolute flex gap-x-2 end-0'>
                             <Menu>
@@ -309,11 +605,14 @@ export default function Form() {
                         </div>
                     </div>
                     <form
-                        className='grid mb-[10rem] md:mb-[8rem] gap-x-4 md:grid-cols-2 h-min'
+                        className='grid mb-[14rem] md:mb-[12rem] gap-x-4 md:grid-cols-2 h-min'
                         onSubmit={(e) => {
                             e.preventDefault();
                         }}>
                         <section className='flex flex-col *:px-4 *:py-2'>
+                            <div className='flex items-center gap-x-2'>
+                                <TrackerSelector />
+                            </div>
                             {col1.map((field) => (
                                 <div key={field.id}>
                                     <ErrorBoundary fallback={<div className='text-red-500'>Error al renderizar el campo</div>}>
@@ -347,42 +646,68 @@ export default function Form() {
                                 </div>
                             ))}
                         </section>
-                        <div className='flex justify-end *:h-11 col-span-2 gap-2 absolute bottom-0 end-0 p-4 w-full max-md:text-sm *:text-nowrap flex-wrap'>
-                            <button
-                                onClick={() => reset()}
-                                className='px-4 py-2 font-medium transition-all rounded-lg outline-none max-md:w-[calc(50%-0.25rem)] bg-slate-200 hover:bg-slate-300 text-slate-700 active:text-white active:bg-slate-700 md:me-auto'
-                                type='reset'>
-                                Descartar
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    submit(true);
-                                }}
-                                className='px-4 py-2 font-medium transition-all rounded-lg outline-none max-md:w-[calc(50%-0.25rem)] text-sky-500 hover:bg-sky-200 active:text-white active:bg-brand-blue bg-brand-light-blue'
-                                type='submit'>
-                                Guardar
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    submit(false);
-                                }}
-                                className='px-4 py-2 font-medium transition-all rounded-lg outline-none max-md:w-[calc(50%-0.25rem)] text-sky-500 hover:bg-sky-200 active:text-white active:bg-brand-blue bg-brand-light-blue'
-                                type='submit'>
-                                Guardar y continuar
-                            </button>
-                            <button
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    submit(false);
-                                }}
-                                className='px-4 py-2 font-medium text-white transition-all rounded-lg outline-none max-md:w-[calc(50%-0.25rem)] bg-brand-blue'
-                                type='submit'>
-                                Guardar y descargar
-                            </button>
+                        <div className='grid grid-rows-[3rem_5.75rem] sm:grid-rows-[3rem_2.75rem] grid-cols-1 justify-between absolute bottom-0 end-0 p-4 gap-y-2 w-full text-sm *:text-nowrap flex-wrap'>
+                            <div className='w-full h-12'>
+                                <Input
+                                    onChange={(e) => {
+                                        setFormName(e.target.value ?? "");
+                                    }}
+                                    value={formName}
+                                    id='formName'
+                                    placeholder='Nombre del formulario'
+                                />
+                            </div>
+                            <div className='max-sm:grid grid-cols-2 sm:flex justify-end *:h-11 gap-2 w-full text-sm *:text-nowrap flex-wrap'>
+                                <Button
+                                    disabled={isLoading}
+                                    onClick={() => {
+                                        reset();
+                                        setFormName("");
+                                    }}
+                                    strength='muted'
+                                    variant='subtle'
+                                    type='reset'
+                                    className='sm:me-auto'>
+                                    Descartar
+                                </Button>
+                                <Button
+                                    disabled={isLoading}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        submit(true);
+                                    }}
+                                    variant='subtle'
+                                    type='submit'>
+                                    Guardar
+                                </Button>
+                                <Button
+                                    disabled={isLoading}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        submit(false);
+                                    }}
+                                    variant='subtle'
+                                    type='submit'>
+                                    Guardar y continuar
+                                </Button>
+                                <Button
+                                    disabled={isLoading}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        submit(false, true);
+                                    }}
+                                    variant='solid'
+                                    type='submit'>
+                                    Guardar y descargar
+                                </Button>
+                            </div>
                         </div>
                     </form>
+                    <Transition show={isLoading} {...appearAnimationProps}>
+                        <div className='absolute top-0 z-40 w-full h-full transition bg-white/50 start-0 rounded-xl backdrop-blur-sm'>
+                            <LoadSpinner />
+                        </div>
+                    </Transition>
                 </FormProvider>
             </ErrorBoundary>
         </div>

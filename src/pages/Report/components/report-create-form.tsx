@@ -31,7 +31,11 @@ export default function ReportCreateForm({
     const [buttonDisabled, setButtonDisabled] = useState(true);
 
     useEffect(() => {
-        setButtonDisabled(!isPayloadValid || generatingReport);
+        if (generatingReport) {
+            setButtonDisabled(true);
+        } else {
+            setButtonDisabled(!isPayloadValid);
+        }
     }, [isPayloadValid, generatingReport]);
 
     return (
@@ -95,15 +99,14 @@ export default function ReportCreateForm({
                             onClick={async (e) => {
                                 e.preventDefault();
                                 if (buttonDisabled) return;
-                                e.currentTarget.disabled = true; // Disable button immediately to prevent multiple clicks
                                 setButtonDisabled(true);
                                 try {
                                     await sendReportRequest();
                                     setIsMenuOpen(true);
+                                } catch (error) {
+                                    setButtonDisabled(generatingReport);
                                 } finally {
-                                    // Only re-enable if not generatingReport (in case it's still true)
-                                    e.currentTarget.disabled = false;
-                                    setButtonDisabled(!isPayloadValid || generatingReport);
+                                    setButtonDisabled(false);
                                     setIsMenuOpen(true);
                                 }
                                 setIsMenuOpen(true);

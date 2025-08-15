@@ -1,7 +1,8 @@
 import { LoadSpinner } from "@components/LoadSpinner";
 import { useReportStore } from "@contexts/report.context";
+import { useFormTemplatesQuery } from "@framework/getForms";
 import { RadioGroup, Transition } from "@headlessui/react";
-import { useApiQuery } from "@hooks/useQuery";
+// import { useApiQuery } from "@hooks/useQuery";
 import { appearAnimationProps } from "@utils/animations";
 import { Report } from "@utils/types";
 import useWindowSize from "@utils/use-window-size";
@@ -11,7 +12,7 @@ import { ErrorBoundary } from "react-error-boundary";
 import { HiArrowPath, HiBars3, HiCheckCircle, HiXMark } from "react-icons/hi2";
 
 export default function FormsTemplatesList() {
-    const { data, isLoading, isError, refetch } = useApiQuery<{ list: Report[] }>("form/template/list", {});
+    const { data, isLoading, isError, refetch } = useFormTemplatesQuery();
     const [open, setOpen] = useState(true);
     const { setActiveReport } = useReportStore();
     const [reports, setReports] = useState<Report[]>(data?.list || []);

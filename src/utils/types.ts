@@ -342,3 +342,53 @@ export type FileData = {
     size: number;
     type: "photo" | "other";
 };
+
+export type POI = {
+    place: {
+        description: string;
+        fields: {
+            [key: string]: {
+                value: [];
+                type: "image";
+            };
+        };
+        files: [];
+        id: number | null;
+        label: string;
+        location: {
+            address: string;
+            lat: number;
+            lng: number;
+            radius: number;
+        };
+        tags: number[];
+    };
+};
+
+export type CheckinsList = {
+    id: number;
+    marker_time: string;
+    location: {
+        address: string;
+        lat: number;
+        lng: number;
+    };
+    files?: {
+        download_url: string;
+        id: number;
+        mime_type: string;
+        name: string;
+        size: number;
+        storage_data: {
+            download_url_key: string;
+            relativepath: string;
+        };
+        storage_id: number;
+        type: "image";
+        view_url: string;
+    }[];
+    form_label: string;
+    form_id: number;
+    employee_id: number;
+    comment?: string;
+};

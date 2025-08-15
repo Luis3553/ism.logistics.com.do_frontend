@@ -39,7 +39,8 @@
       "@public/*": ["public/*"],
       "@contexts/*": ["src/contexts/*"],
       "@pages/*": ["src/pages/*"],
-      "@i18n/*": ["src/i18n/*"]
+      "@i18n/*": ["src/i18n/*"],
+      "@framework/*": ["src/framework/*"]
     }
   },
   "include": ["src", "**/*.ts"]

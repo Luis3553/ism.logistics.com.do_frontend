@@ -99,7 +99,7 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
         setWideness(isWide);
     }, [value, limit, oldestAllowed]);
 
-    // Disable dates outside the allowed range and those that exceed the limit
+    // Only disable dates outside allowed range, or that would make the range too wide if picked as second date
     const allowedRangeDates = (date: Date) => {
         const [from, to] = value || [];
         const today = new Date();
@@ -129,13 +129,9 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
                 return true;
             }
         }
-        // If both dates are selected, ensure the range does not exceed the limit
-        if (from && to) {
-            const diff = Math.abs((to.getTime() - from.getTime()) / (1000 * 60 * 60 * 24));
-            if (diff > limit) {
-                return true;
-            }
-        }
+
+        // If both dates are selected and invalid, do NOT disable all dates; allow user to recover
+        // Only disable dates that are outside allowed range
 
         return false;
     };

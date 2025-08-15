@@ -11,14 +11,14 @@ import DropdownMenuButton from "./components/dropdown-button";
 import { toISOString } from "@utils/dateISOformatter";
 import { useFetch } from "@hooks/useFetch";
 import api from "@api/index";
-import { CustomProvider, Message, useToaster } from "rsuite";
+import { CustomProvider, useToaster } from "rsuite";
 import { esES } from "rsuite/esm/locales";
 import { format } from "date-fns";
-import cn from "classnames";
 import { AlertsByGroupTable, AlertsByObjectTable, AlertsByTypeTable } from "./components/alert-tables-tabs";
 import { Transition } from "@headlessui/react";
 import { appearAnimationProps } from "@utils/animations";
 import { ErrorBoundary } from "react-error-boundary";
+import messageToaster from "@utils/toaster";
 
 const options: Option[] = [
     {
@@ -181,22 +181,6 @@ export const Alerts = () => {
     };
 
     const toaster = useToaster();
-
-    const messageToaster = (message: string, type: "warning" | "success" | "info" | "error" = "error") => (
-        <Message
-            className={cn(
-                "*:flex *:flex-row *:items-center border bg-white/75 my-2 *:gap-x-4 p-4 rounded-lg transition-all duration-500 backdrop-blur-sm hover:backdrop-blur-md",
-                type === "success" && "border-green-500/75 text-green-500",
-                type === "warning" && "border-amber-400/75 text-amber-400",
-                type === "info" && "border-blue-500/75 text-blue-500",
-                type === "error" && "border-red-500/75 text-red-500",
-            )}
-            showIcon
-            type={type ?? "error"}
-            closable>
-            {message}
-        </Message>
-    );
 
     const [reportId, setReportId] = useState<number | null>(null);
     const [reportTitle, setReportTitle] = useState<string | null>(null);

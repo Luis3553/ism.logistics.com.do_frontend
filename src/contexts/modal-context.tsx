@@ -1,6 +1,6 @@
 import { createContext, Dispatch, PropsWithChildren, useContext, useReducer } from "react";
 
-type MODAL_VIEWS = "TASK_CONFIG" | "CONFIRMATION_POPUP";
+type MODAL_VIEWS = "TASK_CONFIG" | "CONFIRMATION_POPUP" | "CHECKPOINTS_IMPORT";
 
 interface State {
     view?: MODAL_VIEWS;

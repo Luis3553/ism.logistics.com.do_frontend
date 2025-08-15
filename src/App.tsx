@@ -15,8 +15,13 @@ import { ModalProvider } from "@contexts/modal-context.tsx";
 import ManagedModal from "@contexts/managed-modal.tsx";
 import Forms from "@pages/Forms/index.tsx";
 import Checkins from "@pages/Checkins/index.tsx";
+import { Planification } from "@pages/Planification/index.tsx";
+import { AllCommunityModule, ModuleRegistry } from 'ag-grid-community';
 
 const queryClient = new QueryClient();
+
+// Register community modules (do this once)
+ModuleRegistry.registerModules([AllCommunityModule]);
 
 function App() {
     return (
@@ -35,6 +40,7 @@ function App() {
                                 <Route path='tasks' element={<Tasks />} />
                                 <Route path='forms' element={<Forms />} />
                                 <Route path='checkins' element={<Checkins />} />
+                                <Route path='planification' element={<Planification />} />
                                 <Route path='*' element={<NotFound />} />
                                 <Route path='/' element={<Navigate to='/home' replace />} />
                             </Route>
