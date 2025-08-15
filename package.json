@@ -43,7 +43,10 @@
         "rsuite": "^5.80.3",
         "use-resize-observer": "^9.1.0",
         "xlsx-js-style": "^1.2.0",
-        "zustand": "^5.0.6"
+        "zustand": "^5.0.6",
+        "ag-grid-locale": "^0.0.1",
+        "papaparse": "^5.5.3",
+        "xlsx": "^0.18.5"
     },
     "devDependencies": {
         "@types/highcharts": "^7.0.0",
@@ -59,6 +62,7 @@
         "postcss": "^8.5.3",
         "tailwindcss": "^3.2.7",
         "typescript": "^5.8.3",
-        "vite": "^4.4.5"
+        "vite": "^4.4.5",
+        "@types/papaparse": "^5.3.16"
     }
 }
