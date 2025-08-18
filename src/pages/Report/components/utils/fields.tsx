@@ -7,11 +7,14 @@ import { LoadSpinner } from "@components/LoadSpinner";
 import { CheckBox } from "./check-boxes";
 import ListboxComponent from "@components/listbox";
 import useWindowSize from "@utils/use-window-size";
+import { RadioGroup, Transition } from "@headlessui/react";
+import { HiCheckCircle, HiOutlineCheckCircle } from "react-icons/hi2";
+import { appearAnimationProps } from "@utils/animations";
 
-export function GroupByField({ onChange, value, options }: { value: any; onChange: () => void; options: { value: any; label: string; }[] }) {
+export function GroupByField({ onChange, value, options }: { value: any; onChange: () => void; options: { value: any; label: string }[] }) {
     return (
-        <div className="flex flex-col">
-            <span className="text-sm font-medium">Agrupar por</span>
+        <div className='flex flex-col'>
+            <span className='text-sm font-medium'>Agrupar por</span>
             <ListboxComponent onChange={onChange} selectedOption={value} options={options} />
         </div>
     );
@@ -142,7 +145,17 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
                 Rango de fecha
             </label>
             <CustomProvider locale={esES}>
-                <DateRangePicker name='date_range' id='date_range' format="dd/MM/yyyy HH:mm" character=" &ndash; " onChange={onChange} value={value} placement={width! < 768 ? 'auto' : 'bottomEnd'} shouldDisableDate={allowedRangeDates} showOneCalendar={width! < 768} />
+                <DateRangePicker
+                    name='date_range'
+                    id='date_range'
+                    format='dd/MM/yyyy HH:mm'
+                    character=' &ndash; '
+                    onChange={onChange}
+                    value={value}
+                    placement={width! < 768 ? "auto" : "bottomEnd"}
+                    shouldDisableDate={allowedRangeDates}
+                    showOneCalendar={width! < 768}
+                />
             </CustomProvider>
             {tooWide && <small className='text-red-400'>Rango permitido: {limit} días</small>}
             {tooOld && <small className='text-red-400'>Antigüedad máxima: {oldestAllowed} días</small>}
@@ -150,7 +163,23 @@ export function DateRangeField({ onChange, value, limit, oldestAllowed }: { valu
     );
 }
 
-export function DateField({ onChange, value, oldestAllowed, label, nullable = false, allowFuture = false, limitDays = true }: { value: any; onChange: (value: Date | null) => void; oldestAllowed: number; label: string; nullable?: boolean; allowFuture?: boolean; limitDays?: boolean }) {
+export function DateField({
+    onChange,
+    value,
+    oldestAllowed,
+    label,
+    nullable = false,
+    allowFuture = false,
+    limitDays = true,
+}: {
+    value: any;
+    onChange: (value: Date | null) => void;
+    oldestAllowed: number;
+    label: string;
+    nullable?: boolean;
+    allowFuture?: boolean;
+    limitDays?: boolean;
+}) {
     // Only create a Date object if value is not null/undefined/empty
     const valueDate = value ? new Date(value) : null;
 
@@ -160,18 +189,18 @@ export function DateField({ onChange, value, oldestAllowed, label, nullable = fa
         if (limitDays) {
             const today = new Date();
             today.setHours(23, 59, 59, 999);
-    
+
             // Calculate the earliest allowed date
             const minDate = new Date();
             minDate.setDate(today.getDate() - oldestAllowed);
             minDate.setHours(0, 0, 0, 0);
-    
+
             let isOld = false;
-    
+
             if (valueDate && (valueDate < minDate || valueDate > today)) {
                 isOld = true;
             }
-    
+
             setOldness(isOld);
         }
     }, [value, oldestAllowed]);
@@ -306,12 +335,9 @@ export function RulesList({ onChange, value }: { value: number[]; onChange: (val
                 <div className='overflow-y-scroll border rounded-lg max-h-52'>
                     <CheckBox
                         truncate={false}
-                        label="Seleccionar todo"
+                        label='Seleccionar todo'
                         checked={data.every((item: { value: number }) => selected.has(item.value))}
-                        indeterminate={
-                            selected.size > 0 &&
-                            selected.size < data.length
-                        }
+                        indeterminate={selected.size > 0 && selected.size < data.length}
                         onChange={() => {
                             if (data.every((item: { value: number }) => selected.has(item.value))) {
                                 onChange([]);
@@ -329,8 +355,42 @@ export function RulesList({ onChange, value }: { value: number[]; onChange: (val
     return null;
 }
 
-export function DetailedCheck({ onChange, value }: { value: boolean; onChange: () => void }) {
+export function DetailedCheck({ onChange, value }: { value: boolean; onChange: (val: boolean) => void }) {
     return (
-        <CheckBox  label="Detallado" checked={value} onChange={onChange}></CheckBox>
-    )
+        <RadioGroup value={value} onChange={onChange} className='flex flex-col gap-y-2'>
+            <RadioGroup.Label className='text-sm font-medium'>Generar en:</RadioGroup.Label>
+            <div className='flex items-center gap-x-4'>
+                <RadioGroup.Option value={true} className='flex items-center gap-x-2'>
+                    {({ checked }) => (
+                        <>
+                            <span className="relative w-5 h-5 overflow-visible">
+                                <Transition show={checked} {...appearAnimationProps}>
+                                    <HiCheckCircle className='absolute inline inset-0 my-auto top-[1px] text-brand-blue' />
+                                </Transition>
+                                <Transition show={!checked} {...appearAnimationProps}>
+                                    <HiOutlineCheckCircle className='absolute inline inset-0 my-auto top-[1px] text-gray-300' />
+                                </Transition>
+                            </span>
+                            <span>Detalle</span>
+                        </>
+                    )}
+                </RadioGroup.Option>
+                <RadioGroup.Option value={false} className='flex items-center gap-x-2'>
+                    {({ checked }) => (
+                        <>
+                            <span className="relative w-5 h-5 overflow-visible">
+                                <Transition show={checked} {...appearAnimationProps}>
+                                    <HiCheckCircle className='absolute inline inset-0 my-auto top-[1px] text-brand-blue' />
+                                </Transition>
+                                <Transition show={!checked} {...appearAnimationProps}>
+                                    <HiOutlineCheckCircle className='absolute inline inset-0 my-auto top-[1px] text-gray-300' />
+                                </Transition>
+                            </span>
+                            <span>Resumen</span>
+                        </>
+                    )}
+                </RadioGroup.Option>
+            </div>
+        </RadioGroup>
+    );
 }

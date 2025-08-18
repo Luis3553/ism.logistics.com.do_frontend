@@ -28,7 +28,7 @@ export default function ReportCreateScreen({
                             setActiveReportType(null);
                             setCreateScreen(false);
                         }}
-                        className='p-1 transition rounded-full outline-none bg-black/5 hover:bg-black/10 focus-visible:bg-black/10 active:bg-black/20'>
+                        className='p-1 transition rounded-full outline-none hover:bg-black/10 focus-visible:bg-black/10 active:bg-black/20'>
                         <HiChevronLeft />
                     </button>
                 </div>

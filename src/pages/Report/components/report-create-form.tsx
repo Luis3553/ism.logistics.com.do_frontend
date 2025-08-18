@@ -59,7 +59,7 @@ export default function ReportCreateForm({
                                     } else if (field.onChangeType === "option") {
                                         value = e; // GroupByField returns the selected option object
                                     } else if (field.onChangeType === "boolean") {
-                                        value = e.target.checked;
+                                        value = e;
                                     } else {
                                         value = e;
                                     }
